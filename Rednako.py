@@ -25,13 +25,17 @@ def get_prefix(client, message):
 
 bot = commands.Bot(                         # Create a new bot
     command_prefix=get_prefix,              # Set the prefix
-    description='Rednako Bot',  # Set a description for the bot
-    owner_id=config.owner_id,            # Your unique User ID
+    description='Rednako Bot',              # Set a description for the bot
+    owner_id=config.owner_id,               # Your unique User ID
     case_insensitive=True                   # Make the commands case insensitive
 )
 
 # case_insensitive=True is used as the commands are case sensitive by default
-botcommands = ['commands.ping']
+botcommands = [
+'commands.ping',
+'commands.Voice',
+'commands.Music'
+]
 
 @bot.event
 async def on_ready():
