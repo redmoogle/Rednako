@@ -14,6 +14,8 @@ Python 3.5+
 pip install -U discord.py pynacl youtube-dl
 
 You also need FFmpeg in your PATH environment variable or the FFmpeg.exe binary in your bot's directory on Windows.
+
+Rednako: Go checkout his work here! https://gist.github.com/vbe0201/ade9b80f2d3b64643d854938d40a0a2d
 """
 
 import asyncio
