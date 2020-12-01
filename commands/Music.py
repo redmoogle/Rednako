@@ -28,6 +28,8 @@ import discord
 import youtube_dl
 from async_timeout import timeout
 from discord.ext import commands
+from youtubesearchpython import SearchVideos
+import json
 
 # Silence useless bug reports messages
 youtube_dl.utils.bug_reports_message = lambda: ''
@@ -93,6 +95,27 @@ class YTDLSource(discord.PCMVolumeTransformer):
     @classmethod
     async def create_source(cls, ctx: commands.Context, search: str, *, loop: asyncio.BaseEventLoop = None):
         loop = loop or asyncio.get_event_loop()
+        
+        maxpossible = 5
+        search = SearchVideos(search, offset = 1, mode = "list", max_results = maxpossible)
+        search = list(search.result())
+        embed = discord.Embed(title="Song Results.")
+        x = 0
+        for b in search:
+            x += 1
+            embed.add_field(name=(str(x) + ": "), value=str(search[x-1][3]), inline=False)
+        
+        await ctx.send(embed=embed)
+        pick = await ctx.bot.wait_for('message')
+        try:
+            if(int(pick.content) <= 5):
+                search = str(search[int(pick.content)-1][2])
+            else:
+                await ctx.send("Please provide a number 1-5")
+                return False
+        except:
+            await ctx.send("Please provide a number 1-5")
+            return False
 
         partial = functools.partial(cls.ytdl.extract_info, search, download=False, process=False)
         data = await loop.run_in_executor(None, partial)
@@ -102,6 +125,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
         if 'entries' not in data:
             process_info = data
+
         else:
             process_info = None
             for entry in data['entries']:
@@ -301,7 +325,7 @@ class Music(commands.Cog):
         ctx.voice_state = self.get_voice_state(ctx)
 
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        await ctx.send('An error occurred: {}'.format(str(error)))
+        print('An error occurred: {}'.format(str(error))) # Logging
 
     @commands.command(name='join', invoke_without_subcommand=True)
     async def _join(self, ctx: commands.Context):
@@ -367,7 +391,7 @@ class Music(commands.Cog):
     async def _pause(self, ctx: commands.Context):
         """Pauses the currently playing song."""
 
-        if not ctx.voice_state.is_playing and ctx.voice_state.voice.is_playing():
+        if ctx.voice_state.is_playing:
             ctx.voice_state.voice.pause()
             await ctx.message.add_reaction('⏯')
 
@@ -384,10 +408,9 @@ class Music(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     async def _stop(self, ctx: commands.Context):
         """Stops playing song and clears the queue."""
-
         ctx.voice_state.songs.clear()
 
-        if not ctx.voice_state.is_playing:
+        if ctx.voice_state.is_playing:
             ctx.voice_state.voice.stop()
             await ctx.message.add_reaction('⏹')
 
