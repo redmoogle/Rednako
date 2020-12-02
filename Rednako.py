@@ -43,17 +43,18 @@ botcommands = [
 
 @bot.event
 async def on_ready():
-    total = 0
-    # Get all servers
-    totalServers = bot.guilds
-    totalMembers = bot.get_all_members()
-    for x in totalMembers:
-        total += 1
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
-    print("Total servers " + str(len(totalServers)))
-    print("Total members " + str(total))
-    namesake = "Vibing with {} members in {} servers".format(str(total), str(len(totalServers)))
-    await bot.change_presence(activity=discord.Game(name=namesake))
+    if(config.show_users):
+        total = 0
+        # Get all servers
+        totalServers = bot.guilds
+        totalMembers = bot.get_all_members()
+        for x in totalMembers:
+            total += 1
+        print("Total servers " + str(len(totalServers)))
+        print("Total members " + str(total))
+
+    await bot.change_presence(activity=discord.Game(name=(config.default_activity).format(total, len(totalServers))))
     for command in botcommands:
         bot.load_extension(command)
     return
