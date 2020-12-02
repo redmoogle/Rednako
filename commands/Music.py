@@ -30,9 +30,24 @@ from async_timeout import timeout
 from discord.ext import commands
 from youtubesearchpython import SearchVideos
 import json
+from django.core.validators import URLValidator
+import io, os, sys, config
+config = config.Config('./config.cfg')
 
 # Silence useless bug reports messages
 youtube_dl.utils.bug_reports_message = lambda: ''
+
+def DJConfig(ctx):
+    if(config['enable_dj_role'] == False):
+        return True
+    elif(config['enable_dj_role']):
+        for role in ctx.author.roles:
+            if(config['dj_role'] == role.name):
+                return True
+            elif(config['dj_role'] == str(role.id)):
+                return True
+        else:
+            return False
 
 
 class VoiceError(Exception):
@@ -95,27 +110,34 @@ class YTDLSource(discord.PCMVolumeTransformer):
     @classmethod
     async def create_source(cls, ctx: commands.Context, search: str, *, loop: asyncio.BaseEventLoop = None):
         loop = loop or asyncio.get_event_loop()
-        
-        maxpossible = 5
-        search = SearchVideos(search, offset = 1, mode = "list", max_results = maxpossible)
-        search = list(search.result())
-        embed = discord.Embed(title="Song Results.")
-        x = 0
-        for b in search:
-            x += 1
-            embed.add_field(name=(str(x) + ": "), value=str(search[x-1][3]), inline=False)
-        
-        await ctx.send(embed=embed)
-        pick = await ctx.bot.wait_for('message')
+        validate = URLValidator()
         try:
-            if(int(pick.content) <= 5):
-                search = str(search[int(pick.content)-1][2])
-            else:
-                await ctx.send("Please provide a number 1-5")
-                return False
+            validate(search)
         except:
-            await ctx.send("Please provide a number 1-5")
-            return False
+            maxpossible = 5
+            search = SearchVideos(search, offset = 1, mode = "list", max_results = maxpossible)
+            search = list(search.result())
+            embed = discord.Embed(title="Song Results.")
+            x = 0
+            for _ in search:
+                x += 1
+                embed.add_field(name=(str(x) + ": "), value=str(search[x-1][3]), inline=True)
+            
+            await ctx.send(embed=embed)
+            attempts = 0
+            while attempts < 3:
+                pick = await ctx.bot.wait_for('message')
+                if(pick.author == ctx.author):
+                    attempts += 1
+                    try:
+                        number = int(pick.content)-1
+                    except:
+                        await ctx.send("Not a number")
+                    if(number <= 5):
+                        search = str(search[number][2])
+                        break
+                    else:
+                        await ctx.send("Please provide a number 1-5")
 
         partial = functools.partial(cls.ytdl.extract_info, search, download=False, process=False)
         data = await loop.run_in_executor(None, partial)
@@ -200,9 +222,6 @@ class SongQueue(asyncio.Queue):
             return list(itertools.islice(self._queue, item.start, item.stop, item.step))
         else:
             return self._queue[item]
-
-    def __iter__(self):
-        return self._queue.__iter__()
 
     def __len__(self):
         return self.qsize()
@@ -338,8 +357,8 @@ class Music(commands.Cog):
 
         ctx.voice_state.voice = await destination.connect()
 
+    @commands.check(DJConfig)
     @commands.command(name='summon')
-    @commands.has_permissions(manage_guild=True)
     async def _summon(self, ctx: commands.Context, *, channel: discord.VoiceChannel = None):
         """Summons the bot to a voice channel.
 
@@ -357,7 +376,7 @@ class Music(commands.Cog):
         ctx.voice_state.voice = await destination.connect()
 
     @commands.command(name='leave', aliases=['disconnect'])
-    @commands.has_permissions(manage_guild=True)
+    @commands.check(DJConfig)
     async def _leave(self, ctx: commands.Context):
         """Clears the queue and leaves the voice channel."""
 
@@ -368,6 +387,7 @@ class Music(commands.Cog):
         del self.voice_states[ctx.guild.id]
 
     @commands.command(name='volume')
+    @commands.check(DJConfig)
     async def _volume(self, ctx: commands.Context, *, volume: int):
         """Sets the volume of the player."""
 
@@ -387,7 +407,7 @@ class Music(commands.Cog):
         await ctx.send(embed=ctx.voice_state.current.create_embed())
 
     @commands.command(name='pause')
-    @commands.has_permissions(manage_guild=True)
+    @commands.check(DJConfig)
     async def _pause(self, ctx: commands.Context):
         """Pauses the currently playing song."""
 
@@ -396,7 +416,7 @@ class Music(commands.Cog):
             await ctx.message.add_reaction('⏯')
 
     @commands.command(name='resume')
-    @commands.has_permissions(manage_guild=True)
+    @commands.check(DJConfig)
     async def _resume(self, ctx: commands.Context):
         """Resumes a currently paused song."""
 
@@ -405,7 +425,7 @@ class Music(commands.Cog):
             await ctx.message.add_reaction('⏯')
 
     @commands.command(name='stop')
-    @commands.has_permissions(manage_guild=True)
+    @commands.check(DJConfig)
     async def _stop(self, ctx: commands.Context):
         """Stops playing song and clears the queue."""
         ctx.voice_state.songs.clear()
@@ -466,6 +486,7 @@ class Music(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name='shuffle')
+    @commands.check(DJConfig)
     async def _shuffle(self, ctx: commands.Context):
         """Shuffles the queue."""
 
@@ -476,6 +497,7 @@ class Music(commands.Cog):
         await ctx.message.add_reaction('✅')
 
     @commands.command(name='remove')
+    @commands.check(DJConfig)
     async def _remove(self, ctx: commands.Context, index: int):
         """Removes a song from the queue at a given index."""
 
@@ -486,6 +508,7 @@ class Music(commands.Cog):
         await ctx.message.add_reaction('✅')
 
     @commands.command(name='loop')
+    @commands.check(DJConfig)
     async def _loop(self, ctx: commands.Context):
         """Loops the currently playing song.
 
