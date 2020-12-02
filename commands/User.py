@@ -33,7 +33,7 @@ class User(commands.Cog):
     @commands.command(
         name='args',
         description='prints your args',
-        aliases=['send']
+        aliases=['send', 'say']
     )
     async def args(self, ctx, *, args):
         await ctx.send(args)
