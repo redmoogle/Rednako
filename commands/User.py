@@ -18,13 +18,6 @@ class User(commands.Cog):
         if victim is None:
             victim = ctx.author
 
-        elif(victim): # used to ignore else
-            pass
-
-        else:
-            await ctx.send("You have not mentioned anyone")
-            return
-
         embed=discord.Embed(title=(str(victim) + " Avatar"))
         embed.set_image(url=str(victim.avatar_url))
         embed.set_author(name=("Author: " + str(ctx.author)))
