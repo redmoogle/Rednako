@@ -30,7 +30,7 @@ class Voice(commands.Cog):
         description='Leave the voice channel your in',
         aliases=['lv']
     )
-    async def leavevoice_command(self, ctx,):
+    async def leavevoice_command(self, ctx):
         await ctx.voice_client.disconnect() # Big brain move took me 30 minutes to debug
 
 def setup(bot):
