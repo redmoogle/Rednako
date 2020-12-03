@@ -21,6 +21,8 @@ jobs:
         pip install async-timeout
         pip install discord.py
         pip install youtube_dl
+        pip install Django
+        
     - name: Analysing the code with pylint
       run: |
         pylint `ls -R|grep .py$|xargs`
