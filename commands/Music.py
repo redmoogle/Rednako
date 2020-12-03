@@ -29,9 +29,8 @@ import youtube_dl
 from async_timeout import timeout
 from discord.ext import commands
 from youtubesearchpython import SearchVideos
-import json
 from django.core.validators import URLValidator
-import io, os, sys, config
+import config
 config = config.Config('./config.cfg')
 
 # Silence useless bug reports messages

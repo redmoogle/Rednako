@@ -1,10 +1,8 @@
 # Main Client Rednako
+import config
 import discord
 from discord.ext import commands
 import asyncio
-import config
-import time
-import io, os, sys, config
 config = config.Config('config.cfg')
 
 token = config['token']
@@ -14,9 +12,11 @@ token = config['token']
 from discord.ext import commands
 
 
-def get_prefix(client, message):
 
-    prefixes = list(config['prefix'])    # sets the prefixes, u can keep it as an array of only 1 item if you need only one prefix
+def get_prefix(client, message):
+    """Returns the prefix of the bot (stored in config.cfg)"""
+
+    prefixes = list(config['prefix'])    # sets the prefixes, you can keep it as an array of only 1 item if you need only one prefix
 
     if not message.guild:
         prefixes = list(config['prefix'])  # Only allow first prefix as a prefix when in DMs, this is optional
@@ -46,18 +46,17 @@ botcommands = [
 
 @bot.event
 async def on_ready():
+    """Function is called when bot thinks it is fully online"""
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
     if(config['show_users']):
         total = 0
         # Get all servers
-        totalServers = bot.guilds
-        totalMembers = bot.get_all_members()
-        for _ in totalMembers:
-            total += 1
-        print("Total servers " + str(len(totalServers)))
-        print("Total members " + str(total))
+        totalservers = bot.guilds
+        totalmembers = bot.get_all_members()
+        print("Total servers " + str(len(totalservers)))
+        print("Total members " + str(len(total)))
 
-    await bot.change_presence(activity=discord.Game(name=(config['default_activity']).format(total, len(totalServers))))
+    await bot.change_presence(activity=discord.Game(name=(config['default_activity']).format(len(totalmembers), len(totalservers))))
     for command in botcommands:
         bot.load_extension(command)
     return
