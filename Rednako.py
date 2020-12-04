@@ -32,25 +32,31 @@ bot = commands.Bot(                         # Create a new bot
 
 # case_insensitive=True is used as the commands are case sensitive by default
 botcommands = [
-'commands.ping',
-'commands.Voice',
-'commands.Music',
-'commands.User'
+    'commands.ping',
+    'commands.voice',
+    'commands.music',
+    'commands.user'
 ]
 
 @bot.event
 async def on_ready():
     """Function is called when bot thinks it is fully online"""
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
-    if(config['show_users']):
+    if config['show_users']:
         total = 0
         # Get all servers
         totalservers = bot.guilds
         totalmembers = bot.get_all_members()
+        for _ in totalmembers:
+            total += 1
         print("Total servers " + str(len(totalservers)))
-        print("Total members " + str(len(total)))
+        print("Total members " + str(total))
 
-    await bot.change_presence(activity=discord.Game(name=(config['default_activity']).format(len(totalmembers), len(totalservers))))
+    await bot.change_presence(
+        activity=discord.Game(
+            name=(config['default_activity']).format(total, len(totalservers))
+            )
+        )
     for command in botcommands:
         bot.load_extension(command)
     return
