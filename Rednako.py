@@ -2,24 +2,18 @@
 import config
 import discord
 from discord.ext import commands
-import asyncio
-config = config.Config('config.cfg')
-
-token = config['token']
 
 # Setting up config for open-source shenanigans
-
-from discord.ext import commands
-
-
+config = config.Config('config.cfg')
+token = config['token']
 
 def get_prefix(client, message):
     """Returns the prefix of the bot (stored in config.cfg)"""
 
-    prefixes = list(config['prefix'])    # sets the prefixes, you can keep it as an array of only 1 item if you need only one prefix
+    prefixes = list(config['prefix'])    # grab prefix from config
 
     if not message.guild:
-        prefixes = list(config['prefix'])  # Only allow first prefix as a prefix when in DMs, this is optional
+        prefixes = list(config['prefix'])  # Only allow first prefix when in DMs, optional
         prefixes = prefixes[0]
 
     # Allow users to @mention the bot instead of using a prefix when using a command. Also optional
