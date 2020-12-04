@@ -26,4 +26,4 @@ jobs:
         
     - name: Analysing the code with pylint
       run: |
-        pylint `ls -R|grep .py$|xargs --disable=F0001,C0114`
+        pylint `ls -R|grep .py$|xargs --d F0001,C0114`
