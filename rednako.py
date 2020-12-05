@@ -1,4 +1,13 @@
-# Main Client Rednako
+"""
+Rednako Public Discord Bot
+Main Repository: https://github.com/redmoogle/Rednako
+License: GPL-3.0
+Make sure to set up config
+
+Also important note. If you change default_activity
+in the config make sure to update the .format in here
+
+"""
 import config
 import discord
 from discord.ext import commands
