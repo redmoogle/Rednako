@@ -25,10 +25,7 @@ A Basic bot built using Discord Py
   - https://gist.github.com/vbe0201/ade9b80f2d3b64643d854938d40a0a2d
   
   
-  ### Current Changelog
+ ### Current Changelog
   
-  - 1.0.0
+  - 1.5.0
     - Various Fixes
-    - Avatar Command/Send Command
-    - Total Users for Activity
-    - A tiny amount of logging
