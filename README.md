@@ -29,5 +29,6 @@ A Basic bot built using Discord Py
   
  ### Current Changelog
   
-  - 1.5.0
-    - Various Fixes
+  - 1.6.0
+    - Add ServerInfo Command
+    - Add Info Command
