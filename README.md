@@ -1,6 +1,8 @@
 # Rednako
-DiscordPy bot
+Semi-Basic discord.py bot commands are entirely modular and can be removed.
 
+### Invite
+ - https://bit.ly/3n6wiZJ
 
 A Basic bot built using Discord Py
 
@@ -27,5 +29,6 @@ A Basic bot built using Discord Py
   
  ### Current Changelog
   
-  - 1.5.0
-    - Various Fixes
+  - 1.6.0
+    - Add ServerInfo Command
+    - Add Info Command
