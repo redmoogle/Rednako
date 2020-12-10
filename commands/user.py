@@ -92,6 +92,7 @@ class User(commands.Cog):
         ownerid = ctx.bot.get_user(config['owner_id'])
         prefixes = config['prefix']
         boturl = ctx.bot.user.avatar_url
+        githublink = config['github']
         prefixformat = "" # Formatted Prefixes
         _counter = 0
         for _ in members:
@@ -111,6 +112,7 @@ class User(commands.Cog):
         embed.add_field(name="Global Members: ", value=str(totalmembers), inline=False)
         embed.add_field(name="Prefixes: ", value=str(prefixformat), inline=False)
         embed.add_field(name="Invite Link: ", value=str(link), inline=False)
+        embed.add_field(name="Github Link: ", value=str(githublink), inline=False)
 
         await ctx.send(embed=embed)
 
