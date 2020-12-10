@@ -34,7 +34,7 @@ intent = discord.Intents.all()
 bot = commands.Bot(                         # Create a new bot
     command_prefix=get_prefix,              # Set the prefix
     description='Rednako Bot',              # Set a description for the bot
-    owner_id=config['owner_id'],               # Your unique User ID
+    owner_id=config['owner_id'],            # Your unique User ID
     case_insensitive=True,                  # Make the commands case insensitive
     intents=intent                          # Entirely Optional
 )
