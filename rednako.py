@@ -11,7 +11,7 @@ in the config make sure to update the .format in here
 import asyncio
 import config
 import discord
-from discord.ext import commands
+from discord.ext import tasks, commands
 
 # Setting up config for open-source shenanigans
 config = config.Config('config.cfg')
@@ -60,6 +60,7 @@ async def on_ready():
         bot.load_extension(command)
     return
 
+@tasks.loop(seconds=30, minutes=1)
 async def update():
     """
     Updates the activity status of the bot
@@ -72,7 +73,6 @@ async def update():
                 name=(config['default_activity']).format(memlogging[0], memlogging[1])
                 )
             )
-        await asyncio.sleep(150)
 
 async def grab_members():
     """
@@ -94,5 +94,5 @@ async def grab_members():
     return [members, servers]
 
 # Finally, login the bot
-bot.loop.create_task(update())
+update.start()
 bot.run(token, bot=True, reconnect=True)
