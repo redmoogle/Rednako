@@ -115,7 +115,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
         except:
             search = SearchVideos(search, offset = 1, mode = "list", max_results = 1)
             search = list(search.result())
-            search[0][3]
+            search = search[0][3]
 
         partial = functools.partial(cls.ytdl.extract_info, search, download=False, process=False)
         data = await loop.run_in_executor(None, partial)
