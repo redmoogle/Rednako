@@ -1,10 +1,8 @@
 # Rednako
-Semi-Basic discord.py bot commands are entirely modular and can be removed.
+ - Semi-Basic discord.py bot commands are entirely modular and can be removed.
 
 ### Invite
  - https://bit.ly/3n6wiZJ
-
-A Basic bot built using Discord Py
 
 ### Dependencys
  - pip3 install -r requirements.txt
