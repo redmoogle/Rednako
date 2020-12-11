@@ -8,10 +8,10 @@ Also important note. If you change default_activity
 in the config make sure to update the .format in here
 
 """
+import asyncio
 import config
 import discord
 from discord.ext import commands
-import asyncio
 
 # Setting up config for open-source shenanigans
 config = config.Config('config.cfg')
@@ -61,6 +61,9 @@ async def on_ready():
     return
 
 async def update():
+    """
+    Updates the activity status of the bot
+    """
     await bot.wait_until_ready()
     while not bot.is_closed:
         memlogging = await grab_members()
@@ -72,6 +75,14 @@ async def update():
         await asyncio.sleep(150)
 
 async def grab_members():
+    """
+    Grabs all the members that the bot can see
+
+    Must have the config set to True
+    Intents **MUST** Be set
+
+    returns [members, servers]
+    """
     await bot.wait_until_ready()
     if not config['show_users']:
         return [0, 0] # Return a blank array so it doesnt error out
@@ -82,8 +93,6 @@ async def grab_members():
         members += 1
     
     return [members, servers] # Eg. 10 members, 3 servers
-    
-
 
 # Finally, login the bot
 bot.loop.create_task(update())
