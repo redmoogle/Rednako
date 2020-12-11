@@ -438,24 +438,34 @@ class Music(commands.Cog):
         """Vote to skip a song. The requester can automatically skip.
         3 skip votes are needed for the song to be skipped.
         """
+        totalmembers = -1 # dont include bot
+        for _ in ctx.guild.voice_client.channel.members:
+            totalmembers += 1
 
         if not ctx.voice_state.is_playing:
             return await ctx.send('Not playing any music right now...')
 
         voter = ctx.message.author
+        if not ctx.author.voice:
+            return await ctx.send('You are not in a voice channel')
+
+        if(ctx.author.voice.channel != ctx.guild.voice_client.channel):
+            return await ctx.send('You are not in the same voice channel')
+
         if voter == ctx.voice_state.current.requester:
             await ctx.message.add_reaction('⏭')
             ctx.voice_state.skip()
+            return await ctx.send('Song skipped by requester')
 
         elif voter.id not in ctx.voice_state.skip_votes:
             ctx.voice_state.skip_votes.add(voter.id)
             total_votes = len(ctx.voice_state.skip_votes)
 
-            if total_votes >= 3:
+            if total_votes >= round(totalmembers/2):
                 await ctx.message.add_reaction('⏭')
                 ctx.voice_state.skip()
             else:
-                await ctx.send('Skip vote added, currently at **{}/3**'.format(total_votes))
+                await ctx.send('Skip vote added, currently at **{}/{}**'.format(total_votes, round(totalmembers/2)))
 
         else:
             await ctx.send('You have already voted to skip this song.')
