@@ -11,6 +11,7 @@ in the config make sure to update the .format in here
 import config
 import discord
 from discord.ext import commands
+import asyncio
 
 # Setting up config for open-source shenanigans
 config = config.Config('config.cfg')
@@ -51,24 +52,39 @@ botcommands = [
 async def on_ready():
     """Function is called when bot thinks it is fully online"""
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
-    if config['show_users']:
-        total = 0
-        # Get all servers
-        totalservers = bot.guilds
-        totalmembers = bot.get_all_members()
-        for _ in totalmembers:
-            total += 1
-        print("Total servers " + str(len(totalservers)))
-        print("Total members " + str(total))
+    memlogging = grab_members()
+    print("Global Member Count: " + str(memlogging[0]))
+    print("Global Servers: " + str(memlogging[1]))
 
-    await bot.change_presence(
-        activity=discord.Game(
-            name=(config['default_activity']).format(total, len(totalservers))
-            )
-        )
     for command in botcommands:
         bot.load_extension(command)
     return
 
+async def update():
+    await bot.wait_until_ready()
+    while not bot.is_closed:
+        memlogging = grab_members()
+        await bot.change_presence(
+            activity=discord.Game(
+                name=(config['default_activity']).format(memlogging[0], memlogging[1])
+                )
+            )
+        await asyncio.sleep(150)
+
+async def grab_members():
+    await bot.wait_until_ready()
+    if not config['show_users']:
+        return [0, 0] # Return a blank array so it doesnt error out
+
+    servers = len(bot.guilds)
+    members = 0
+    for _ in bot.get_all_members():
+        members += 1
+    
+    return [members, servers] # Eg. 10 members, 3 servers
+    
+
+
 # Finally, login the bot
+bot.loop.create_task(update())
 bot.run(token, bot=True, reconnect=True)
