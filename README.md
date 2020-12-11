@@ -7,18 +7,7 @@ Semi-Basic discord.py bot commands are entirely modular and can be removed.
 A Basic bot built using Discord Py
 
 ### Dependencys
-
-- Youtube-DL
-  - https://youtube-dl.org/
-
-- Discord-Py
-  - https://pypi.org/project/discord.py/
-  
-- Youtube Search
-  - https://pypi.org/project/youtube-search/
-  
-- Async Timeout
-  - https://pypi.org/project/async-timeout/
+ - pip3 install -r requirements.txt
   
   
 ### Credits
