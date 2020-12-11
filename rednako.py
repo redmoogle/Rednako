@@ -51,10 +51,10 @@ botcommands = [
 @bot.event
 async def on_ready():
     """Function is called when bot thinks it is fully online"""
-    print(f'Logged in as {bot.user.name} - {bot.user.id}')
-    memlogging = grab_members()
+    memlogging = await grab_members()
     print("Global Member Count: " + str(memlogging[0]))
     print("Global Servers: " + str(memlogging[1]))
+    print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
     for command in botcommands:
         bot.load_extension(command)
@@ -63,7 +63,7 @@ async def on_ready():
 async def update():
     await bot.wait_until_ready()
     while not bot.is_closed:
-        memlogging = grab_members()
+        memlogging = await grab_members()
         await bot.change_presence(
             activity=discord.Game(
                 name=(config['default_activity']).format(memlogging[0], memlogging[1])
