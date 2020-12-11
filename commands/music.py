@@ -113,30 +113,9 @@ class YTDLSource(discord.PCMVolumeTransformer):
         try:
             validate(search)
         except:
-            maxpossible = 5
-            search = SearchVideos(search, offset = 1, mode = "list", max_results = maxpossible)
+            search = SearchVideos(search, offset = 1, mode = "list", max_results = 1)
             search = list(search.result())
-            embed = discord.Embed(title="Song Results.")
-            x = 0
-            for _ in search:
-                x += 1
-                embed.add_field(name=(str(x) + ": "), value=str(search[x-1][3]), inline=True)
-            
-            await ctx.send(embed=embed)
-            attempts = 0
-            while attempts < 3:
-                pick = await ctx.bot.wait_for('message')
-                if(pick.author == ctx.author):
-                    attempts += 1
-                    try:
-                        number = int(pick.content)-1
-                    except:
-                        await ctx.send("Not a number")
-                    if(number <= 5):
-                        search = str(search[number][2])
-                        break
-                    else:
-                        await ctx.send("Please provide a number 1-5")
+            search[0][3]
 
         partial = functools.partial(cls.ytdl.extract_info, search, download=False, process=False)
         data = await loop.run_in_executor(None, partial)
@@ -384,20 +363,6 @@ class Music(commands.Cog):
 
         await ctx.voice_state.stop()
         del self.voice_states[ctx.guild.id]
-
-    @commands.command(name='volume')
-    @commands.check(DJConfig)
-    async def _volume(self, ctx: commands.Context, *, volume: int):
-        """Sets the volume of the player."""
-
-        if not ctx.voice_state.is_playing:
-            return await ctx.send('Nothing being played at the moment.')
-
-        if 0 > volume > 100:
-            return await ctx.send('Volume must be between 0 and 100')
-
-        ctx.voice_state.volume = volume / 100
-        await ctx.send('Volume of the player set to {}%'.format(volume))
 
     @commands.command(name='now', aliases=['current', 'playing'])
     async def _now(self, ctx: commands.Context):
