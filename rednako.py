@@ -91,7 +91,7 @@ async def grab_members():
     members = 0
     for _ in bot.get_all_members():
         members += 1
-    return [members, servers] # Eg. 10 members, 3 servers
+    return [members, servers]
 
 # Finally, login the bot
 bot.loop.create_task(update())
