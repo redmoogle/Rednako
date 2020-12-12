@@ -95,5 +95,5 @@ async def grab_members():
     return [members, servers]
 
 # Finally, login the bot
-asyncio.run(update())
+bot.loop.create_task(update())
 bot.run(token, bot=True, reconnect=True)
