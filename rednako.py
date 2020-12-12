@@ -65,9 +65,7 @@ async def update():
     Updates the activity status of the bot
     """
     while True:
-        print('tried')
         await bot.wait_until_ready()
-        print('ready')
         memlogging = await grab_members()
         await bot.change_presence(
             activity=discord.Game(
