@@ -11,7 +11,7 @@ in the config make sure to update the .format in here
 import asyncio
 import config
 import discord
-from discord.ext import tasks, commands
+from discord.ext import commands
 
 # Setting up config for open-source shenanigans
 config = config.Config('config.cfg')
