@@ -68,14 +68,12 @@ async def update():
         print('tried')
         await bot.wait_until_ready()
         print('ready')
-        while not bot.is_closed:
-            print('not closed')
-            memlogging = await grab_members()
-            await bot.change_presence(
-                activity=discord.Game(
-                    name=(config['default_activity']).format(memlogging[0], memlogging[1])
-                    )
+        memlogging = await grab_members()
+        await bot.change_presence(
+            activity=discord.Game(
+                name=(config['default_activity']).format(memlogging[0], memlogging[1])
                 )
+            )
         await asyncio.sleep(90)
 
 async def grab_members():
