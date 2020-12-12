@@ -52,27 +52,28 @@ botcommands = [
 async def on_ready():
     """Function is called when bot thinks it is fully online"""
     memlogging = await grab_members()
-    print("Global Member Count: " + str(memlogging[0]))
-    print("Global Servers: " + str(memlogging[1]))
+    print(f'Global Member Count: {memlogging[0]}')
+    print(f'Global Servers: {memlogging[1]}')
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
     for command in botcommands:
         bot.load_extension(command)
     return
 
-@tasks.loop(seconds=30, minutes=1)
 async def update():
     """
     Updates the activity status of the bot
     """
-    await bot.wait_until_ready()
-    while not bot.is_closed:
-        memlogging = await grab_members()
-        await bot.change_presence(
-            activity=discord.Game(
-                name=(config['default_activity']).format(memlogging[0], memlogging[1])
+    while True:
+        await bot.wait_until_ready()
+        while not bot.is_closed:
+            memlogging = await grab_members()
+            await bot.change_presence(
+                activity=discord.Game(
+                    name=(config['default_activity']).format(memlogging[0], memlogging[1])
+                    )
                 )
-            )
+        await asyncio.sleep(90)
 
 async def grab_members():
     """
@@ -94,5 +95,5 @@ async def grab_members():
     return [members, servers]
 
 # Finally, login the bot
-update.start()
+asyncio.create_task(update())
 bot.run(token, bot=True, reconnect=True)
