@@ -32,10 +32,12 @@ class Owner(commands.Cog):
     @commands.command(name='update')
     @commands.check(isOwner)
     async def update(self, ctx):
-        msg = await ctx.send(embed=repoembed())
+        embed = await repoembed()
+        msg = await ctx.send(embed=embed)
         if(repo.head.object.hexsha != repo.remotes.origin.fetch()[0].commit):
             await repo.remotes.origin.pull()
-            await msg.edit(embed=repoembed())
+            embed = await repoembed()
+            await msg.edit(embed=embed)
             os.system('./restart.sh')
 
 def setup(bot):
