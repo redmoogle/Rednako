@@ -31,10 +31,11 @@ class Owner(commands.Cog):
         
     @commands.command(name='update')
     @commands.check(isOwner)
-    async def update(self, ctx):
+    async def update(self, ctx, bot):
         embed = await repoembed()
         await ctx.send(embed=embed)
         subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
+        await bot.logout()
         exit()
 
 def setup(bot):
