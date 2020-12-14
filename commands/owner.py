@@ -3,7 +3,6 @@ import config
 import git
 config = config.Config('./config.cfg')
 repo = git.Repo(search_parent_directories=True)
-remoterepo = git.Repo(config['github'])
 
 def isOwner(ctx):
     owner = config['owner_id']
@@ -21,7 +20,7 @@ class Owner(commands.Cog):
     @commands.check(isOwner)
     async def update(self, ctx):
         sha = repo.head.object.hexsha
-        remotesha = remoterepo.head.object.hexsha
+        remotesha = repo.remotes.origin.hexsha
         await ctx.send(f'current commit {sha}, remote commit {remotesha}')
     
 def setup(bot):
