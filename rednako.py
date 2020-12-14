@@ -45,7 +45,8 @@ botcommands = [
     'commands.ping',
     'commands.voice',
     'commands.music',
-    'commands.user'
+    'commands.user',
+    'commands.owner'
 ]
 
 @bot.event
