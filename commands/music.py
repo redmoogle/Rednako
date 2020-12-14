@@ -386,7 +386,7 @@ class Music(commands.Cog):
         await ctx.send(embed=ctx.voice_state.current.create_embed())
 
     @commands.check(DJConfig)
-        @commands.command(
+    @commands.command(
         name='pause',
         description='pause audio output'
     )
