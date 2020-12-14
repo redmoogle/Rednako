@@ -12,6 +12,7 @@ import asyncio
 import config
 import discord
 from discord.ext import commands
+from pretty_help import PrettyHelp
 
 # Setting up config for open-source shenanigans
 config = config.Config('config.cfg')
@@ -37,8 +38,8 @@ bot = commands.Bot(                         # Create a new bot
     description='Rednako Public Bot',       # Set a description for the bot
     owner_id=config['owner_id'],            # Your unique User ID
     case_insensitive=True,                  # Make the commands case insensitive
-    intents=intent,                          # Entirely Optional
-    help_command=None
+    intents=intent,                         # Entirely Optional
+    help_command=PrettyHelp()               # Default help command
 )
 
 # case_insensitive=True is used as the commands are case sensitive by default
