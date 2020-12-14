@@ -34,12 +34,10 @@ class Owner(commands.Cog):
     async def update(self, ctx):
         embed = await repoembed()
         msg = await ctx.send(embed=embed)
-        if(repo.head.object.hexsha != repo.remotes.origin.fetch()[0].commit):
-            print('ran')
-            await repo.remotes.origin.pull()
-            embed = await repoembed()
-            await msg.edit(embed=embed)
-            os.system('./restart.sh')
+        repo.remotes.origin.pull()
+        embed = await repoembed()
+        await msg.edit(embed=embed)
+        os.system('./restart.sh')
 
 def setup(bot):
     bot.add_cog(Owner(bot))
