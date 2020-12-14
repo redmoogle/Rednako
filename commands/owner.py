@@ -37,7 +37,7 @@ class Owner(commands.Cog):
         repo.remotes.origin.pull()
         embed = await repoembed()
         await msg.edit(embed=embed)
-        call("./restart.sh")
+        call(['sh', './restart.sh'])
 
 def setup(bot):
     bot.add_cog(Owner(bot))
