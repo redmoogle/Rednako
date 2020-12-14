@@ -1,5 +1,5 @@
 #!/bin/bash
-kill $(pgrep -f 'python3 rednako.py')
+pkill rednako.py
 dirname "$0"
 cd ..
 git pull
