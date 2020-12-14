@@ -96,4 +96,5 @@ async def grab_members():
 
 # Finally, login the bot
 bot.loop.create_task(update())
+bot.remove_command('help')
 bot.run(token, bot=True, reconnect=True)
