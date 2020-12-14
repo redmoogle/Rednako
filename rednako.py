@@ -37,7 +37,8 @@ bot = commands.Bot(                         # Create a new bot
     description='Rednako Public Bot',       # Set a description for the bot
     owner_id=config['owner_id'],            # Your unique User ID
     case_insensitive=True,                  # Make the commands case insensitive
-    intents=intent                          # Entirely Optional
+    intents=intent,                          # Entirely Optional
+    help_command=None
 )
 
 # case_insensitive=True is used as the commands are case sensitive by default
@@ -96,5 +97,4 @@ async def grab_members():
 
 # Finally, login the bot
 bot.loop.create_task(update())
-bot.remove_command('help')
 bot.run(token, bot=True, reconnect=True)
