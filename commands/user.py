@@ -15,7 +15,7 @@ class User(commands.Cog):
     # Define a new command
     @commands.command(
         name='avatar',
-        description='Show user avatar',
+        brief='Show user avatar',
         aliases=['avtr']
     )
     async def avatar(self, ctx: commands.Context, victim: discord.Member = None):
@@ -30,7 +30,7 @@ class User(commands.Cog):
 
     @commands.command(
         name='args',
-        description='prints your args',
+        brief='prints your args',
         aliases=['send', 'say']
     )
     async def args(self, ctx, *, args):
@@ -38,20 +38,20 @@ class User(commands.Cog):
 
     @commands.command(
         name='serverinfo',
-        description='prints info about there server your in',
+        brief='shows server info',
         aliases=['si']
     )
     async def serverinfo(self, ctx):
         guild = ctx.guild
-        textchannels = 0 # all text channels
-        voicechannels = 0 # all voice channels
-        categorys = 0 # all categorys
-        roles = 0 # all roles
-        members = 0 # all members
-        guildid = guild.id # ID of guild
-        guildowner = guild.owner # Guild Owner
-        iconurl = guild.icon_url # Guild Icon
-        name = guild.name # Name of guild
+        textchannels = 0            # all text channels
+        voicechannels = 0           # all voice channels
+        categorys = 0               # all categorys
+        roles = 0                   # all roles
+        members = 0                 # all members
+        guildid = guild.id          # ID of guild
+        guildowner = guild.owner    # Guild Owner
+        iconurl = guild.icon_url    # Guild Icon
+        name = guild.name           # Name of guild
 
         for _ in guild.voice_channels:
             voicechannels += 1
@@ -82,7 +82,7 @@ class User(commands.Cog):
 
     @commands.command(
         name='info',
-        description='botinfo',
+        brief='botinfo',
         aliases=['globalinfo']
     )
     async def info(self, ctx):
@@ -122,7 +122,7 @@ class User(commands.Cog):
 
     @commands.command(
         name='ping',
-        description='ping discord api/bot',
+        brief='ping discord api/bot',
         aliases=['p']
     )
     async def ping(self, ctx):
