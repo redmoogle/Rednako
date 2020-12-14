@@ -20,7 +20,7 @@ class Owner(commands.Cog):
     @commands.check(isOwner)
     async def update(self, ctx):
         sha = repo.head.object.hexsha
-        remotesha = repo.remotes.origin.hexsha
+        remotesha = repo.remotes.origin.object.hexsha
         await ctx.send(f'current commit {sha}, remote commit {remotesha}')
     
 def setup(bot):
