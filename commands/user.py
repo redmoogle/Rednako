@@ -120,6 +120,16 @@ class User(commands.Cog):
 
         await ctx.send(embed=embed)
 
+    @commands.command(
+        name='ping',
+        description='ping discord api/bot',
+        aliases=['p']
+    )
+    async def ping(self, ctx):
+        embed = discord.Embed(title="Pong!", color=discord.Color.blurple())
+        embed.add_field(name='API: ', value=(f'Latency: {self.bot.latency*1000}ms'))
+        await ctx.send(embed=embed)
+
 def setup(bot):
     bot.add_cog(User(bot))
     # Adds user commands to the bot

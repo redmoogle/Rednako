@@ -44,8 +44,6 @@ bot = commands.Bot(                         # Create a new bot
 
 # case_insensitive=True is used as the commands are case sensitive by default
 botcommands = [
-    'commands.ping',
-    'commands.voice',
     'commands.music',
     'commands.user',
     'commands.owner'
