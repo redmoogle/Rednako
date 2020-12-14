@@ -35,6 +35,7 @@ class Owner(commands.Cog):
         embed = await repoembed()
         msg = await ctx.send(embed=embed)
         if(repo.head.object.hexsha != repo.remotes.origin.fetch()[0].commit):
+            print('ran')
             await repo.remotes.origin.pull()
             embed = await repoembed()
             await msg.edit(embed=embed)
