@@ -29,7 +29,10 @@ class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
-    @commands.command(name='update')
+    @commands.command(
+        name='update',
+        description='update bot'
+    )
     @commands.check(isOwner)
     async def update(self, ctx):
         embed = await repoembed()
