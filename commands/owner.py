@@ -21,7 +21,6 @@ def isOwner(ctx):
     owner = config['owner_id']
     if(ctx.author.id == int(owner)):
         return True
-    await ctx.send("You are not the bot owner")
     return False
 
 # New - The Cog class must extend the commands.Cog class
