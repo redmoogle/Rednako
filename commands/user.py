@@ -2,7 +2,9 @@ from discord.ext import commands
 import discord
 import config
 import random
+import git
 config = config.Config('./config.cfg')
+repo = git.Repo(search_parent_directories=True)
 
 # New - The Cog class must extend the commands.Cog class
 class User(commands.Cog):
@@ -86,6 +88,7 @@ class User(commands.Cog):
     async def info(self, ctx):
         totalmembers = 0
         # Get all servers
+        sha = repo.head.object.hexsha
         totalservers = ctx.bot.guilds
         members = ctx.bot.get_all_members()
         link = config['invitelink']
@@ -113,6 +116,7 @@ class User(commands.Cog):
         embed.add_field(name="Prefixes: ", value=str(prefixformat), inline=False)
         embed.add_field(name="Invite Link: ", value=str(link), inline=False)
         embed.add_field(name="Github Link: ", value=str(githublink), inline=False)
+        embed.add_field(name="Current Commit: ", value=str(sha), inline=False)
 
         await ctx.send(embed=embed)
 
