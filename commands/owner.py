@@ -37,8 +37,8 @@ class Owner(commands.Cog):
         repo.remotes.origin.pull()
         embed = await repoembed()
         await msg.edit(embed=embed)
-        subprocess.call(['restart.sh'])
-
+        subprocess.call(['bash', '~/Rednako/commands/restart.sh'])
+        
 def setup(bot):
     bot.add_cog(Owner(bot))
     # Adds the ping command to the bot
