@@ -2,7 +2,7 @@ from discord.ext import commands
 import config
 import git
 import discord
-from subprocess import call
+import os
 config = config.Config('./config.cfg')
 repo = git.Repo(search_parent_directories=True)
 
@@ -37,7 +37,7 @@ class Owner(commands.Cog):
         repo.remotes.origin.pull()
         embed = await repoembed()
         await msg.edit(embed=embed)
-        call(['sh', './restart.sh'])
+        os.system("sh restart.sh")
 
 def setup(bot):
     bot.add_cog(Owner(bot))
