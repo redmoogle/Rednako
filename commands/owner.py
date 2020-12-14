@@ -35,6 +35,7 @@ class Owner(commands.Cog):
         embed = await repoembed()
         await ctx.send(embed=embed)
         subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
+        exit()
 
 def setup(bot):
     bot.add_cog(Owner(bot))
