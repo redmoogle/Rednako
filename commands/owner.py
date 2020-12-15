@@ -3,6 +3,7 @@ import config
 import git
 import discord
 import subprocess
+import random
 config = config.Config('./config.cfg')
 repo = git.Repo(search_parent_directories=True)
 
@@ -55,11 +56,30 @@ class Owner(commands.Cog):
         if(purge > 250):
             purge = 250
             temp = await ctx.send('You can only purge upto 250 messages')
-            await temp.delete(delay=3)
-            return
+            return await temp.delete(delay=3)
 
         async for message in ctx.channel.history(limit=purge):
             await message.delete()
+
+    @commands.command(
+        name='ban',
+        brief='fancy ban'
+    )
+    @commands.has_permissions(ban_members=True)
+    async def ban(self, ctx, victim: discord.Member = None):
+        await ctx.message.delete()
+        if victim is None:
+            temp = await ctx.send('You need to specify a person to ban')
+            return await temp.delete(delay=3)
+
+        funnys = [f'Omae wa mou shindeiru... {victim.mention}',
+                 f'Enemy detected: {victim.mention}', 
+                 f'Die! {victim.mention}',
+                 f'Begone, {victim.mention}!'
+                 ]
+        random.shuffle(funnys)
+        await ctx.send(str(funnys[0]))
+        victim.ban()
 
 def setup(bot):
     bot.add_cog(Owner(bot))
