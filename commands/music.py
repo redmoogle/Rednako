@@ -102,7 +102,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
         try:
             validate(search)
         except:
-            search = list(SearchVideos(search, offset = 1, mode = "list", max_results = 1).result)[0][3]
+            search = list(SearchVideos(search, offset = 1, mode = "list", max_results = 1).result())[0][3]
 
         partial = functools.partial(cls.ytdl.extract_info, search, download=False, process=False)
         data = await loop.run_in_executor(None, partial)
