@@ -111,7 +111,7 @@ class User(commands.Cog):
     )
     async def ping(self, ctx):
         embed = discord.Embed(title="Pong!", color=discord.Color.blurple())
-        embed.add_field(name='API: ', value=(f'Latency: {round(self.bot.latency*1000, 4)}ms'))
+        embed.add_field(name='API: ', value=(f'Latency: {round(self.bot.latency*1000)}ms'))
         await ctx.send(embed=embed)
 
 def setup(bot):
