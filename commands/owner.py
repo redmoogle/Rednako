@@ -37,7 +37,7 @@ class Owner(commands.Cog):
     async def update(self, ctx):
         sha = repo.head.object.hexsha
         remotesha = repo.remotes.origin.fetch()[0].commit
-        print(f'Local Commit: {sha} | Remote Commit: {remotesha}')
+        await ctx.delete()
         if(str(sha) != str(remotesha)):
             embed = await repoembed()
             await ctx.send(embed=embed)
