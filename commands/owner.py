@@ -56,10 +56,8 @@ class Owner(commands.Cog):
             purge = 500
             temp = await ctx.send('You can only purge upto 500 messages')
             temp.delete(delete_after=3)
-
-        history = ctx.channel.history(limit=purge)
-        print(history)
-        for message in history:
+            
+        async for message in ctx.channel.history(limit=purge):
             await message.delete()
 
 def setup(bot):
