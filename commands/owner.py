@@ -35,11 +35,15 @@ class Owner(commands.Cog):
     )
     @commands.check(isOwner)
     async def update(self, ctx):
-        embed = await repoembed()
-        await ctx.send(embed=embed)
-        subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
-        await self.bot.logout()
-        exit()
+        sha = repo.head.object.hexsha
+        remotesha = repo.remotes.origin.fetch()[0].commit
+        print(f'Local Commit: {sha} | Remote Commit: {remotesha}')
+        if(str(sha) != str(remotesha))
+            embed = await repoembed()
+            await ctx.send(embed=embed)
+            subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
+            await self.bot.logout()
+            exit()
 
 def setup(bot):
     bot.add_cog(Owner(bot))
