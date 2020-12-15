@@ -37,12 +37,12 @@ class Owner(commands.Cog):
     async def update(self, ctx):
         sha = repo.head.object.hexsha
         remotesha = repo.remotes.origin.fetch()[0].commit
-        await ctx.delete()
+        await ctx.message.delete()
         if(str(sha) != str(remotesha)):
             embed = await repoembed()
             await ctx.send(embed=embed)
-            subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
             await self.bot.logout()
+            subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
             exit()
 
 def setup(bot):
