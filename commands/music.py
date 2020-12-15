@@ -126,6 +126,13 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
         if 'entries' not in processed_info:
             info = processed_info
+        else:
+            info = None
+            while info is None:
+                try:
+                    info = processed_info['entries'].pop(0)
+                except IndexError:
+                    return await ctx.send(f'Could not retrieve any matches for `{webpage_url}`')
 
         return cls(ctx, discord.FFmpegPCMAudio(info['url'], **cls.FFMPEG_OPTIONS), data=info)
 
