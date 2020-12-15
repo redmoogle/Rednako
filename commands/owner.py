@@ -116,14 +116,14 @@ class Owner(commands.Cog):
             temp = await ctx.send('You need to specify a role by ID or mentoning it')
             return await temp.delete(delay=3)
         if color is None:
-            color = discord.Colour.random()
+            color = random.randint(0, 0xffffff)
         elif "#" in color:
             color = color.replace('#', '')
-            color = discord.Color(value=int(color, 16))
         else:
             temp = await ctx.send('The color you have provided is invalid')
             return await temp.delete(delay=3)
 
+        color = discord.Color(value=int(color, 16))
         await role.edit(colour=color)
 
 def setup(bot):
