@@ -55,7 +55,8 @@ class Owner(commands.Cog):
         if(purge > 250):
             purge = 250
             temp = await ctx.send('You can only purge upto 250 messages')
-            temp.delete(delay=3)
+            await temp.delete(delay=3)
+            return
 
         async for message in ctx.channel.history(limit=purge):
             await message.delete()
