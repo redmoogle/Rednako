@@ -38,7 +38,7 @@ class Owner(commands.Cog):
         sha = repo.head.object.hexsha
         remotesha = repo.remotes.origin.fetch()[0].commit
         print(f'Local Commit: {sha} | Remote Commit: {remotesha}')
-        if(str(sha) != str(remotesha))
+        if(str(sha) != str(remotesha)):
             embed = await repoembed()
             await ctx.send(embed=embed)
             subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
