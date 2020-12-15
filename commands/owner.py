@@ -105,27 +105,6 @@ class Owner(commands.Cog):
         await ctx.send(str(funnys[0]))
         await victim.kick()
 
-    @commands.command(
-        name='rolecolor',
-        brief='change color of a role'
-    )
-    @commands.has_permissions(manage_roles=True)
-    async def rolecolor(self, ctx, role: discord.Role = None, color: discord.Colour = None):
-        await ctx.message.delete()
-        if role is None:
-            temp = await ctx.send('You need to specify a role by ID or mentoning it')
-            return await temp.delete(delay=3)
-        if color is None:
-            color = random.randint(0, 0xffffff)
-        elif "#" in color:
-            color = color.replace('#', '')
-        else:
-            temp = await ctx.send('The color you have provided is invalid')
-            return await temp.delete(delay=3)
-
-        color = discord.Color(value=int(color, 16))
-        await role.edit(colour=color)
-
 def setup(bot):
     bot.add_cog(Owner(bot))
     # Adds the ping command to the bot
