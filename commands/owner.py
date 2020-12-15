@@ -72,14 +72,38 @@ class Owner(commands.Cog):
             temp = await ctx.send('You need to specify a person to ban')
             return await temp.delete(delay=3)
 
-        funnys = [f'Omae wa mou shindeiru... {victim.mention}',
-                 f'Enemy detected: {victim.mention}', 
-                 f'Die! {victim.mention}',
-                 f'Begone, {victim.mention}!'
+        funnys = [
+                f'Omae wa mou shindeiru... {victim.mention}',
+                f'Enemy detected: {victim.mention}', 
+                f'Die! {victim.mention}',
+                f'Begone, {victim.mention}!',
+                f'{victim.mention} has failed the vibe check'
                  ]
         random.shuffle(funnys)
         await ctx.send(str(funnys[0]))
         await victim.ban()
+
+    @commands.command(
+        name='kick',
+        brief='fancy kick'
+    )
+    @commands.has_permissions(kick_members=True)
+    async def ban(self, ctx, victim: discord.Member = None):
+        await ctx.message.delete()
+        if victim is None:
+            temp = await ctx.send('You need to specify a person to ban')
+            return await temp.delete(delay=3)
+
+        funnys = [
+                f'You are being exiled {victim.mention}',
+                f'Stay in this hole until the end of time {victim.mention}', 
+                f'I shan\'t look at you {victim.mention}',
+                f'Stay away from me {victim.mention}!',
+                f'{victim.mention} has failed the kneecap check'
+                 ]
+        random.shuffle(funnys)
+        await ctx.send(str(funnys[0]))
+        await victim.kick()
 
 def setup(bot):
     bot.add_cog(Owner(bot))
