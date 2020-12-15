@@ -11,22 +11,6 @@ class User(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
-        
-    # Define a new command
-    @commands.command(
-        name='avatar',
-        brief='Show user avatar',
-        aliases=['avtr']
-    )
-    async def avatar(self, ctx: commands.Context, victim: discord.Member = None):
-        # grabs their avatar and embeds it
-        if victim is None:
-            victim = ctx.author
-
-        embed=discord.Embed(title=(str(victim) + " Avatar"))
-        embed.set_image(url=str(victim.avatar_url))
-        embed.set_author(name=("Author: " + str(ctx.author)))
-        await ctx.send(embed=embed)
 
     @commands.command(
         name='args',
@@ -127,7 +111,7 @@ class User(commands.Cog):
     )
     async def ping(self, ctx):
         embed = discord.Embed(title="Pong!", color=discord.Color.blurple())
-        embed.add_field(name='API: ', value=(f'Latency: {self.bot.latency*1000}ms'))
+        embed.add_field(name='API: ', value=(f'Latency: {round(self.bot.latency*1000, 4)}ms'))
         await ctx.send(embed=embed)
 
 def setup(bot):

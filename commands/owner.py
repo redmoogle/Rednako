@@ -31,7 +31,7 @@ class Owner(commands.Cog):
         
     @commands.command(
         name='update',
-        description='update bot'
+        brief='update bot'
     )
     @commands.check(isOwner)
     async def update(self, ctx):
