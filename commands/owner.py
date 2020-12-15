@@ -79,7 +79,7 @@ class Owner(commands.Cog):
                  ]
         random.shuffle(funnys)
         await ctx.send(str(funnys[0]))
-        victim.ban()
+        await victim.ban()
 
 def setup(bot):
     bot.add_cog(Owner(bot))
