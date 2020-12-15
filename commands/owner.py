@@ -88,10 +88,10 @@ class Owner(commands.Cog):
         brief='fancy kick'
     )
     @commands.has_permissions(kick_members=True)
-    async def ban(self, ctx, victim: discord.Member = None):
+    async def kick(self, ctx, victim: discord.Member = None):
         await ctx.message.delete()
         if victim is None:
-            temp = await ctx.send('You need to specify a person to ban')
+            temp = await ctx.send('You need to specify a person to kick')
             return await temp.delete(delay=3)
 
         funnys = [
