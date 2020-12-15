@@ -45,6 +45,24 @@ class Owner(commands.Cog):
             subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
             exit()
 
+    @commands.command(
+        name='purge',
+        brief='delete messages'
+    )
+    @commands.has_permissions(manage_messages=True)
+    async def purge(self, ctx, purge: int):
+        await ctx.message.delete()
+        if(purge > 500):
+            purge = 500
+            temp = await ctx.send('You can only purge upto 500 messages')
+            temp.delete(delete_after=3)
+        counter = 0
+        for message in ctx.channel.history(limit = 500):
+            if(counter >= purge): # no need to keep processing
+                break
+            await message.delete()
+            counter += 1
+
 def setup(bot):
     bot.add_cog(Owner(bot))
     # Adds the ping command to the bot
