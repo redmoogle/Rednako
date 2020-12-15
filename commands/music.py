@@ -37,25 +37,14 @@ config = config.Config('./config.cfg')
 youtube_dl.utils.bug_reports_message = lambda: ''
 
 def DJConfig(ctx):
-    if(config['enable_dj_role'] == False):
-        return True
-    elif(config['enable_dj_role']):
+    if(config['enable_dj_role']):
         for role in ctx.author.roles:
             if(config['dj_role'] == role.name):
                 return True
             elif(config['dj_role'] == str(role.id)):
                 return True
-        else:
-            return False
-
-
-class VoiceError(Exception):
-    pass
-
-
-class YTDLError(Exception):
-    pass
-
+        return False
+    return True
 
 class YTDLSource(discord.PCMVolumeTransformer):
     YTDL_OPTIONS = {
@@ -113,15 +102,10 @@ class YTDLSource(discord.PCMVolumeTransformer):
         try:
             validate(search)
         except:
-            search = SearchVideos(search, offset = 1, mode = "list", max_results = 1)
-            search = list(search.result())
-            search = search[0][3]
+            search = list(SearchVideos(search, offset = 1, mode = "list", max_results = 1))[0][3]
 
         partial = functools.partial(cls.ytdl.extract_info, search, download=False, process=False)
         data = await loop.run_in_executor(None, partial)
-
-        if data is None:
-            raise YTDLError('Couldn\'t find anything that matches `{}`'.format(search))
 
         if 'entries' not in data:
             process_info = data
@@ -133,25 +117,15 @@ class YTDLSource(discord.PCMVolumeTransformer):
                     process_info = entry
                     break
 
-            if process_info is None:
-                raise YTDLError('Couldn\'t find anything that matches `{}`'.format(search))
-
         webpage_url = process_info['webpage_url']
         partial = functools.partial(cls.ytdl.extract_info, webpage_url, download=False)
         processed_info = await loop.run_in_executor(None, partial)
 
         if processed_info is None:
-            raise YTDLError('Couldn\'t fetch `{}`'.format(webpage_url))
+            return await ctx.send(f'Could not fetch `{webpage_url}`')
 
         if 'entries' not in processed_info:
             info = processed_info
-        else:
-            info = None
-            while info is None:
-                try:
-                    info = processed_info['entries'].pop(0)
-                except IndexError:
-                    raise YTDLError('Couldn\'t retrieve any matches for `{}`'.format(webpage_url))
 
         return cls(ctx, discord.FFmpegPCMAudio(info['url'], **cls.FFMPEG_OPTIONS), data=info)
 
@@ -276,9 +250,6 @@ class VoiceState:
             await self.next.wait()
 
     def play_next_song(self, error=None):
-        if error:
-            raise VoiceError(str(error))
-
         self.next.set()
 
     def skip(self):
@@ -351,12 +322,11 @@ class Music(commands.Cog):
         """
 
         if not channel and not ctx.author.voice:
-            raise VoiceError('You are neither connected to a voice channel nor specified a channel to join.')
+            return await ctx.send('You are not connected to a voice channel.')
 
         destination = channel or ctx.author.voice.channel
         if ctx.voice_state.voice:
-            await ctx.voice_state.voice.move_to(destination)
-            return
+            return await ctx.voice_state.voice.move_to(destination)
 
         ctx.voice_state.voice = await destination.connect()
 
@@ -374,6 +344,23 @@ class Music(commands.Cog):
 
         await ctx.voice_state.stop()
         del self.voice_states[ctx.guild.id]
+
+    @commands.command(
+        name='volume',
+        description='change volume',
+        aliases=['vol', 'v']
+    )
+    async def _volume(self, ctx: commands.Context, *, volume: int):
+        """Sets the volume of the player."""
+
+        if not ctx.voice_state.is_playing:
+            return await ctx.send('Nothing being played at the moment.')
+
+        if 0 >= volume >= 100:
+            return await ctx.send('Volume must be between 0 and 100')
+
+        ctx.voice_state.current.source.volume = volume / 100
+        await ctx.send(f'Volume of the player set to {volume}%')
 
     @commands.command(
         name='playing',
@@ -556,13 +543,13 @@ class Music(commands.Cog):
         async with ctx.typing():
             try:
                 source = await YTDLSource.create_source(ctx, search, loop=self.bot.loop)
-            except YTDLError as e:
-                await ctx.send('An error occurred while processing this request: {}'.format(str(e)))
+            except Exception as error:
+                return await ctx.send(f'An error occurred while processing this request: {error}')
             else:
                 song = Song(source)
 
                 await ctx.voice_state.songs.put(song)
-                await ctx.send('Enqueued {}'.format(str(source)))
+                await ctx.send(f'Queued up: {source}')
 
     @_join.before_invoke
     @_play.before_invoke
