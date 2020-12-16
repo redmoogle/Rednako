@@ -132,9 +132,9 @@ class Owner(commands.Cog):
                 await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
         
         with open('muted.txt', 'w') as mutedfile:
-            timebackup = time.time() + time # Backup datetime
+            timebackup = int(time.time()) + time # Backup datetime
             print(time.time())
-            print(f'{time.time+time}')
+            print(f'{int(time.time()) + time}')
             mutedfile.write(f'[{victim.id}, {timebackup}, {ctx.guild.id}]')
             mutedfile.close()
         await victim.add_roles(muterole)
