@@ -8,7 +8,7 @@ def embed(title: str = None, description: str = None, thumbnail: str = None, ima
     """
     Helps with making clean embeds, has common needs
     """
-    embedhelper = discord.Embed(title=title)
+    embedhelper = discord.Embed(title=title, description=description)
     if thumbnail is not None:
         embedhelper.set_thumbnail(url=thumbnail)
 
