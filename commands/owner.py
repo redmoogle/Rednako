@@ -9,6 +9,8 @@ import subprocess
 import random
 import helpers
 import asyncio
+import datetime
+import json
 config = config.Config('./config.cfg')
 repo = git.Repo(search_parent_directories=True)
 
@@ -47,10 +49,6 @@ class Owner(commands.Cog):
             embed = await repoembed()
             await ctx.send(embed=embed)
 
-        for task in asyncio.all_tasks():
-            await ctx.send(task.get_coro())
-            await ctx.send(task.get_name())
-            await ctx.send(task.get_stack())
         await self.bot.logout()
         subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
         exit()
@@ -132,7 +130,11 @@ class Owner(commands.Cog):
                 overrides = channel.overwrites_for(muterole)
                 overrides.send_messages = False
                 await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
-
+        
+        with open('muted.txt', 'xt+') as mutedfile:
+            timebackup = datetime.now() + datetime.time(second=time) # Backup datetime
+            mutedfile.write(f'[{victim.id}, {timebackup}, {ctx.guild.id}]')
+            mutedfile.close()
         await victim.add_roles(muterole)
         await asyncio.sleep(time)
         await victim.remove_roles(muterole)
