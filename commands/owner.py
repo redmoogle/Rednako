@@ -43,15 +43,15 @@ class Owner(commands.Cog):
     async def update(self, ctx):
         sha = repo.head.object.hexsha
         remotesha = repo.remotes.origin.fetch()[0].commit
-        await self.bot.logout()
         if(str(sha) != str(remotesha)):
             embed = await repoembed()
             await ctx.send(embed=embed)
 
         for task in asyncio.all_tasks():
-            print(task.get_coro())
-            print(task.get_name())
-            print(task.get_stack())
+            await ctx.send(task.get_coro())
+            await ctx.send(task.get_name())
+            await ctx.send(task.get_stack())
+        await self.bot.logout()
         subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
         exit()
 
