@@ -98,8 +98,8 @@ class User(commands.Cog):
         embed.add_field(name="Global Servers: ", value=str(len(totalservers)), inline=False)
         embed.add_field(name="Global Members: ", value=str(totalmembers), inline=False)
         embed.add_field(name="Prefixes: ", value=str(prefixformat), inline=False)
-        embed.add_field(name="Invite Link: ", value=f'[Invite Bot](invitelink)', inline=False)
-        embed.add_field(name="Github Link: ", value=f'[Github](githublink)', inline=False)
+        embed.add_field(name="Invite Link: ", value=f'[Invite Bot]({invitelink})', inline=False)
+        embed.add_field(name="Github Link: ", value=f'[Github]({githublink})', inline=False)
         embed.add_field(name="Current Commit: ", value=str(sha), inline=False)
         await ctx.send(embed=embed)
 
