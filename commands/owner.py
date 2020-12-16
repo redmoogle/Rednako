@@ -1,9 +1,13 @@
+# pylint: disable=E1101
+# error ignore for non-standard module
+
 from discord.ext import commands
 import config
 import git
 import discord
 import subprocess
 import random
+import helpers
 config = config.Config('./config.cfg')
 repo = git.Repo(search_parent_directories=True)
 
@@ -13,32 +17,31 @@ async def repoembed():
     """
     sha = repo.head.object.hexsha
     remotesha = repo.remotes.origin.fetch()[0].commit
-    embed=discord.Embed(title="Github Update Request")
-    embed.add_field(name="Current Commit: ", value=str(sha), inline=False)
-    embed.add_field(name="Remote Commit: ", value=str(remotesha), inline=False)
+    info = [
+        ['Local Commit: ',  f'{sha}'],
+        ['Github Commit: ', f'{remotesha}']
+    ]
+    
+    embed=helpers.embed(title='Github Update: ', fields=info, inline=False)
     return embed
-
-def isOwner(ctx):
-    owner = config['owner_id']
-    if(ctx.author.id == int(owner)):
-        return True
-    return False
 
 # New - The Cog class must extend the commands.Cog class
 class Owner(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
+
+    async def cog_before_invoke(self, ctx):
+        await ctx.message.delete()
         
     @commands.command(
         name='update',
         brief='update bot'
     )
-    @commands.check(isOwner)
+    @commands.is_owner()
     async def update(self, ctx):
         sha = repo.head.object.hexsha
         remotesha = repo.remotes.origin.fetch()[0].commit
-        await ctx.message.delete()
         if(str(sha) != str(remotesha)):
             embed = await repoembed()
             await ctx.send(embed=embed)
@@ -52,11 +55,9 @@ class Owner(commands.Cog):
     )
     @commands.has_permissions(manage_messages=True)
     async def purge(self, ctx, purge: int):
-        await ctx.message.delete()
         if(purge > 250):
             purge = 250
-            temp = await ctx.send('You can only purge upto 250 messages')
-            return await temp.delete(delay=3)
+            return await ctx.send('You can only purge upto 250 messages', delete_after=3)
 
         async for message in ctx.channel.history(limit=purge):
             await message.delete()
@@ -67,10 +68,8 @@ class Owner(commands.Cog):
     )
     @commands.has_permissions(ban_members=True)
     async def ban(self, ctx, victim: discord.Member = None):
-        await ctx.message.delete()
         if victim is None:
-            temp = await ctx.send('You need to specify a person to ban')
-            return await temp.delete(delay=3)
+            return await ctx.send('You need to specify a person to ban', delete_after=3)
 
         funnys = [
                 f'Omae wa mou shindeiru... {victim.mention}',
@@ -89,7 +88,6 @@ class Owner(commands.Cog):
     )
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, victim: discord.Member = None):
-        await ctx.message.delete()
         if victim is None:
             temp = await ctx.send('You need to specify a person to kick')
             return await temp.delete(delay=3)

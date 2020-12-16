@@ -1,7 +1,11 @@
+# pylint: disable=E1101
+# error ignore for non-standard module
+
 from discord.ext import commands
 import discord
 import random
 import nekos
+import helpers
 
 # Dont worry I can feel the disappointment from my computer
 # New - The Cog class must extend the commands.Cog class
@@ -9,6 +13,9 @@ class Image(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
+
+    async def cog_before_invoke(self, ctx):
+        await ctx.message.delete()
         
     # Define a new command
     @commands.command(
@@ -16,9 +23,7 @@ class Image(commands.Cog):
         brief='send embedded catgirl'
     )
     async def neko(self, ctx):
-        embed = discord.Embed(title="Neko", color=discord.Color.blurple())
-        imgtype = 'neko'
-        embed.set_image(url=str(nekos.img(imgtype)))
+        embed=helpers.embed(title='Neko', image=nekos.img('neko'))
         await ctx.send(embed=embed)
 
     @commands.command(
@@ -26,9 +31,7 @@ class Image(commands.Cog):
         brief='send embedded foxgirl'
     )
     async def kitsune(self, ctx):
-        embed = discord.Embed(title="Kitsune", color=discord.Color.blurple())
-        imgtype = 'fox_girl'
-        embed.set_image(url=str(nekos.img(imgtype)))
+        embed=helpers.embed(title='Kitsune', image=nekos.img('fox_girl'))
         await ctx.send(embed=embed)
 
     @commands.command(
@@ -41,9 +44,7 @@ class Image(commands.Cog):
         if victim is None:
             victim = ctx.author
 
-        embed=discord.Embed(title=(str(victim) + " Avatar"))
-        embed.set_image(url=str(victim.avatar_url))
-        embed.set_author(name=("Author: " + str(ctx.author)))
+        embed=helpers.embed(title=f'{victim}\'s Avatar', image=victim.avatar_url)
         await ctx.send(embed=embed)
 
 def setup(bot):

@@ -4,7 +4,7 @@ Common helper functions for bot
 import random
 import discord
 
-def embed(title: str = None, thumbnail: str = None, image: str = None, fields: list = None, inline: bool = True, randcolor: bool = True):
+def embed(title: str = None, description: str = None, thumbnail: str = None, image: str = None, fields: list = None, inline: bool = True, randcolor: bool = True):
     """
     Helps with making clean embeds, has common needs
     """
