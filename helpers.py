@@ -23,3 +23,28 @@ def embed(title: str = None, description: str = None, thumbnail: str = None, ima
         embedhelper.color = random.randint(0, 0xffffff)
 
     return embedhelper
+
+def timeconv(time: str = None):
+    if time is None:
+        return 0
+
+    timeseconds = 0
+    timelist = time.split()
+    for times in timelist:
+        try:
+            temp = times[:-1]
+            int(temp)
+        except:
+            return None #invalid string
+
+        if times[-1] == "s":
+            timeseconds += int(times[:-1])
+        if times[-1] == "m":
+            timeseconds += int(times[:-1]) * 60
+        if times[-1] == "h":
+            timeseconds += int(times[:-1]) * 3600
+        if times[-1] == "d":
+            timeseconds += int(times[:-1]) * 86400
+        if times[-1] == "w":
+            timeseconds += int(times[:-1]) * 604800
+    return timeseconds

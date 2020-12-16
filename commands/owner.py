@@ -8,6 +8,7 @@ import discord
 import subprocess
 import random
 import helpers
+import asyncio
 config = config.Config('./config.cfg')
 repo = git.Repo(search_parent_directories=True)
 
@@ -102,6 +103,35 @@ class Owner(commands.Cog):
         random.shuffle(funnys)
         await ctx.send(str(funnys[0]))
         await victim.kick()
+
+    @commands.command(
+        name='mute',
+        brief='mute a person in s,m,h,d,w'
+    )
+    @commands.has_permissions(kick_members=True)
+    async def mute(self, ctx, victim: discord.Member = None, time: str = None):
+        time = helpers.timeconv(time)
+
+        if victim is None:
+            return await ctx.send('You need to specificy someone to mute', delete_after=3)
+        
+        if time is None:
+            return await ctx.send('You need to specificy a time', delete_after=3)
+
+        muterole = discord.utils.get(ctx.guild.roles, name='Muted')
+        if muterole is None:
+            muterole = await ctx.guild.create_role(name='Muted', colour=discord.Colour.dark_gray(), reason='Mute setup')
+            for channel in ctx.guild.channels:
+                if(channel.permissions_synced):
+                    continue
+                overrides = channel.overwrites_for(muterole)
+                overrides.send_messages = False
+                await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
+
+        await victim.add_role(muterole)
+        await asyncio.sleep(time)
+        await victim.remove_role(muterole)
+
 
 def setup(bot):
     bot.add_cog(Owner(bot))
