@@ -3,7 +3,7 @@ import discord
 import config
 import random
 import git
-import helpers
+import bothelpers
 config = config.Config('./config.cfg')
 repo = git.Repo(search_parent_directories=True)
 
@@ -58,7 +58,7 @@ class User(commands.Cog):
             ['Members: ',           f'{members}']
         ]
 
-        embed=helpers.embed(title=guild.name, thumbnail=guild.icon_url, fields=info)
+        embed=bothelpers.embed(title=guild.name, thumbnail=guild.icon_url, fields=info)
         await ctx.send(embed=embed)
 
     @commands.command(
@@ -97,7 +97,7 @@ class User(commands.Cog):
                 ['Commit: ',            f'{sha}']
             ]
 
-        embed=helpers.embed(title='Bot Statistics: ', thumbnail=botuser.user.avatar_url, fields=info)
+        embed=bothelpers.embed(title='Bot Statistics: ', thumbnail=botuser.user.avatar_url, fields=info)
         await ctx.send(embed=embed)
 
     @commands.command(
