@@ -91,7 +91,7 @@ class User(commands.Cog):
                 prefixformat += ", "
 
         info = [ # Makes adding easy and pretty
-                ['Bot Owner: ',         f'{botuser.get_user(botuser.owner_id())}'],
+                ['Bot Owner: ',         f'{botuser.get_user(botuser.owner_id)}'],
                 ['Global Servers: ',    f'{totalservers}'],
                 ['Global Members: ',    f'{totalmembers}'],
                 ['Prefix/s: ',          f'{prefixformat}'],
