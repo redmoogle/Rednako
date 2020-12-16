@@ -2,7 +2,7 @@ import random
 import discord
 from discord.ext import commands
 
-def embed(title: str = None, thumbnail: str = None, image: str = None, fields: list = None, inline: bool = True, randColor: bool = True):
+def embedHelper(title: str = None, thumbnail: str = None, image: str = None, fields: list = None, inline: bool = True, randColor: bool = True):
     """
     Helps with making clean embeds, has common needs
     """
