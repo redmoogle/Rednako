@@ -1,3 +1,5 @@
+# pylint: disable=W0702
+# disabling W0702 because bare excepts for testing
 """"
 Common helper functions for bot
 """
@@ -25,6 +27,9 @@ def embed(title: str = None, description: str = None, thumbnail: str = None, ima
     return embedhelper
 
 def timeconv(time: str = None):
+    """
+    Convert time to second from string(w,d,h,m,s)
+    """
     if time is None:
         return 0
 
