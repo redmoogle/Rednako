@@ -3,7 +3,7 @@ import discord
 import config
 import random
 import git
-import helpers
+from helpers import embed
 config = config.Config('./config.cfg')
 repo = git.Repo(search_parent_directories=True)
 
@@ -80,7 +80,7 @@ class User(commands.Cog):
             totalmembers += 1
 
         _counter = 0 # touch this and die
-        prefixes = botuser.command_prefix # Contains a list of prefixes
+        prefixes = botuser.command_prefix() # Contains a list of prefixes
         for prefix in prefixes:
             _counter += 1
             prefixformat += prefix
@@ -88,7 +88,7 @@ class User(commands.Cog):
                 prefixformat += ", "
 
         info = [ # Makes adding easy and pretty
-                ['Bot Owner: ',         f'{botuser.get_user(botuser.owner_id)}'],
+                ['Bot Owner: ',         f'{botuser.get_user(botuser.owner_id())}'],
                 ['Global Servers: ',    f'{totalservers}'],
                 ['Global Members: ',    f'{totalmembers}'],
                 ['Prefix/s: ',          f'{prefixformat}'],
