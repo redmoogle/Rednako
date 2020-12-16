@@ -131,13 +131,21 @@ class Owner(commands.Cog):
                 overrides.send_messages = False
                 await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
         
-        with open('muted.txt', 'w') as mutedfile:
+        with open('muted.txt', 'a') as mutedfile:
             timebackup = datetime.datetime.now() + datetime.timedelta(seconds=time) # Backup datetime
-            print(timebackup)
             mutedfile.write(f'[{victim.id}, {timebackup}, {ctx.guild.id}]')
             mutedfile.close()
         await victim.add_roles(muterole)
         await asyncio.sleep(time)
+        with open('muted.txt', 'rw') as write:
+            for line in read:
+                contents = list(line)
+                print(contents)
+                if(int(contents[0]) == int(victim.id)):
+                    print('removed')
+                    del line
+            write.close()
+        read.close()
         await victim.remove_roles(muterole)
 
 
