@@ -47,8 +47,11 @@ class Owner(commands.Cog):
             embed = await repoembed()
             await ctx.send(embed=embed)
             await self.bot.logout()
-            subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
-            exit()
+
+        tasks = asyncio.all_tasks()
+        print(tasks)
+        subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
+        exit()
 
     @commands.command(
         name='purge',
