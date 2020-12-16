@@ -107,49 +107,6 @@ class Owner(commands.Cog):
         await ctx.send(str(funnys[0]))
         await victim.kick()
 
-    @commands.command(
-        name='mute',
-        brief='mute a person in s,m,h,d,w'
-    )
-    @commands.has_permissions(kick_members=True)
-    async def mute(self, ctx, victim: discord.Member = None, time: str = None):
-        time = helpers.timeconv(time)
-
-        if victim is None:
-            return await ctx.send('You need to specificy someone to mute', delete_after=3)
-        
-        if time is None:
-            return await ctx.send('You need to specificy a time', delete_after=3)
-
-        muterole = discord.utils.get(ctx.guild.roles, name='Muted')
-        if muterole is None:
-            muterole = await ctx.guild.create_role(name='Muted', colour=discord.Colour.dark_gray(), reason='Mute setup')
-            for channel in ctx.guild.channels:
-                if(channel.permissions_synced):
-                    continue
-                overrides = channel.overwrites_for(muterole)
-                overrides.send_messages = False
-                await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
-        
-        with open('muted.txt', 'a') as mutedfile:
-            timebackup = datetime.datetime.now() + datetime.timedelta(seconds=time) # Backup datetime
-            mutedfile.write(f'[{victim.id}, {timebackup}, {ctx.guild.id}]\n')
-            mutedfile.close()
-        await victim.add_roles(muterole)
-        await asyncio.sleep(time)
-        with open('muted.txt', 'r+') as mutedfile:
-            for line in mutedfile:
-                contents = line
-                print(f'{contents[0]}, {victim.id}')
-                if('\n'):
-                    continue
-                if(int(contents[0]) == int(victim.id)):
-                    print('removed')
-                    del line
-        mutedfile.close()
-        await victim.remove_roles(muterole)
-
-
 def setup(bot):
     bot.add_cog(Owner(bot))
     # Adds the ping command to the bot
