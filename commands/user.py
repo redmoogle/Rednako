@@ -3,6 +3,7 @@ import discord
 import config
 import random
 import git
+import helpers
 config = config.Config('./config.cfg')
 repo = git.Repo(search_parent_directories=True)
 
@@ -13,9 +14,9 @@ class User(commands.Cog):
         self.bot = bot
 
     @commands.command(
-        name='args',
-        brief='prints your args',
-        aliases=['send', 'say']
+        name='say',
+        brief='make the bot speak',
+        aliases=['send', 'args']
     )
     async def args(self, ctx, *, args):
         await ctx.send(args)
@@ -26,16 +27,12 @@ class User(commands.Cog):
         aliases=['si']
     )
     async def serverinfo(self, ctx):
-        guild = ctx.guild
+        guild = ctx.guild           # grab guild
         textchannels = 0            # all text channels
         voicechannels = 0           # all voice channels
         categorys = 0               # all categorys
         roles = 0                   # all roles
-        members = 0                 # all members
-        guildid = guild.id          # ID of guild
-        guildowner = guild.owner    # Guild Owner
-        iconurl = guild.icon_url    # Guild Icon
-        name = guild.name           # Name of guild
+        members = 0                 # all membersr
 
         for _ in guild.voice_channels:
             voicechannels += 1
@@ -52,16 +49,16 @@ class User(commands.Cog):
         for _ in guild.members: #Theres a reason this is async
             members += 1
 
-        embed=discord.Embed(title=str(name))
-        embed.set_thumbnail(url=iconurl)
-        embed.color = random.randint(0, 0xffffff)
-        embed.add_field(name="Owner: ", value=str(guildowner.name+'#'+guildowner.discriminator), inline=False)
-        embed.add_field(name="Server ID: ", value=str(guildid), inline=False)
-        embed.add_field(name="Total Channels: ", value=str("Text: " + str(textchannels) + " Voice: " + str(voicechannels)), inline=False)
-        embed.add_field(name="Total Categorys: ", value=str(categorys), inline=False)
-        embed.add_field(name="Total Roles: ", value=str(roles), inline=False)
-        embed.add_field(name="Total Members: ", value=str(members), inline=False)
+        info = [ # Makes adding easy and pretty
+            ['Server Owner: ',      f'{guild.owner.name}#{guild.owner.discriminator}'],
+            ['Server ID: ',         f'{guild.id}'],
+            ['Categorys: ',         f'{categorys}'],
+            ['Channels: ',          f'T: {textchannels} V: {voicechannels}'],
+            ['Roles: ',             f'{roles}'],
+            ['Members: ',           f'{members}']
+        ]
 
+        embed=helpers.embed(title=guild.name, thumbnail=guild.icon_url, fields=info)
         await ctx.send(embed=embed)
 
     @commands.command(
@@ -70,37 +67,37 @@ class User(commands.Cog):
         aliases=['globalinfo']
     )
     async def info(self, ctx):
+        botuser = ctx.bot                       # shortcut for bot. var/bot is taken
+        sha = repo.head.object.hexsha           # Hash of commit that the local files are
+        totalservers = len(botuser.guilds)      # List of all guilds, is a list so can len() it
+        members = botuser.get_all_members()     # Reference to members, is a generator so cant len() it
+        link = config['invitelink']             # Link to invite bot
+        githublink = config['github']           # Github link
+        prefixformat = ""                       # Formatted Prefixes
+
         totalmembers = 0
-        # Get all servers
-        sha = repo.head.object.hexsha
-        totalservers = ctx.bot.guilds
-        members = ctx.bot.get_all_members()
-        link = config['invitelink']
-        ownerid = ctx.bot.get_user(config['owner_id'])
-        prefixes = config['prefix']
-        boturl = ctx.bot.user.avatar_url
-        githublink = config['github']
-        prefixformat = "" # Formatted Prefixes
-        _counter = 0
         for _ in members:
             totalmembers += 1
 
+        _counter = 0 # touch this and die
+        prefixes = botuser.command_prefix # Contains a list of prefixes
         for prefix in prefixes:
             _counter += 1
             prefixformat += prefix
             if(_counter+1 <= int(len(prefixes))):
                 prefixformat += ", "
 
-        embed=discord.Embed(title="Global Statistics")
-        embed.set_thumbnail(url=boturl)
-        embed.color = random.randint(0, 0xffffff)
-        embed.add_field(name="Bot Owner: ", value=str(ownerid), inline=False)
-        embed.add_field(name="Global Servers: ", value=str(len(totalservers)), inline=False)
-        embed.add_field(name="Global Members: ", value=str(totalmembers), inline=False)
-        embed.add_field(name="Prefixes: ", value=str(prefixformat), inline=False)
-        embed.add_field(name="Invite Link: ", value=f'[Invite Bot]({link})', inline=False)
-        embed.add_field(name="Github Link: ", value=f'[Github]({githublink})', inline=False)
-        embed.add_field(name="Current Commit: ", value=str(sha), inline=False)
+        info = [ # Makes adding easy and pretty
+                ['Bot Owner: ',         f'{botuser.get_user(botuser.owner_id)}'],
+                ['Global Servers: ',    f'{totalservers}'],
+                ['Global Members: ',    f'{totalmembers}'],
+                ['Prefix/s: ',          f'{prefixformat}'],
+                ['Invite: ',            f'[Invite Bot]({link})'],
+                ['Repository: ',        f'[Github]({githublink})'],
+                ['Commit: ',            f'{sha}']
+            ]
+
+        embed=helpers.embed(title='Bot Statistics: ', thumbnail=botuser.user.avatar_url, fields=info)
         await ctx.send(embed=embed)
 
     @commands.command(
