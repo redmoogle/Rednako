@@ -133,7 +133,7 @@ class Owner(commands.Cog):
         
         with open('muted.txt', 'a') as mutedfile:
             timebackup = datetime.datetime.now() + datetime.timedelta(seconds=time) # Backup datetime
-            mutedfile.write(f'[{victim.id}, {timebackup}, {ctx.guild.id}]')
+            mutedfile.write(f'[{victim.id}, {timebackup}, {ctx.guild.id}]\n')
             mutedfile.close()
         await victim.add_roles(muterole)
         await asyncio.sleep(time)
