@@ -137,15 +137,14 @@ class Owner(commands.Cog):
             mutedfile.close()
         await victim.add_roles(muterole)
         await asyncio.sleep(time)
-        with open('muted.txt', 'rw') as write:
-            for line in read:
+        with open('muted.txt', 'r+') as mutedfile:
+            for line in mutedfile:
                 contents = list(line)
                 print(contents)
                 if(int(contents[0]) == int(victim.id)):
                     print('removed')
                     del line
-            write.close()
-        read.close()
+        mutedfile.close()
         await victim.remove_roles(muterole)
 
 
