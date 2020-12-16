@@ -141,6 +141,8 @@ class Owner(commands.Cog):
             for line in mutedfile:
                 contents = list(line)
                 print(contents)
+                if('\n'):
+                    continue
                 if(int(contents[0]) == int(victim.id)):
                     print('removed')
                     del line
