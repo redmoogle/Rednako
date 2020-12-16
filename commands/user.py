@@ -61,7 +61,7 @@ class User(commands.Cog):
             ['Members: ',           f'{members}']
         ]
 
-        embed=helpers.embedHelper(title=guild.name, thumbnail=guild.icon_url, fields=info)
+        embed=helpers.embed(title=guild.name, thumbnail=guild.icon_url, fields=info)
         await ctx.send(embed=embed)
 
     @commands.command(
@@ -100,7 +100,7 @@ class User(commands.Cog):
                 ['Commit: ',            f'{sha}']
             ]
 
-        embed=helpers.embedHelper(title='Bot Statistics: ', thumbnail=botuser.user.avatar_url, fields=info)
+        embed=helpers.embed(title='Bot Statistics: ', thumbnail=botuser.user.avatar_url, fields=info)
         await ctx.send(embed=embed)
 
     @commands.command(
