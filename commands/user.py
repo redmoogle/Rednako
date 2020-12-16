@@ -83,7 +83,7 @@ class User(commands.Cog):
             totalmembers += 1
 
         _counter = 0 # touch this and die
-        prefixes = botuser.command_prefix() # Contains a list of prefixes
+        prefixes = config['prefix'] # Contains a list of prefixes
         for prefix in prefixes:
             _counter += 1
             prefixformat += prefix
