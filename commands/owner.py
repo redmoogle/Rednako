@@ -9,7 +9,7 @@ import subprocess
 import random
 import helpers
 import asyncio
-import datetime
+import time
 import json
 config = config.Config('./config.cfg')
 repo = git.Repo(search_parent_directories=True)
@@ -132,7 +132,9 @@ class Owner(commands.Cog):
                 await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
         
         with open('muted.txt', 'xt+') as mutedfile:
-            timebackup = datetime.now() + datetime.time(second=time) # Backup datetime
+            timebackup = time.time() + time # Backup datetime
+            print(time.time())
+            print(f'{time.time+time}')
             mutedfile.write(f'[{victim.id}, {timebackup}, {ctx.guild.id}]')
             mutedfile.close()
         await victim.add_roles(muterole)
