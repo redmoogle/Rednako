@@ -298,7 +298,6 @@ class Music(commands.Cog):
 
     async def cog_before_invoke(self, ctx):
         ctx.voice_state = self.get_voice_state(ctx)
-        await ctx.message.delete()
 
     async def cog_command_error(self, ctx, error: commands.CommandError):
         print(f'Error: {error}') # Logging
