@@ -131,7 +131,7 @@ class Owner(commands.Cog):
                 overrides.send_messages = False
                 await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
         
-        with open('muted.txt', 'xt+') as mutedfile:
+        with open('muted.txt', 'w') as mutedfile:
             timebackup = time.time() + time # Backup datetime
             print(time.time())
             print(f'{time.time+time}')
