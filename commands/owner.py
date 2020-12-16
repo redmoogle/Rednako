@@ -139,7 +139,7 @@ class Owner(commands.Cog):
         await asyncio.sleep(time)
         with open('muted.txt', 'r+') as mutedfile:
             for line in mutedfile:
-                contents = list(line)
+                contents = list.split(', ')
                 print(contents)
                 if('\n'):
                     continue
