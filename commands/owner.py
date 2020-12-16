@@ -140,7 +140,7 @@ class Owner(commands.Cog):
         with open('muted.txt', 'r+') as mutedfile:
             for line in mutedfile:
                 contents = line
-                print(contents)
+                print(f'{contents[0]}, {victim.id}')
                 if('\n'):
                     continue
                 if(int(contents[0]) == int(victim.id)):
