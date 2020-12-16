@@ -128,9 +128,9 @@ class Owner(commands.Cog):
                 overrides.send_messages = False
                 await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
 
-        await victim.add_role(muterole)
+        await victim.add_roles(muterole)
         await asyncio.sleep(time)
-        await victim.remove_role(muterole)
+        await victim.remove_roles(muterole)
 
 
 def setup(bot):
