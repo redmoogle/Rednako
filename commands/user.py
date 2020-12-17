@@ -120,7 +120,7 @@ class User(commands.Cog):
         name='embed',
         brief='make an embed'
     )
-    async def embed(self, ctx, title: str = None):
+    async def embed(self, ctx, *, title):
         embed=helpers.embed(title=title)
         await ctx.send(embed=embed)
 
