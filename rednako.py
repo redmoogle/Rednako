@@ -23,10 +23,6 @@ def get_prefix(client, message):
 
     prefixes = list(config['prefix'])    # grab prefix from config
 
-    if not message.guild:
-        prefixes = list(config['prefix'])  # Only allow first prefix when in DMs, optional
-        prefixes = prefixes[0]
-
     # Allow users to @mention the bot instead of using a prefix when using a command. Also optional
     # Do `return prefixes` if u don't want to allow mentions instead of prefix.
     return commands.when_mentioned_or(*prefixes)(client, message)

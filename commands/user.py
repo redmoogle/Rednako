@@ -118,11 +118,10 @@ class User(commands.Cog):
 
     @commands.command(
         name='embed',
-        brief='make an embed',
-        description='args: title-None, fields[], inline-False, randcolor-True'
+        brief='make an embed'
     )
-    async def embed(self, ctx, title: str = None, fields: list = None, inline: bool = False, randcolor: bool = True):
-        embed=helpers.embed(title=title, fields=fields, inline=inline, randcolor=randcolor)
+    async def embed(self, ctx, title: str = None):
+        embed=helpers.embed(title=title)
         await ctx.send(embed=embed)
 
 def setup(bot):

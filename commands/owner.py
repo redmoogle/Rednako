@@ -57,15 +57,13 @@ class Owner(commands.Cog):
         name='purge',
         brief='delete messages'
     )
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_permissions(manage_channels=True)
     async def purge(self, ctx, purge: int):
         if(purge > 250):
             purge = 250
             return await ctx.send('You can only purge upto 250 messages', delete_after=3)
 
-        async for message in ctx.channel.history(limit=purge):
-            await message.delete()
-
+        await ctx.channel.purge(limit=purge, bulk=True)
     @commands.command(
         name='ban',
         brief='fancy ban'

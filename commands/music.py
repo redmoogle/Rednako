@@ -53,9 +53,9 @@ class YTDLSource(discord.PCMVolumeTransformer):
         'format': 'bestaudio/best',
         'extractaudio': True,
         'audioformat': 'mp3',
-        'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
+        'outtmpl': '%(title)s',
         'restrictfilenames': True,
-        'noplaylist': True,
+        'noplaylist': False,
         'nocheckcertificate': True,
         'ignoreerrors': False,
         'logtostderr': False,
@@ -291,10 +291,9 @@ class Music(commands.Cog):
             self.bot.loop.create_task(state.stop())
 
     def cog_check(self, ctx):
-        if not ctx.guild:
-            raise commands.NoPrivateMessage('This command can\'t be used in DM channels.')
-
-        return True
+        if ctx.guild:
+            return True
+        return False
 
     async def cog_before_invoke(self, ctx):
         ctx.voice_state = self.get_voice_state(ctx)
