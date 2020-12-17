@@ -116,6 +116,15 @@ class User(commands.Cog):
         embed.add_field(name='API: ', value=(f'Latency: {round(self.bot.latency*1000)}ms'))
         await ctx.send(embed=embed)
 
+    @commands.command(
+        name='embed',
+        brief='make an embed',
+        description='args: title-None, fields[], inline-False, randcolor-True'
+    )
+    async def embed(self, ctx, title: str = None, fields: list = None, inline: bool = False, randcolor: bool = True):
+        embed=helpers.embed(title=title, fields=fields, inline=inline, randcolor=randcolor)
+        await ctx.send(embed=embed)
+
 def setup(bot):
     bot.add_cog(User(bot))
     # Adds user commands to the bot

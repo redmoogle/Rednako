@@ -102,7 +102,7 @@ class Owner(commands.Cog):
                 f'I shan\'t look at you {victim.mention}',
                 f'Stay away from me {victim.mention}!',
                 f'{victim.mention} has failed the kneecap check'
-                 ]
+                ]
         random.shuffle(funnys)
         await ctx.send(str(funnys[0]))
         await victim.kick()
