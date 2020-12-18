@@ -13,10 +13,14 @@ import config
 import discord
 from discord.ext import commands
 from pretty_help import PrettyHelp
+import sqlite3
+from datetime import datetime, timedelta
 
 # Setting up config for open-source shenanigans
 config = config.Config('config.cfg')
 token = config['token']
+connection = sqlite3.connect('database.db')
+pointer = connection.cursor()
 
 def get_prefix(client, message):
     """Returns the prefix of the bot (stored in config.cfg)"""
@@ -53,6 +57,7 @@ async def on_ready():
     print(f'Global Member Count: {memlogging[0]}')
     print(f'Global Servers: {memlogging[1]}')
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
+    load_mutes()
 
     for command in botcommands:
         bot.load_extension(command)
@@ -90,6 +95,26 @@ async def grab_members():
     for _ in bot.get_all_members():
         members += 1
     return [members, servers]
+
+async def load_mutes():
+    for row in pointer.execute('SELECT * FROM mutes ORDER BY id;'):
+        print(f'LOAD: {row}')
+        mutee = row[0]
+        exp = row[1]
+        guild = row[2]
+        role = row[3]
+        mute(mutee,exp,guild,role)
+
+async def mute(mutee, exp, guild, role):
+    delta = datetime.strptime(exp, '%Y-%m-%d %H:%M:%S') - datetime.now()
+    print(f'DELTA: {delta}')
+
+    # Object Conversion
+    guild=bot.get_guild(guild)
+    mutee=bot.get_user(mutee)
+    role=guild.get_role(role)
+    await asyncio.sleep(delta)
+    await mutee.remove_roles(role)
 
 # Finally, login the bot
 bot.loop.create_task(update())

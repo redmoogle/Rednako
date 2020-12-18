@@ -147,13 +147,11 @@ class Owner(commands.Cog):
         muteparams = (int(victim.id), delta, int(ctx.guild.id), int(muterole.id))
         pointer.execute(f'INSERT INTO mutes VALUES {muteparams};') # you're not escaping :^)
         connection.commit()
-        for row in pointer.execute('SELECT * FROM mutes ORDER BY id;'):
-            print(row)
+        print(f'ADD: {muteparams}')
         await asyncio.sleep(time)
         pointer.execute(f"DELETE FROM mutes WHERE id = '%s'" % victim.id) 
         connection.commit()
-        for row in pointer.execute('SELECT * FROM mutes ORDER BY id;'):
-            print(row)
+        print(f'REMOVE: {muteparams}')
         await victim.remove_roles(muterole)
 
 def setup(bot):
