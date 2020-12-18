@@ -111,7 +111,7 @@ async def mute(mutee, exp, guild, role):
 
     # Object Conversion
     guild=bot.get_guild(guild)
-    mutee=bot.get_user(mutee)
+    mutee=guild.get_member(mutee)
     role=guild.get_role(role)
     await asyncio.sleep(delta.total_seconds())
     pointer.execute(f"DELETE FROM mutes WHERE id = '%s'" % mutee.id) 
