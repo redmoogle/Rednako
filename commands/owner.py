@@ -155,8 +155,8 @@ class Owner(commands.Cog):
         pointer.execute(f"DELETE FROM mutes WHERE id = '%s'" % victim.id) 
         connection.commit()
         print(f'REMOVE: {muteparams}')
-        channel = victim.create_dm()
         embed = discord.Embed(title=f'You have been unmuted from: `{ctx.guild.name}`')
+        channel = await victim.create_dm()
         await channel.send(embed=embed)
         await victim.remove_roles(muterole)
 
