@@ -115,7 +115,7 @@ async def mute(mutee, exp, guild, role):
     await asyncio.sleep(delta.total_seconds())
     pointer.execute(f"DELETE FROM mutes WHERE id = '%s'" % mutee.id) 
     connection.commit()
-    params = (int(mutee.id), datetime.strptime(delta, '%Y-%m-%d %H:%M:%S'), int(guild.id), int(role.id))
+    params = (int(mutee.id), delta.strftime('%Y-%m-%d %H:%M:%S'), int(guild.id), int(role.id))
     print(f'REMOVE: {params}')
     channel = mutee.create_dm()
     embed = discord.Embed(title=f'You have been unmuted from: `{guild.name}`')
