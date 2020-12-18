@@ -57,7 +57,7 @@ async def on_ready():
     print(f'Global Member Count: {memlogging[0]}')
     print(f'Global Servers: {memlogging[1]}')
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
-    load_mutes()
+    await load_mutes()
 
     for command in botcommands:
         bot.load_extension(command)
