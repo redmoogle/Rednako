@@ -144,14 +144,14 @@ class Owner(commands.Cog):
         await victim.add_roles(muterole)
         delta = (datetime.now() + timedelta(seconds=time)).strftime('%Y-%m-%d %H:%M:%S')
         muteparams = (victim.id, delta, ctx.guild.id, muterole)
-        pointer.execute(f'INSERT INTO mutes VALUES {muteparams}') # you're not escaping :^)
+        pointer.execute(f'INSERT INTO mutes VALUES {muteparams};') # you're not escaping :^)
         connection.commit()
-        for row in pointer.execute('SELECT * FROM mutes ORDER BY id'):
+        for row in pointer.execute('SELECT * FROM mutes ORDER BY id;'):
             print(row)
         await asyncio.sleep(time)
         pointer.execute(f"DELETE FROM mutes WHERE id = '%s'" % victim.id) 
         connection.commit()
-        for row in pointer.execute('SELECT * FROM mutes ORDER BY id'):
+        for row in pointer.execute('SELECT * FROM mutes ORDER BY id;'):
             print(row)
         await victim.remove_roles(muterole)
 
