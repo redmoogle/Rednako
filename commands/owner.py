@@ -114,7 +114,7 @@ class Owner(commands.Cog):
         brief='mute a person in s,m,h,d,w'
     )
     @commands.has_permissions(kick_members=True)
-    async def mute(self, ctx, victim: discord.Member = None, time: str = None):
+    async def mute(self, ctx, victim: discord.Member = None, *, time: str = None):
         time = helpers.timeconv(time)
         try:
             pointer.execute(
@@ -126,10 +126,10 @@ class Owner(commands.Cog):
             pass
 
         if victim is None:
-            return await ctx.send('You need to specificy someone to mute', delete_after=3)
+            return await ctx.send('You need to specify someone to mute', delete_after=3)
         
         if time is None:
-            return await ctx.send('You need to specificy a time', delete_after=3)
+            return await ctx.send('You need to specify a time', delete_after=3)
 
         muterole = discord.utils.get(ctx.guild.roles, name='Muted')
         if muterole is None:
@@ -141,7 +141,7 @@ class Owner(commands.Cog):
                 overrides.send_messages = False
                 await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
 
-        embed = discord.Embed(title=f'You have been muted in: `{ctx.guild.name}`` for `{time}s`')
+        embed = discord.Embed(title=f'You have been muted in: `{ctx.guild.name}` for `{time}s`')
         await victim.add_roles(muterole)
         await victim.send(embed=embed)
         delta = (datetime.now() + timedelta(seconds=time))
