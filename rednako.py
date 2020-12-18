@@ -118,8 +118,7 @@ async def mute(mutee, exp, guild, role):
     params = (int(mutee.id), delta.strftime('%Y-%m-%d %H:%M:%S'), int(guild.id), int(role.id))
     print(f'REMOVE: {params}')
     embed = discord.Embed(title=f'You have been unmuted from: `{guild.name}`')
-    channel = await mutee.create_dm()
-    await channel.send(embed=embed)
+    await mutee.send(embed=embed)
     await mutee.remove_roles(role)
 
 # Finally, login the bot
