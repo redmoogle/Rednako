@@ -142,6 +142,9 @@ class Owner(commands.Cog):
                 await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
 
         await victim.add_roles(muterole)
+        channel = victim.create_dm()
+        embed = discord.Embed(title=f'You have been muted in: `{ctx.guild.name}`` for `{time}s`')
+        await channel.send(embed=embed)
         delta = (datetime.now() + timedelta(seconds=time))
         delta = delta.strftime('%Y-%m-%d %H:%M:%S')
         muteparams = (int(victim.id), delta, int(ctx.guild.id), int(muterole.id))
@@ -152,6 +155,9 @@ class Owner(commands.Cog):
         pointer.execute(f"DELETE FROM mutes WHERE id = '%s'" % victim.id) 
         connection.commit()
         print(f'REMOVE: {muteparams}')
+        channel = victim.create_dm()
+        embed = discord.Embed(title=f'You have been unmuted from: `{ctx.guild.name}`')
+        await channel.send(embed=embed)
         await victim.remove_roles(muterole)
 
 def setup(bot):

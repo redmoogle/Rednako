@@ -107,7 +107,6 @@ async def load_mutes():
 
 async def mute(mutee, exp, guild, role):
     delta = datetime.strptime(exp, '%Y-%m-%d %H:%M:%S') - datetime.now()
-    print(f'DELTA: {delta}')
 
     # Object Conversion
     guild=bot.get_guild(guild)
@@ -116,8 +115,11 @@ async def mute(mutee, exp, guild, role):
     await asyncio.sleep(delta.total_seconds())
     pointer.execute(f"DELETE FROM mutes WHERE id = '%s'" % mutee.id) 
     connection.commit()
-    params = (int(mutee.id), delta, int(guild.id), int(role.id))
+    params = (int(mutee.id), datetime.strptime(delta, '%Y-%m-%d %H:%M:%S'), int(guild.id), int(role.id))
     print(f'REMOVE: {params}')
+    channel = mutee.create_dm()
+    embed = discord.Embed(title=f'You have been unmuted from: `{guild.name}`')
+    await channel.send(embed=embed)
     await mutee.remove_roles(role)
 
 # Finally, login the bot
