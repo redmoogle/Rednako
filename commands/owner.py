@@ -142,7 +142,8 @@ class Owner(commands.Cog):
                 await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
 
         await victim.add_roles(muterole)
-        delta = (datetime.now() + timedelta(seconds=time)).strftime('%Y-%m-%d %H:%M:%S')
+        delta = (datetime.now() + timedelta(seconds=time))
+        delta = delta.strftime('%Y-%m-%d %H:%M:%S')
         muteparams = (victim.id, delta, ctx.guild.id, muterole)
         pointer.execute(f'INSERT INTO mutes VALUES {muteparams};') # you're not escaping :^)
         connection.commit()
