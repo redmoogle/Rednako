@@ -103,7 +103,7 @@ async def load_mutes():
         exp = row[1]
         guild = row[2]
         role = row[3]
-        mute(mutee,exp,guild,role)
+        await mute(mutee,exp,guild,role)
 
 async def mute(mutee, exp, guild, role):
     delta = datetime.strptime(exp, '%Y-%m-%d %H:%M:%S') - datetime.now()
