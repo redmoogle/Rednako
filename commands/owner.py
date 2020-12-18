@@ -12,7 +12,7 @@ import asyncio
 import datetime
 import json
 import sqlite3
-from datetime import datetime, timedelta
+import datetime
 connection = sqlite3.connect('database.db')
 pointer = connection.cursor()
 config = config.Config('./config.cfg')
@@ -144,7 +144,7 @@ class Owner(commands.Cog):
         embed = discord.Embed(title=f'You have been muted in: `{ctx.guild.name}` for `{time}s`')
         await victim.add_roles(muterole)
         await victim.send(embed=embed)
-        delta = (datetime.now() + timedelta(seconds=time))
+        delta = (datetime.datetime.now() + datetime.timedelta(seconds=time))
         delta = delta.strftime('%Y-%m-%d %H:%M:%S')
         muteparams = (int(victim.id), delta, int(ctx.guild.id), int(muterole.id))
         pointer.execute(f'INSERT INTO mutes VALUES {muteparams};') # you're not escaping :^)
