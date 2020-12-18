@@ -114,6 +114,10 @@ async def mute(mutee, exp, guild, role):
     mutee=bot.get_user(mutee)
     role=guild.get_role(role)
     await asyncio.sleep(delta)
+    pointer.execute(f"DELETE FROM mutes WHERE id = '%s'" % mutee.id) 
+    connection.commit()
+    params = (int(mutee.id), delta, int(guild.id), int(role.id))
+    print(f'REMOVE: {params}')
     await mutee.remove_roles(role)
 
 # Finally, login the bot
