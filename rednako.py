@@ -9,12 +9,12 @@ in the config make sure to update the .format in here
 
 """
 import asyncio
+import sqlite3
+from datetime import datetime
 import config
 import discord
 from discord.ext import commands
 from pretty_help import PrettyHelp
-import sqlite3
-from datetime import datetime, timedelta
 
 # Setting up config for open-source shenanigans
 config = config.Config('config.cfg')
@@ -97,6 +97,9 @@ async def grab_members():
     return [members, servers]
 
 async def load_mutes():
+    """
+    Process of loading mutes into memory
+    """
     for row in pointer.execute('SELECT * FROM mutes ORDER BY id;'):
         print(f'LOAD: {row}')
         mutee = row[0]
@@ -106,6 +109,9 @@ async def load_mutes():
         await mute(mutee,exp,guild,role)
 
 async def mute(mutee, exp, guild, role):
+    """
+    Actually Handles the unmuting part
+    """
     delta = datetime.strptime(exp, '%Y-%m-%d %H:%M:%S') - datetime.now()
 
     # Object Conversion
@@ -113,7 +119,7 @@ async def mute(mutee, exp, guild, role):
     mutee=guild.get_member(mutee)
     role=guild.get_role(role)
     await asyncio.sleep(delta.total_seconds())
-    pointer.execute(f"DELETE FROM mutes WHERE id = '%s'" % mutee.id) 
+    pointer.execute("DELETE FROM mutes WHERE id = '%s'" % mutee.id)
     connection.commit()
     params = (int(mutee.id), delta.strftime('%Y-%m-%d %H:%M:%S'), int(guild.id), int(role.id))
     print(f'REMOVE: {params}')
