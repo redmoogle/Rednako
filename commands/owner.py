@@ -151,7 +151,7 @@ class Owner(commands.Cog):
         connection.commit()
         print(f'ADD: {muteparams}')
         await asyncio.sleep(time)
-        pointer.execute(f"DELETE FROM mutes WHERE id = '%s'" % victim.id) 
+        pointer.execute(f'DELETE FROM mutes WHERE id = {victim.id} AND guild = {ctx.guild.id}') 
         connection.commit()
         print(f'REMOVE: {muteparams}')
         embed = discord.Embed(title=f'You have been unmuted from: `{ctx.guild.name}`')

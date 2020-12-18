@@ -119,7 +119,7 @@ async def mute(mutee, exp, guild, role):
     mutee=guild.get_member(mutee)
     role=guild.get_role(role)
     await asyncio.sleep(delta.total_seconds())
-    pointer.execute("DELETE FROM mutes WHERE id = '%s'" % mutee.id)
+    pointer.execute(f'DELETE FROM mutes WHERE id = {mutee.id} AND guild = {guild.id}')
     connection.commit()
     params = (int(mutee.id), delta.strftime('%Y-%m-%d %H:%M:%S'), int(guild.id), int(role.id))
     print(f'REMOVE: {params}')
