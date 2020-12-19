@@ -158,11 +158,11 @@ class Owner(commands.Cog):
         if victim is None:
             return await ctx.send('You need to specify someone to unmute', delete_after=3)
 
-        muteparams = pointer.execute(f'SELECT FROM mutes WHERE id = {victim.id} AND guild = {victim.guild.id}')
+        muteparams = pointer.execute(f'SELECT FROM mutes WHERE id = {int(victim.id)} AND guild = {int(victim.guild.id)}')
         embed = discord.Embed(title=f'You have been unmuted from: `{victim.guild.name}`')
         muterole = victim.guild.get_role(muteparams[3])
         print(f'SQL-REMOVE: {muteparams}')
-        pointer.execute(f'DELETE FROM mutes WHERE id = {victim.id} AND guild = {victim.guild.id}')
+        pointer.execute(f'DELETE FROM mutes WHERE id = {int(victim.id)} AND guild = {int(victim.guild.id)}')
         connection.commit()
         await victim.remove_roles(muterole)
         await victim.send(embed=embed)

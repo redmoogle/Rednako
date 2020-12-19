@@ -1,5 +1,5 @@
 # Handle tasks
-from discord.ext import commands
+from discord.ext import commands, tasks
 from datetime import datetime
 import discord
 import asyncio
@@ -14,14 +14,15 @@ class Task(commands.Cog):
     """
     def __init__(self, bot):
         self.bot = bot
-        self.mutetask = self.bot.loop.create_task(self.mute())
+        self.bot.mute.start()
 
     async def cog_before_invoke(self, ctx):
         await self.bot.wait_until_ready()
 
     def cog_unload(self):
-        self.mutetask.cancel()
+        self.bot.mute.cancel()
 
+    @tasks.loop(seconds=5)
     async def mute(self):
         for row in pointer.execute('SELECT * FROM mutes ORDER BY id;'):
             print(f'SQL-LOAD: {row}')
@@ -33,12 +34,11 @@ class Task(commands.Cog):
             delta = (datetime.strptime(time, '%Y-%m-%d %H:%M:%S') - datetime.now()).total_seconds()
             if(delta <= 0):
                 print(f'SQL-DELETE: {row}')
-                pointer.execute(f'DELETE FROM mutes WHERE id = {member.id} AND guild = {guild.id}')
+                pointer.execute(f'DELETE FROM mutes WHERE id = {int(member.id)} AND guild = {int(guild.id)}')
                 connection.commit()
                 embed = discord.Embed(title=f'You have been unmuted from: `{guild.name}`')
                 await member.send(embed=embed)
                 await member.remove_roles(role)
-        await asyncio.sleep(15)
 
 def setup(bot):
     bot.add_cog(Task(bot))
