@@ -10,7 +10,6 @@ in the config make sure to update the .format in here
 """
 import asyncio
 import sqlite3
-from datetime import datetime
 import config
 import discord
 from discord.ext import commands
