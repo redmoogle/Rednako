@@ -14,13 +14,13 @@ class Task(commands.Cog):
     """
     def __init__(self, bot):
         self.bot = bot
-        self.bot.mute.start()
+        self.mute.start()
 
     async def cog_before_invoke(self, ctx):
         await self.bot.wait_until_ready()
 
     def cog_unload(self):
-        self.bot.mute.cancel()
+        self.mute.cancel()
 
     @tasks.loop(seconds=5)
     async def mute(self):
