@@ -58,11 +58,10 @@ async def on_ready():
     print(f'Global Servers: {memlogging[1]}')
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
-    asyncio.run(load_mutes())
-
     for command in botcommands:
         bot.load_extension(command)
-    return
+    
+    await load_mutes()
 
 async def update():
     """
