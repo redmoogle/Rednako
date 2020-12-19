@@ -57,7 +57,8 @@ async def on_ready():
     print(f'Global Member Count: {memlogging[0]}')
     print(f'Global Servers: {memlogging[1]}')
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
-    await load_mutes()
+
+    await bot.loop.run_in_executor(None, load_mutes)
 
     for command in botcommands:
         bot.load_extension(command)
@@ -121,7 +122,7 @@ async def mute(mutee, exp, guild, role):
     await asyncio.sleep(delta.total_seconds())
     pointer.execute(f'DELETE FROM mutes WHERE id = {mutee.id} AND guild = {guild.id}')
     connection.commit()
-    delta = datetime(delta)
+    delta = datetime(delta.total_second())
     params = (int(mutee.id), delta.strftime('%Y-%m-%d %H:%M:%S'), int(guild.id), int(role.id))
     print(f'REMOVE: {params}')
     embed = discord.Embed(title=f'You have been unmuted from: `{guild.name}`')
