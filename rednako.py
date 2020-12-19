@@ -47,7 +47,8 @@ botcommands = [
     'commands.music',
     'commands.user',
     'commands.owner',
-    'commands.image'
+    'commands.image',
+    'commands.tasks'
 ]
 
 @bot.event
@@ -60,7 +61,6 @@ async def on_ready():
 
     for command in botcommands:
         bot.load_extension(command)
-    await load_mutes()
 
 async def update():
     """
@@ -94,37 +94,6 @@ async def grab_members():
     for _ in bot.get_all_members():
         members += 1
     return [members, servers]
-
-async def load_mutes():
-    """
-    Process of loading mutes into memory
-    """
-    for row in pointer.execute('SELECT * FROM mutes ORDER BY id;'):
-        print(f'LOAD: {row}')
-        mutee = row[0]
-        exp = row[1]
-        guild = row[2]
-        role = row[3]
-        await mute(mutee,exp,guild,role)
-
-async def mute(mutee, exp, guild, role):
-    """
-    Actually Handles the unmuting part
-    """
-    delta = datetime.strptime(exp, '%Y-%m-%d %H:%M:%S') - datetime.now()
-
-    # Object Conversion
-    guild=bot.get_guild(guild)
-    mutee=guild.get_member(mutee)
-    role=guild.get_role(role)
-    await asyncio.sleep(delta.total_seconds())
-    pointer.execute(f'DELETE FROM mutes WHERE id = {mutee.id} AND guild = {guild.id}')
-    connection.commit()
-    params = (int(mutee.id), exp, int(guild.id), int(role.id))
-    print(f'REMOVE: {params}')
-    embed = discord.Embed(title=f'You have been unmuted from: `{guild.name}`')
-    await mutee.send(embed=embed)
-    await mutee.remove_roles(role)
 
 # Finally, login the bot
 bot.loop.create_task(update())

@@ -10,7 +10,6 @@ import helpers
 config = config.Config('./config.cfg')
 repo = git.Repo(search_parent_directories=True)
 
-# New - The Cog class must extend the commands.Cog class
 class User(commands.Cog):
     
     def __init__(self, bot):
@@ -126,5 +125,3 @@ class User(commands.Cog):
 
 def setup(bot):
     bot.add_cog(User(bot))
-    # Adds user commands to the bot
-    # Note: The "setup" function has to be there in every cog file

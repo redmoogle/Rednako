@@ -32,7 +32,6 @@ async def repoembed():
     embed=helpers.embed(title='Github Update: ', fields=info, inline=False)
     return embed
 
-# New - The Cog class must extend the commands.Cog class
 class Owner(commands.Cog):
     
     def __init__(self, bot):
@@ -144,21 +143,29 @@ class Owner(commands.Cog):
         embed = discord.Embed(title=f'You have been muted in: `{ctx.guild.name}` for `{time}s`')
         await victim.add_roles(muterole)
         await victim.send(embed=embed)
-        delta = (datetime.datetime.now() + datetime.timedelta(seconds=time))
-        delta = delta.strftime('%Y-%m-%d %H:%M:%S')
+        delta = (datetime.datetime.now() + datetime.timedelta(seconds=time)).strftime('%Y-%m-%d %H:%M:%S')
         muteparams = (int(victim.id), delta, int(ctx.guild.id), int(muterole.id))
+        print(f'SQL-ADD: {muteparams}')
         pointer.execute(f'INSERT INTO mutes VALUES {muteparams};') # you're not escaping :^)
         connection.commit()
-        print(f'ADD: {muteparams}')
-        await asyncio.sleep(time)
-        pointer.execute(f'DELETE FROM mutes WHERE id = {victim.id} AND guild = {ctx.guild.id}') 
+
+    @commands.command(
+        name='unmute',
+        brief='unmute a person'
+    )
+    @commands.has_permissions(kick_members=True)
+    async def unmute(self, ctx, victim: discord.Member = None):
+        if victim is None:
+            return await ctx.send('You need to specify someone to unmute', delete_after=3)
+
+        muteparams = pointer.execute(f'SELECT FROM mutes WHERE id = {victim.id} AND guild = {victim.guild.id}')
+        embed = discord.Embed(title=f'You have been unmuted from: `{victim.guild.name}`')
+        muterole = victim.guild.get_role(muteparams[3])
+        print(f'SQL-REMOVE: {muteparams}')
+        pointer.execute(f'DELETE FROM mutes WHERE id = {victim.id} AND guild = {victim.guild.id}')
         connection.commit()
-        print(f'REMOVE: {muteparams}')
-        embed = discord.Embed(title=f'You have been unmuted from: `{ctx.guild.name}`')
-        await victim.send(embed=embed)
         await victim.remove_roles(muterole)
+        await victim.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(Owner(bot))
-    # Adds the ping command to the bot
-    # Note: The "setup" function has to be there in every cog file

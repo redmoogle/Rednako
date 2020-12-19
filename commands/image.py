@@ -8,7 +8,6 @@ import nekos
 import helpers
 
 # Dont worry I can feel the disappointment from my computer
-# New - The Cog class must extend the commands.Cog class
 class Image(commands.Cog):
     
     def __init__(self, bot):
@@ -49,5 +48,3 @@ class Image(commands.Cog):
 
 def setup(bot):
     bot.add_cog(Image(bot))
-    # Adds image commands to the bot
-    # Note: The "setup" function has to be there in every cog file
