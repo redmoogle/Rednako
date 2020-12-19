@@ -60,7 +60,6 @@ async def on_ready():
 
     for command in botcommands:
         bot.load_extension(command)
-    
     await load_mutes()
 
 async def update():
