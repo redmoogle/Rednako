@@ -58,7 +58,7 @@ async def on_ready():
     print(f'Global Servers: {memlogging[1]}')
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
-    await bot.loop.run_in_executor(None, load_mutes)
+    asyncio.run(load_mutes())
 
     for command in botcommands:
         bot.load_extension(command)
