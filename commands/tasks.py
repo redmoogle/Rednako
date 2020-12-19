@@ -1,3 +1,6 @@
+# pylint: disable=E1101
+# error ignore because pylint is retarted
+
 # Handle tasks
 from discord.ext import commands, tasks
 from datetime import datetime
@@ -25,7 +28,6 @@ class Task(commands.Cog):
     @tasks.loop(seconds=5)
     async def mute(self):
         for row in pointer.execute('SELECT * FROM mutes ORDER BY id;'):
-            print(f'SQL-LOAD: {row}')
             _data = row # Prevents data-overriding
             guild = self.bot.get_guild(_data[2])
             member = guild.get_member(_data[0])
