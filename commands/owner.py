@@ -179,8 +179,9 @@ class Owner(commands.Cog):
             print(table)
             rows = (pointer.execute(f'SELECT * FROM {table[0]}')).fetchall()
             info += [f'Table: {table[0]}', f'Rows: {len(rows)}']
+            info += ['test', 'value']
         
-        print(type(info))
+        print(info)
         embed = helpers.embed(title='Databases: ', fields=info, inline=False)
         await ctx.send(embed=embed)
 
