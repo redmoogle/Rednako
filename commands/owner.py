@@ -175,9 +175,9 @@ class Owner(commands.Cog):
     @commands.is_owner()
     async def database(self, ctx):
         info = []
-        for table in pointer.execute('SHOW TABLES'):
-            rows = (pointer.execute(f'SELECT * FROM {table}')).fetchall()
-            info += [f'Table: {table}', f'Rows: {len(rows)}']
+        for table in pointer.execute("SELECT * FROM sqlite_master;"):
+            rows = (pointer.execute(f'SELECT * FROM {table[0]}')).fetchall()
+            info += [f'Table: {table[0]}', f'Rows: {len(rows)}']
         
         embed = helpers.embed(title='Databases: ', fields=info, inline=False)
         await ctx.send(embed=embed)
