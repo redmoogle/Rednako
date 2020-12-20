@@ -11,6 +11,8 @@ def embed(title: str = None, description: str = None, thumbnail: str = None, ima
     Helps with making clean embeds, has common needs
     """
     embedhelper = discord.Embed(title=title, description=description)
+    embedhelper.color = color
+    
     if thumbnail is not None:
         embedhelper.set_thumbnail(url=thumbnail)
 
@@ -23,8 +25,6 @@ def embed(title: str = None, description: str = None, thumbnail: str = None, ima
 
     if color is None or 0:
         embedhelper.color = random.randint(0, 0xffffff)
-    
-    embedhelper.color = color
 
     return embedhelper
 
