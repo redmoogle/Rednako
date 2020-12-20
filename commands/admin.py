@@ -38,7 +38,7 @@ class Admin(commands.Cog):
     async def update(self, ctx):
         local = repo.head.object.hexsha
         remote = repo.remotes.origin.fetch()[0].commit
-        print(f'Local: {local}, Remote: {remote}')
+        print(f'Localt: {local}, Remote: {remote}')
         if(local != remote):
             info = [
                     ['Local Commit: ',  f'{local}'],
