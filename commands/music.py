@@ -274,6 +274,9 @@ class VoiceState:
 
 
 class Music(commands.Cog):
+    """
+    Play Music
+    """
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.voice_states = {}

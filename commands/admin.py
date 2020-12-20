@@ -13,29 +13,21 @@ import datetime
 import json
 import sqlite3
 import datetime
+
 connection = sqlite3.connect('database.db')
 pointer = connection.cursor()
 config = config.Config('./config.cfg')
 repo = git.Repo(search_parent_directories=True)
 
-async def repoembed():
+class Admin(commands.Cog):
     """
-    returns a embed object of current repository commits
+    Administration Commands
     """
-    sha = repo.head.object.hexsha
-    remotesha = repo.remotes.origin.fetch()[0].commit
-    info = [
-        ['Local Commit: ',  f'{sha}'],
-        ['Github Commit: ', f'{remotesha}']
-    ]
-    
-    embed=helpers.embed(title='Github Update: ', fields=info, inline=False)
-    return embed
-
-class Owner(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
+        self.local = repo.head.object.hexsha
+        self.remote = repo.remotes.origin.fetch()[0].commit
 
     async def cog_before_invoke(self, ctx):
         await ctx.message.delete()
@@ -46,13 +38,18 @@ class Owner(commands.Cog):
     )
     @commands.is_owner()
     async def update(self, ctx):
-        sha = repo.head.object.hexsha
-        remotesha = repo.remotes.origin.fetch()[0].commit
-        if(str(sha) != str(remotesha)):
-            embed = await repoembed()
+        if(str(self.local) != str(self.remote)):
+            info = [
+                    ['Local Commit: ',  f'{self.local}'],
+                    ['Github Commit: ', f'{self.remote}']
+                ]
+    
+            embed=helpers.embed(title='Github Update: ', fields=info, inline=False)
             await ctx.send(embed=embed)
-
-        await self.bot.logout()
+        try: # Silence, Error.
+            await self.bot.logout()
+        except:
+            pass
         subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
         exit()
 
@@ -175,4 +172,4 @@ class Owner(commands.Cog):
         await ctx.send(embed=embed)
 
 def setup(bot):
-    bot.add_cog(Owner(bot))
+    bot.add_cog(Admin(bot))

@@ -11,7 +11,9 @@ config = config.Config('./config.cfg')
 repo = git.Repo(search_parent_directories=True)
 
 class User(commands.Cog):
-    
+    """
+    User Commands
+    """
     def __init__(self, bot):
         self.bot = bot
 

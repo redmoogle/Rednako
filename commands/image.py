@@ -9,7 +9,9 @@ import helpers
 
 # Dont worry I can feel the disappointment from my computer
 class Image(commands.Cog):
-    
+    """
+    Commands that send images
+    """
     def __init__(self, bot):
         self.bot = bot
 

@@ -45,7 +45,7 @@ bot = commands.Bot(                         # Create a new bot
 botcommands = [
     'commands.music',
     'commands.user',
-    'commands.owner',
+    'commands.admin',
     'commands.image',
     'commands.tasks'
 ]
