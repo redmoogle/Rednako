@@ -175,7 +175,7 @@ class Owner(commands.Cog):
     @commands.is_owner()
     async def database(self, ctx):
         info = []
-        for table in pointer.execute("SELECT * FROM sqlite_master;"):
+        for table in pointer.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall():
             rows = (pointer.execute(f'SELECT * FROM {table[0]}')).fetchall()
             info += [f'Table: {table[0]}', f'Rows: {len(rows)}']
         
