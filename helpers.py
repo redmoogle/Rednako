@@ -12,7 +12,7 @@ def embed(title: str = None, description: str = None, thumbnail: str = None, ima
     """
     embedhelper = discord.Embed(title=title, description=description)
     embedhelper.color = color
-    
+
     if thumbnail is not None:
         embedhelper.set_thumbnail(url=thumbnail)
 
@@ -23,7 +23,7 @@ def embed(title: str = None, description: str = None, thumbnail: str = None, ima
         for field in fields:
             embedhelper.add_field(name=field[0], value=field[1], inline=inline)
 
-    if color is None or 0:
+    if (color == discord.Colour.default()):
         embedhelper.color = random.randint(0, 0xffffff)
 
     return embedhelper
