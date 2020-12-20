@@ -27,6 +27,15 @@ class Task(commands.Cog):
 
     @tasks.loop(seconds=5)
     async def mute(self):
+        try:
+            pointer.execute(
+            '''CREATE TABLE mutes
+                (id INTEGER, experation TIME, guild INTEGER, role INTEGER)
+                '''
+            )
+        except:
+            pass
+
         for row in pointer.execute('SELECT * FROM mutes ORDER BY id;'):
             _data = row # Prevents data-overriding
             guild = self.bot.get_guild(_data[2])
@@ -41,6 +50,38 @@ class Task(commands.Cog):
                 embed = discord.Embed(title=f'You have been unmuted from: `{guild.name}`')
                 await member.send(embed=embed)
                 await member.remove_roles(role)
+
+    @tasks.loop(minutes=1)
+    async def storage(self):
+        """
+        Move long mutes into storage to keep the 5 second task fast
+        """
+        try:
+            pointer.execute(
+            '''CREATE TABLE longmutes
+                (id INTEGER, experation TIME, guild INTEGER, role INTEGER)
+                '''
+            )
+        except:
+            pass
+
+        for row in pointer.execute('SELECT * FROM mutes ORDER BY id;'): # Move from active to storage
+            time = row[1]
+            delta = (datetime.strptime(time, '%Y-%m-%d %H:%M:%S') - datetime.now()).total_seconds()
+            if(delta > 70): # Small buffer
+                print(f'SQL-MOVE: {row}')
+                pointer.execute(f'INSERT INTO longmutes VALUES {row};')
+                pointer.execute(f'DELETE FROM mutes WHERE id = {row[0]} and guild = {row[2]}')
+
+        for row in pointer.execute('SELECT * FROM longmutes ORDER BY id;'): # Move from storage to active
+            time = row[1]
+            delta = (datetime.strptime(time, '%Y-%m-%d %H:%M:%S') - datetime.now()).total_seconds()
+            if(delta <= 70):
+                print(f'SQL-MOVE: {row}')
+                pointer.execute(f'INSERT INTO mutes VALUES {row};')
+                pointer.execute(f'DELETE FROM longmutes WHERE id = {row[0]} and guild = {row[2]}')
+        connection.commit()
+
 
 def setup(bot):
     bot.add_cog(Task(bot))

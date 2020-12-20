@@ -115,14 +115,6 @@ class Owner(commands.Cog):
     @commands.has_permissions(kick_members=True)
     async def mute(self, ctx, victim: discord.Member = None, *, time: str = None):
         time = helpers.timeconv(time)
-        try:
-            pointer.execute(
-            '''CREATE TABLE mutes
-                (id INTEGER, experation TIME, guild INTEGER, role INTEGER)
-                '''
-            )
-        except:
-            pass
 
         if victim is None:
             return await ctx.send('You need to specify someone to mute', delete_after=3)
