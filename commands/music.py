@@ -247,8 +247,7 @@ class VoiceState:
                     async with timeout(180):  # 3 minutes
                         self.current = await self.songs.get()
                 except asyncio.TimeoutError:
-                    self.bot.loop.create_task(self.stop())
-                    return
+                    return self.bot.loop.create_task(self.stop())
 
             self.current.source.volume = self._volume
             self.voice.play(self.current.source, after=self.play_next_song)
@@ -314,8 +313,7 @@ class Music(commands.Cog):
 
         destination = ctx.author.voice.channel
         if ctx.voice_state.voice:
-            await ctx.voice_state.voice.move_to(destination)
-            return
+            return await ctx.voice_state.voice.move_to(destination)
 
         ctx.voice_state.voice = await destination.connect()
 

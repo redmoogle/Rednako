@@ -44,7 +44,7 @@ class Admin(commands.Cog):
                     ['Github Commit: ', f'{self.remote}']
                 ]
     
-            embed=helpers.embed(title='Github Update: ', fields=info, inline=False)
+            embed=helpers.embed(title='Github Update: ', fields=info, inline=False, color=discord.Colour.gold())
             await ctx.send(embed=embed)
         try: # Silence, Error.
             await self.bot.logout()
@@ -168,7 +168,7 @@ class Admin(commands.Cog):
             rows = (pointer.execute(f'SELECT * FROM {table[0]}')).fetchall()
             info += [[f'Table: {table[0]}', f'Rows: {len(rows)}']]
         
-        embed = helpers.embed(title='Databases: ', fields=info)
+        embed = helpers.embed(title='Databases: ', fields=info, color=discord.Colour.dark_blue())
         await ctx.send(embed=embed)
 
 def setup(bot):

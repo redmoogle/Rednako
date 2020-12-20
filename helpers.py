@@ -6,7 +6,7 @@ Common helper functions for bot
 import random
 import discord
 
-def embed(title: str = None, description: str = None, thumbnail: str = None, image: str = None, fields: list = None, inline: bool = True, randcolor: bool = True):
+def embed(title: str = None, description: str = None, thumbnail: str = None, image: str = None, fields: list = None, inline: bool = True, color: discord.Colour.default = None):
     """
     Helps with making clean embeds, has common needs
     """
@@ -21,8 +21,10 @@ def embed(title: str = None, description: str = None, thumbnail: str = None, ima
         for field in fields:
             embedhelper.add_field(name=field[0], value=field[1], inline=inline)
 
-    if randcolor:
+    if color is None or 0:
         embedhelper.color = random.randint(0, 0xffffff)
+    
+    embedhelper.color = color
 
     return embedhelper
 
