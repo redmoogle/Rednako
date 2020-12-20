@@ -176,13 +176,10 @@ class Owner(commands.Cog):
     async def database(self, ctx):
         info = []
         for table in pointer.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall():
-            print(table)
             rows = (pointer.execute(f'SELECT * FROM {table[0]}')).fetchall()
             info += [[f'Table: {table[0]}', f'Rows: {len(rows)}']]
-            info += [['test', 'value']]
         
-        print(info)
-        embed = helpers.embed(title='Databases: ', fields=info, inline=False)
+        embed = helpers.embed(title='Databases: ', fields=info)
         await ctx.send(embed=embed)
 
 def setup(bot):
