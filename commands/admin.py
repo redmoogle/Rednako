@@ -26,8 +26,6 @@ class Admin(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
-        self.local = repo.head.object.hexsha
-        self.remote = repo.remotes.origin.fetch()[0].commit
 
     async def cog_before_invoke(self, ctx):
         await ctx.message.delete()
@@ -37,12 +35,14 @@ class Admin(commands.Cog):
         brief='update bot'
     )
     @commands.is_owner()
-    def update(self, ctx):
-        print(f'Local: {self.local}, Remote: {self.remote}')
-        if(self.local != self.remote):
+    async def update(self, ctx):
+        local = repo.head.object.hexsha
+        remote = repo.remotes.origin.fetch()[0].commit
+        print(f'Local: {local}, Remote: {remote}')
+        if(local != remote):
             info = [
-                    ['Local Commit: ',  f'{self.local}'],
-                    ['Github Commit: ', f'{self.remote}']
+                    ['Local Commit: ',  f'{local}'],
+                    ['Github Commit: ', f'{remote}']
                 ]
     
             embed=helpers.embed(title='Github Update: ', fields=info, inline=False, color=discord.Colour.gold())
