@@ -167,5 +167,20 @@ class Owner(commands.Cog):
         await victim.remove_roles(muterole)
         await victim.send(embed=embed)
 
+    @commands.command(
+        name='database',
+        brief='Returns name and lenght of db',
+        aliases=['db']
+    )
+    @commands.is_owner()
+    async def database(self, ctx):
+        info = []
+        for table in pointer.execute('SHOW TABLES'):
+            rows = (pointer.execute(f'SELECT * FROM {table}')).fetchall()
+            info += [f'Table: {table}', f'Rows: {len(rows)}']
+        
+        embed = helpers.embed(title='Databases: ', fields=info, inline=False)
+        await ctx.send(embed=embed)
+
 def setup(bot):
     bot.add_cog(Owner(bot))
