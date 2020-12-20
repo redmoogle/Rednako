@@ -42,7 +42,7 @@ def timeconv(time: str = None):
             temp = times[:-1]
             int(temp)
         except:
-            return None #invalid string
+            return None # Unknown Format was provided
 
         if times[-1] == "s":
             timeseconds += int(times[:-1])
