@@ -38,7 +38,8 @@ class Admin(commands.Cog):
     )
     @commands.is_owner()
     async def update(self, ctx):
-        if(str(self.local) != str(self.remote)):
+        print(f'Local: {self.local}, Remote: {self.remote}')
+        if(self.local != self.remote):
             info = [
                     ['Local Commit: ',  f'{self.local}'],
                     ['Github Commit: ', f'{self.remote}']
