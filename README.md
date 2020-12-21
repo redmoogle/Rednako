@@ -1,8 +1,9 @@
 # Rednako
  - Semi-Basic discord.py bot commands are entirely modular and can be removed.
+ - Server: [Server](https://discord.gg/2vUXuG7gKh)
 
 ### Invite
- - https://bit.ly/3n6wiZJ
+ - Bot Invite: [Invite](https://bit.ly/3n6wiZJ)
 
 ### Dependencys
  - pip3 install -r requirements.txt
