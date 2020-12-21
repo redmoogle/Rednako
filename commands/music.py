@@ -305,7 +305,7 @@ class Music(commands.Cog):
 
     @commands.command(
         name='join',
-        description='makes the bot join your channel',
+        brief='makes the bot join your channel',
         invoke_without_subcommand=True
     )
     async def _join(self, ctx):
@@ -320,7 +320,7 @@ class Music(commands.Cog):
     @commands.check(DJConfig)
     @commands.command(
         name='summon',
-        description='summons bot to your channel'
+        brief='summons bot to your channel'
     )
     async def _summon(self, ctx, *, channel: discord.VoiceChannel = None):
         """Summons the bot to a voice channel.
@@ -340,7 +340,7 @@ class Music(commands.Cog):
     @commands.check(DJConfig)
     @commands.command(
         name='leave',
-        description='leave channel',
+        brief='leave channel',
         aliases=['disconnect']
     )
     async def _leave(self, ctx):
@@ -354,7 +354,7 @@ class Music(commands.Cog):
 
     @commands.command(
         name='volume',
-        description='change volume',
+        brief='change volume',
         aliases=['vol', 'v']
     )
     async def _volume(self, ctx, *, volume: int):
@@ -371,7 +371,7 @@ class Music(commands.Cog):
 
     @commands.command(
         name='playing',
-        description='see whats playing',
+        brief='see whats playing',
         aliases=['current', 'now']
     )
     async def _now(self, ctx):
@@ -382,7 +382,7 @@ class Music(commands.Cog):
     @commands.check(DJConfig)
     @commands.command(
         name='pause',
-        description='pause audio output'
+        brief='pause audio output'
     )
     async def _pause(self, ctx):
         """Pauses the currently playing song."""
@@ -394,7 +394,7 @@ class Music(commands.Cog):
     @commands.check(DJConfig)
     @commands.command(
         name='resume',
-        description='resume audio output'
+        brief='resume audio output'
     )
     async def _resume(self, ctx):
         """Resumes a currently paused song."""
@@ -406,7 +406,7 @@ class Music(commands.Cog):
     @commands.check(DJConfig)
     @commands.command(
         name='stop',
-        description='clears queue and current audio'
+        brief='clears queue and current audio'
     )
     async def _stop(self, ctx):
         """Stops playing song and clears the queue."""
@@ -418,7 +418,7 @@ class Music(commands.Cog):
 
     @commands.command(
         name='skip',
-        description='skip a song'
+        brief='skip a song'
     )
     async def _skip(self, ctx):
         """Vote to skip a song. The requester can automatically skip.
@@ -460,7 +460,7 @@ class Music(commands.Cog):
 
     @commands.command(
         name='queue',
-        description='show queue',
+        brief='show queue',
         aliases=['q']
     )
     async def _queue(self, ctx, *, page: int = 1):
@@ -489,7 +489,7 @@ class Music(commands.Cog):
     @commands.check(DJConfig)
     @commands.command(
         name='shuffle',
-        description='time to get funky'
+        brief='time to get funky'
     )
     async def _shuffle(self, ctx):
         """Shuffles the queue."""
@@ -503,7 +503,7 @@ class Music(commands.Cog):
     @commands.check(DJConfig)
     @commands.command(
         name='remove',
-        description='get rid of trash'
+        brief='get rid of trash'
     )
     async def _remove(self, ctx, index: int):
         """Removes a song from the queue at a given index."""
@@ -517,7 +517,7 @@ class Music(commands.Cog):
     @commands.check(DJConfig)
     @commands.command(
         name='loop',
-        description='loops current song'
+        brief='loops current song'
     )
     async def _loop(self, ctx):
         """Loops the currently playing song.
@@ -534,7 +534,7 @@ class Music(commands.Cog):
 
     @commands.command(
         name='play',
-        description='play a song'
+        brief='play a song'
     )
     async def _play(self, ctx, *, search: str):
         """Plays a song.

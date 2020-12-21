@@ -96,9 +96,9 @@ class Admin(commands.Cog):
 
         funnys = [
                 f'You are being exiled {victim.mention}',
-                f'Stay in this hole until the end of time {victim.mention}', 
-                f'I shan\'t look at you {victim.mention}',
-                f'Stay away from me {victim.mention}!',
+                f'No. {victim.mention}', 
+                f'FBI open up! {victim.mention}',
+                f'Your vibes are neutral... {victim.mention}!',
                 f'{victim.mention} has failed the kneecap check'
                 ]
         random.shuffle(funnys)
