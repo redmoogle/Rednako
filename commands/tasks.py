@@ -19,6 +19,16 @@ class Task(commands.Cog):
         self.bot = bot
         self.mute.start()
         self.storage.start()
+        pointer.execute(
+            '''CREATE TABLE mutes IF NOT EXISTS
+                (id INTEGER, experation TIME, guild INTEGER, role INTEGER)
+                '''
+            )
+        pointer.execute(
+            '''CREATE TABLE longmutes IF NOT EXISTS
+                (id INTEGER, experation TIME, guild INTEGER, role INTEGER)
+                '''
+            )
 
     async def cog_before_invoke(self, ctx):
         await self.bot.wait_until_ready()
@@ -29,15 +39,6 @@ class Task(commands.Cog):
 
     @tasks.loop(seconds=5)
     async def mute(self):
-        try:
-            pointer.execute(
-            '''CREATE TABLE mutes
-                (id INTEGER, experation TIME, guild INTEGER, role INTEGER)
-                '''
-            )
-        except:
-            pass
-
         for row in pointer.execute('SELECT * FROM mutes ORDER BY id;'):
             _data = row # Prevents data-overriding
             guild = self.bot.get_guild(_data[2])
@@ -58,15 +59,6 @@ class Task(commands.Cog):
         """
         Move long mutes into storage to keep the 5 second task fast
         """
-        try:
-            pointer.execute(
-            '''CREATE TABLE longmutes
-                (id INTEGER, experation TIME, guild INTEGER, role INTEGER)
-                '''
-            )
-        except:
-            pass
-
         for row in pointer.execute('SELECT * FROM mutes ORDER BY id;'): # Move from active to storage
             time = row[1]
             delta = (datetime.strptime(time, '%Y-%m-%d %H:%M:%S') - datetime.now()).total_seconds()
