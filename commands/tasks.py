@@ -20,12 +20,12 @@ class Task(commands.Cog):
         self.mute.start()
         self.storage.start()
         pointer.execute(
-            '''CREATE TABLE mutes IF NOT EXISTS
+            '''CREATE TABLE IF NOT EXISTS mutes
                 (id INTEGER, experation TIME, guild INTEGER, role INTEGER)
                 '''
             )
         pointer.execute(
-            '''CREATE TABLE longmutes IF NOT EXISTS
+            '''CREATE TABLE IF NOT EXISTS longmutes
                 (id INTEGER, experation TIME, guild INTEGER, role INTEGER)
                 '''
             )
