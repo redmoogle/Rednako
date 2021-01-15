@@ -183,10 +183,7 @@ class SongQueue(asyncio.Queue):
             return self._queue[item]
 
     def __iter__(self):
-        """
-        :rtype: iterator
-        """
-        return self._queue.__iter__()
+        return iter(self._queue)
 
     def __len__(self):
         return self.qsize()
@@ -253,7 +250,7 @@ class VoiceState:
                     async with timeout(180):  # 3 minutes
                         self.current = await self.songs.get()
                 except asyncio.TimeoutError:
-                    pass
+                    return
 
             self.current.source.volume = self._volume
             self.voice.play(self.current.source, after=self.play_next_song)
