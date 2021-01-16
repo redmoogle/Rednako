@@ -22,9 +22,9 @@ repo = git.Repo(search_parent_directories=True)
 async def grabmute(ctx, victim: discord.Member = None):
     if victim is None:
         return False
-    muteparams = pointer.execute(f'SELECT FROM mutes WHERE id = {int(victim.id)} AND guild = {int(victim.guild.id)}')
+    muteparams = pointer.execute(f'SELECT * FROM mutes WHERE id = {int(victim.id)} AND guild = {int(victim.guild.id)}')
     if not muteparams.fetchone():
-        muteparams = pointer.execute(f'SELECT FROM longmutes WHERE id = {int(victim.id)} AND guild = {int(victim.guild.id)}')
+        muteparams = pointer.execute(f'SELECT * FROM longmutes WHERE id = {int(victim.id)} AND guild = {int(victim.guild.id)}')
     if not muteparams.fetchone():
         await ctx.send('They were never muted. If this wasnt supposed to be contact a coder', delete_after=3)
         return False
