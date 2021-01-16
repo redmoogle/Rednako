@@ -169,7 +169,7 @@ class Admin(commands.Cog):
         if victim is None:
             return await ctx.send('You need to specify someone to unmute', delete_after=3)
         
-        muteparams = grabmute(ctx, victim)
+        await muteparams = grabmute(ctx, victim)
         if(muteparams):
             embed = discord.Embed(title=f'You have been unmuted from: `{victim.guild.name}`')
             muterole = victim.guild.get_role(muteparams[3])
