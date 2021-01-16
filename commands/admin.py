@@ -19,7 +19,7 @@ pointer = connection.cursor()
 config = config.Config('./config.cfg')
 repo = git.Repo(search_parent_directories=True)
 
-def grabmute(ctx, victim: discord.Member = None):
+async def grabmute(ctx, victim: discord.Member = None):
     if victim is None:
         return False
     try:
