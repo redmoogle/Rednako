@@ -19,6 +19,19 @@ pointer = connection.cursor()
 config = config.Config('./config.cfg')
 repo = git.Repo(search_parent_directories=True)
 
+def grabmute(ctx, victim: discord.Member = None):
+    if victim is None:
+        return False
+    try:
+        muteparams = pointer.execute(f'SELECT FROM mutes WHERE id = {int(victim.id)} AND guild = {int(victim.guild.id)}')
+    except:
+        try:
+            muteparams = pointer.execute(f'SELECT FROM longmutes WHERE id = {int(victim.id)} AND guild = {int(victim.guild.id)}')
+        except:
+            await ctx.send('They were never muted. If this wasnt supposed to be contact a coder', delete_after=3)
+            return False
+    return muteparams
+
 class Admin(commands.Cog):
     """
     Administration Commands
@@ -155,15 +168,16 @@ class Admin(commands.Cog):
     async def unmute(self, ctx, victim: discord.Member = None):
         if victim is None:
             return await ctx.send('You need to specify someone to unmute', delete_after=3)
-
-        muteparams = pointer.execute(f'SELECT FROM mutes WHERE id = {int(victim.id)} AND guild = {int(victim.guild.id)}')
-        embed = discord.Embed(title=f'You have been unmuted from: `{victim.guild.name}`')
-        muterole = victim.guild.get_role(muteparams[3])
-        print(f'SQL-REMOVE: {muteparams}')
-        pointer.execute(f'DELETE FROM mutes WHERE id = {int(victim.id)} AND guild = {int(victim.guild.id)}')
-        connection.commit()
-        await victim.remove_roles(muterole)
-        await victim.send(embed=embed)
+        
+        muteparams = grabmute(ctx, victim)
+        if(muteparams):
+            embed = discord.Embed(title=f'You have been unmuted from: `{victim.guild.name}`')
+            muterole = victim.guild.get_role(muteparams[3])
+            print(f'SQL-REMOVE: {muteparams}')
+            pointer.execute(f'DELETE FROM mutes WHERE id = {int(victim.id)} AND guild = {int(victim.guild.id)}')
+            connection.commit()
+            await victim.remove_roles(muterole)
+            await victim.send(embed=embed)
 
     @commands.command(
         name='database',
