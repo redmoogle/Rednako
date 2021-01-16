@@ -11,24 +11,25 @@ import sqlite3
 connection = sqlite3.connect('database.db')
 pointer = connection.cursor()
 
+tables = [
+    '''CREATE TABLE IF NOT EXISTS mutes
+        (id INTEGER, experation TIME, guild INTEGER, role INTEGER)
+    ''',
+    '''CREATE TABLE IF NOT EXISTS longmutes
+        (id INTEGER, experation TIME, guild INTEGER, role INTEGER)
+    '''
+]
+
 class Task(commands.Cog):
     """
     Automatic Tasks
     """
     def __init__(self, bot):
+        for table in tables:
+            pointer.execute(table)
         self.bot = bot
         self.mute.start()
         self.storage.start()
-        pointer.execute(
-            '''CREATE TABLE IF NOT EXISTS mutes
-                (id INTEGER, experation TIME, guild INTEGER, role INTEGER)
-                '''
-            )
-        pointer.execute(
-            '''CREATE TABLE IF NOT EXISTS longmutes
-                (id INTEGER, experation TIME, guild INTEGER, role INTEGER)
-                '''
-            )
 
     async def cog_before_invoke(self, ctx):
         await self.bot.wait_until_ready()
@@ -39,15 +40,14 @@ class Task(commands.Cog):
 
     @tasks.loop(seconds=5)
     async def mute(self):
-        for row in pointer.execute('SELECT * FROM mutes ORDER BY id;'):
-            _data = row # Prevents data-overriding
-            guild = self.bot.get_guild(_data[2])
-            member = guild.get_member(_data[0])
-            role = guild.get_role(_data[3])
-            time = _data[1]
+        for data in pointer.execute('SELECT * FROM mutes ORDER BY id;'):
+            member = guild.get_member(data[0])
+            time = data[1]
+            guild = self.bot.get_guild(data[2])
+            role = guild.get_role(data[3])
             delta = (datetime.strptime(time, '%Y-%m-%d %H:%M:%S') - datetime.now()).total_seconds()
             if(delta <= 0):
-                print(f'SQL-DELETE: {row}')
+                print(f'SQL-DELETE: {data}')
                 pointer.execute(f'DELETE FROM mutes WHERE id = {int(member.id)} AND guild = {int(guild.id)}')
                 connection.commit()
                 embed = discord.Embed(title=f'You have been unmuted from: `{guild.name}`')

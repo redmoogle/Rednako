@@ -48,10 +48,19 @@ class Admin(commands.Cog):
             await ctx.send(embed=embed)
         try: # Silence, Error.
             await self.bot.logout()
+            subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
+            exit()
         except:
             pass
-        subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
-        exit()
+
+    @commands.command(
+        name='sql',
+        brief='run SQL commands'
+    )
+    @commands.is_owner()
+    async def sql(self, ctx, *, sqlinput):
+        sqlpass = pointer.execute(sqlinput)
+        return await ctx.send(sqlpass, delete_after=10)
 
     @commands.command(
         name='purge',
