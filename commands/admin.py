@@ -60,7 +60,7 @@ class Admin(commands.Cog):
     @commands.is_owner()
     async def sql(self, ctx, *, sqlinput):
         sqlpass = pointer.execute(sqlinput)
-        return await ctx.send(sqlpass, delete_after=10)
+        return await ctx.send(sqlpass.fetchall(), delete_after=10)
 
     @commands.command(
         name='purge',
