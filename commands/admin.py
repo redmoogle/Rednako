@@ -22,13 +22,19 @@ repo = git.Repo(search_parent_directories=True)
 async def grabmute(ctx, victim: discord.Member = None):
     if victim is None:
         return False
+    mutee = None # Holder for return
     muteparams = pointer.execute(f'SELECT * FROM mutes WHERE id = {int(victim.id)} AND guild = {int(victim.guild.id)}')
-    if muteparams.fetchall() is None:
+    try:
+        mutee = muteparams.fetchall()[0]
+    except:
         muteparams = pointer.execute(f'SELECT * FROM longmutes WHERE id = {int(victim.id)} AND guild = {int(victim.guild.id)}')
-    if muteparams.fetchall() is None:
-        await ctx.send('They were never muted. If this wasnt supposed to be contact a coder', delete_after=3)
-        return False
-    return muteparams.fetchall()[0] # Return First found mute(for somereason fetchone doesnt work)
+        try:
+            mutee = muteparams.fetchall()[0]
+        except:
+            await ctx.send('They were never muted. If this wasnt supposed to be contact a coder', delete_after=3)
+            return False
+
+    return mutee # Return First found mute(for somereason fetchone doesnt work)
 
 class Admin(commands.Cog):
     """
