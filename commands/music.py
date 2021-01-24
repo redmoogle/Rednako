@@ -243,7 +243,7 @@ class VoiceState:
 
             if not self.loop:
                 self.current = await self.songs.get()
-                if not self.current:
+                if not self.is_playing():
                     self.stop()
 
             self.current.source.volume = self._volume
