@@ -86,7 +86,6 @@ class Admin(commands.Cog):
     @commands.has_permissions(manage_channels=True)
     async def purge(self, ctx, purge: int):
         if(purge > 250):
-            purge = 250
             return await ctx.send('You can only purge upto 250 messages', delete_after=3)
 
         await ctx.channel.purge(limit=purge, bulk=True)
