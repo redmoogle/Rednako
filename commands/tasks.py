@@ -44,8 +44,7 @@ class Task(commands.Cog):
             member = guild.get_member(data[0])
             time = data[1]
             guild = self.bot.get_guild(data[2])
-            if(guild):
-                role = guild.get_role(data[3])
+            role = guild.get_role(data[3])
             delta = (datetime.strptime(time, '%Y-%m-%d %H:%M:%S') - datetime.now()).total_seconds()
             if(delta <= 0):
                 print(f'SQL-DELETE: {data}')

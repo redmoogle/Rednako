@@ -43,7 +43,7 @@ bot = commands.Bot(                         # Create a new bot
 
 # case_insensitive=True is used as the commands are case sensitive by default
 botcommands = [
-    'commands.experiment_music',
+    'commands.music',
     'commands.user',
     'commands.admin',
     'commands.image',
