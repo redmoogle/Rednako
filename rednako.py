@@ -96,6 +96,5 @@ async def grab_members():
     return [members, servers]
 
 # Finally, login the bot
-os.system('java -jar Lavalink.jar')
 bot.loop.create_task(update())
 bot.run(token, bot=True, reconnect=True)
