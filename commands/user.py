@@ -109,8 +109,7 @@ class User(commands.Cog):
 
     @commands.command(
         name='ping',
-        brief='ping discord api/bot',
-        aliases=['p']
+        brief='ping discord api/bot'
     )
     async def ping(self, ctx):
         embed = discord.Embed(title="Pong!", color=discord.Color.blurple())

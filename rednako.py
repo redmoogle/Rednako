@@ -10,6 +10,7 @@ in the config make sure to update the .format in here
 """
 import asyncio
 import sqlite3
+import subprocess
 import config
 import discord
 from discord.ext import commands
@@ -95,5 +96,6 @@ async def grab_members():
     return [members, servers]
 
 # Finally, login the bot
+subprocess.call(['java', '-jar', 'Lavalink.jar']) # start lavalink
 bot.loop.create_task(update())
 bot.run(token, bot=True, reconnect=True)
