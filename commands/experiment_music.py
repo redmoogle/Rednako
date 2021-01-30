@@ -15,7 +15,7 @@ import discord
 import lavalink
 from discord.ext import commands
 import config
-import helpers
+import math
 config = config.Config('./config.cfg')
 
 def DJConfig(ctx):
@@ -202,7 +202,7 @@ class exp_Music(commands.Cog):
         """pauses the player."""
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if(player):
-            player.stop()
+           await player.stop()
         if not player.is_playing:
             await ctx.send('*⃣ | Bot is not playing any music.')
 
@@ -217,29 +217,45 @@ class exp_Music(commands.Cog):
         embed=discord.Embed(title=player.current.title,url=f"https://youtube.com/watch?v={player.current.identifier}")
         await ctx.send(embed=embed)
 
+    @commands.command(name='queue')
+    async def queue(self, ctx, page: int = 1):
+        player = self.bot.music.player_manager.get(ctx.guild.id)
+
+        items_per_page = 10
+        pages = math.ceil(len(player.queue) / items_per_page)
+
+        start = (page - 1) * items_per_page
+        end = start + items_per_page
+
+        queue_list = ''
+        for index, track in enumerate(player.queue[start:end], start=start):
+            queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri})\n'
+
+        embed = discord.Embed(colour=discord.Color.blurple(),
+                            description=f'**{len(player.queue)} tracks**\n\n{queue_list}')
+        embed.set_footer(text=f'Viewing page {page}/{pages}')
+        await ctx.send(embed=embed)
+
+    @commands.check(DJConfig)
     @commands.command(
-        name='queue',
-        brief='check the q'
+        name = "clear",
+        description="Clears all of the currently playing songs and makes the bot disconnect."
     )
-    async def queue(self, ctx):
-        """Check the queue."""
+    async def clear_queue(self,ctx):
+        try:
+            player = self.bot.music.player_manager.get(ctx.guild.id)
+            if ctx.author.voice is not None and ctx.author.voice.channel.id == int(player.channel_id):
+                if player.is_playing:
+                    while player.is_playing:
+                        await player.skip()
+                    await ctx.channel.send("Songs Cleared.")
+                else:
+                    await ctx.channel.send("Nothing playing to clear.")
+            else: 
+                await ctx.channel.send("Please join the same voice channel as me.")
+        except:
+            await ctx.channel.send("Nothing playing.")
 
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
-        info = []
-
-        if(player):
-            queue = player.queue
-            for track in queue[-20:]:
-                info.append([track])
-                
-            embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current}\n```', fields=info)
-            await ctx.send(embed=embed)
-
-        if not player.is_playing:
-            await ctx.send('*⃣ | Bot is not playing any music.')
-    
-
-        
 
 def setup(bot):
     bot.add_cog(exp_Music(bot))
