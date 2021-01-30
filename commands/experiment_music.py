@@ -14,6 +14,19 @@ import re
 import discord
 import lavalink
 from discord.ext import commands
+import config
+import helpers
+config = config.Config('./config.cfg')
+
+def DJConfig(ctx):
+    if(config['enable_dj_role']):
+        for role in ctx.author.roles:
+            if(config['dj_role'] == role.name):
+                return True
+            elif(config['dj_role'] == str(role.id)):
+                return True
+        return False
+    return True
 
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
@@ -180,6 +193,53 @@ class exp_Music(commands.Cog):
         await self.connect_to(ctx.guild.id, None)
         await ctx.send('*⃣ | Disconnected.')
 
+    @commands.check(DJConfig)
+    @commands.command(
+        name='pause',
+        brief='pauses the song'
+    )
+    async def pause(self, ctx):
+        """pauses the player."""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        if(player):
+            player.stop()
+        if not player.is_playing:
+            await ctx.send('*⃣ | Bot is not playing any music.')
+
+    @commands.command(
+        name="current",
+        description="Shows the current playing song.",
+        usage="current",
+        aliases=['np','nowplaying']
+        )
+    async def current(self,ctx):
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        embed=discord.Embed(title=player.current.title,url=f"https://youtube.com/watch?v={player.current.identifier}")
+        await ctx.send(embed=embed)
+
+    @commands.command(
+        name='queue',
+        brief='check the q'
+    )
+    async def queue(self, ctx):
+        """Check the queue."""
+
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        info = []
+
+        if(player):
+            queue = player.queue
+            for track in queue[-20:]:
+                info.append([track])
+                
+            embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current}\n```', fields=info)
+            await ctx.send(embed=embed)
+
+        if not player.is_playing:
+            await ctx.send('*⃣ | Bot is not playing any music.')
+    
+
+        
 
 def setup(bot):
     bot.add_cog(exp_Music(bot))
