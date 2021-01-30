@@ -219,7 +219,7 @@ class exp_Music(commands.Cog):
 
     @commands.command(name='queue')
     async def queue(self, ctx, page: int = 1):
-        player = self.bot.music.player_manager.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         items_per_page = 10
         pages = math.ceil(len(player.queue) / items_per_page)
