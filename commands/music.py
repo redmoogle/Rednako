@@ -156,6 +156,8 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
         return ', '.join(duration)
 
+class YTDLError(Exception):
+    YTDLSource.ytdl = youtube_dl.YoutubeDL(YTDLSource.YTDL_OPTIONS)
 
 class Song(commands.Cog):
     __slots__ = ('source', 'requester')
