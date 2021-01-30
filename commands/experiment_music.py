@@ -227,7 +227,7 @@ class exp_Music(commands.Cog):
         start = (page - 1) * items_per_page
         end = start + items_per_page
 
-        queue_list = ''
+        queue_list = '[**{player.current.title}**](https://youtube.com/watch?v={player.current.identifier})\n'
         for index, track in enumerate(player.queue[start:end], start=start):
             queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri})\n'
 
@@ -243,7 +243,7 @@ class exp_Music(commands.Cog):
     )
     async def clear_queue(self,ctx):
         try:
-            player = self.bot.music.player_manager.get(ctx.guild.id)
+            player = self.bot.lavalink.player_manager.get(ctx.guild.id)
             if ctx.author.voice is not None and ctx.author.voice.channel.id == int(player.channel_id):
                 if player.is_playing:
                     while player.is_playing:
