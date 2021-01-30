@@ -226,13 +226,18 @@ class exp_Music(commands.Cog):
 
         start = (page - 1) * items_per_page
         end = start + items_per_page
+        if player.is_playing:
+            queue_list = f'[**{player.current.title}**](https://youtube.com/watch?v={player.current.identifier})\n'
+            playeradd = 1
+        else:
+            queue_list = ''
+            playeradd = 0
 
-        queue_list = f'[**{player.current.title}**](https://youtube.com/watch?v={player.current.identifier})\n'
         for index, track in enumerate(player.queue[start:end], start=start):
             queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri})\n'
 
         embed = discord.Embed(colour=discord.Color.blurple(),
-                            description=f'**{len(player.queue)} tracks**\n\n{queue_list}')
+                            description=f'**{len(player.queue) + playeradd} tracks**\n\n{queue_list}')
         embed.set_footer(text=f'Viewing page {page}/{pages}')
         await ctx.send(embed=embed)
 
