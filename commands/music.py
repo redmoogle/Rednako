@@ -59,16 +59,14 @@ class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        if not hasattr(bot, 'lavalink'):  # This ensures the client isn't overwritten during cog reloads.
-            bot.lavalink = lavalink.Client(bot.user.id)
-            bot.lavalink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')  # Host, Port, Password, Region, Name
-            bot.add_listener(bot.lavalink.voice_update_handler, 'on_socket_response')
-
-        lavalink.add_event_hook(self.track_hook)
+        lavalink.initialize(
+            bot, host='localhost', password='password',
+            rest_port=2332, ws_port=2333
+        )
 
     def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
-        self.bot.lavalink._event_hooks.clear()
+        await lavalink.close()
 
     async def cog_before_invoke(self, ctx):
         """ Command before-invoke handler. """
