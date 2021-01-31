@@ -32,23 +32,6 @@ def DJConfig(ctx):
         return False
     return True
 
-def parse_duration(duration: int):
-    seconds = divmod(duration, 1000)
-    minutes, seconds = divmod(seconds, 60)
-    hours, minutes = divmod(minutes, 60)
-    days, hours = divmod(hours, 24)
-
-    duration = []
-    if days > 0:
-        duration.append('{} days'.format(days))
-    if hours > 0:
-        duration.append('{} hours'.format(hours))
-    if minutes > 0:
-        duration.append('{} minutes'.format(minutes))
-    if seconds > 0:
-        duration.append('{} seconds'.format(seconds))
-    return duration
-
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
 
@@ -59,14 +42,16 @@ class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        await lavalink.initialize(
-            bot, host='localhost', password='password',
-            rest_port=2332, ws_port=2333
-        )
+        if not hasattr(bot, 'lavalink'):  # This ensures the client isn't overwritten during cog reloads.
+            bot.lavalink = lavalink.Client(bot.user.id)
+            bot.lavalink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')  # Host, Port, Password, Region, Name
+            bot.add_listener(bot.lavalink.voice_update_handler, 'on_socket_response')
+
+        lavalink.add_event_hook(self.track_hook)
 
     def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
-        lavalink.close()
+        self.bot.lavalink._event_hooks.clear()
 
     async def cog_before_invoke(self, ctx):
         """ Command before-invoke handler. """
@@ -121,6 +106,21 @@ class Music(commands.Cog):
         else:
             if int(player.channel_id) != ctx.author.voice.channel.id:
                 raise commands.CommandInvokeError('You need to be in my voicechannel.')
+    
+    async def track_hook(self, event):
+        if isinstance(event, lavalink.events.QueueEndEvent):
+            # When this track_hook receives a "QueueEndEvent" from lavalink.py
+            # it indicates that there are no tracks left in the player's queue.
+            # To save on resources, we can tell the bot to disconnect from the voicechannel.
+            guild_id = int(event.player.guild_id)
+            await self.connect_to(guild_id, None)
+
+    async def connect_to(self, guild_id: int, channel_id: str):
+        """ Connects to the given voicechannel ID. A channel_id of `None` means disconnect. """
+        ws = self.bot._connection._get_websocket(guild_id)
+        await ws.voice_state(str(guild_id), channel_id)
+        # The above looks dirty, we could alternatively use `bot.shards[shard_id].ws` but that assumes
+        # the bot instance is an AutoShardedBot.
 
     @commands.command(aliases=['p'])
     async def play(self, ctx, *, query: str):
@@ -178,9 +178,7 @@ class Music(commands.Cog):
         if not player.is_playing:
             await player.play()
             info = [
-                ['Song: ', f'{player.current.title}(f"https://youtube.com/watch?v={player.current.identifier})'],
-                ['Duration: ', f'{parse_duration(player.current.length)}'],
-                ['Requested by: ', f'{player.current.requester}']
+                ['Song: ', f'{player.current.title}(f"https://youtube.com/watch?v={player.current.identifier})']
             ]
             embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
             await ctx.send(embed=embed)
