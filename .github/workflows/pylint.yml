@@ -21,4 +21,4 @@ jobs:
         
     - name: Analysing the code with pylint
       run: |
-        pylint --disable=F0001,C0301,R0913 `ls -R|grep .py$|xargs`
+        pylint --disable=F0001,C0301,R0913,W0613 `ls -R|grep .py$|xargs`
