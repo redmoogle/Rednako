@@ -146,7 +146,7 @@ class Music(commands.Cog):
         if not player.is_playing:
             await player.play()
             info = [
-                ['Song: ', f'{player.current.title}(f"https://youtube.com/watch?v={player.current.identifier})'],
+                ['Song: ', f'{player.current.title}({player.current.uri})'],
                 ['Duration: ', f'{parse_duration(player.current.length)}'],
                 ['Requested by: ', f'{player.current.requester}']
             ]
@@ -156,7 +156,7 @@ class Music(commands.Cog):
     @commands.command(aliases=['dc'])
     async def disconnect(self, ctx):
         """ Disconnects the player from the voice channel and clears its queue. """
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        player = lavalink.get_player(ctx.guild.id)
 
 
         if not ctx.author.voice or (ctx.author.voice.channel.id != int(player.channel.id)):
@@ -180,7 +180,7 @@ class Music(commands.Cog):
     )
     async def pause(self, ctx):
         """pauses the player."""
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        player = lavalink.get_player(ctx.guild.id)
         if(player):
            await player.stop()
         if not player.is_playing:
@@ -193,13 +193,13 @@ class Music(commands.Cog):
         aliases=['np','nowplaying']
         )
     async def current(self,ctx):
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        player = lavalink.get_player(ctx.guild.id)
         embed=discord.Embed(title=player.current.title,url=f"https://youtube.com/watch?v={player.current.identifier}")
         await ctx.send(embed=embed)
 
     @commands.command(name='queue')
     async def queue(self, ctx, page: int = 1):
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        player = lavalink.get_player(ctx.guild.id)
 
         items_per_page = 10
         pages = math.ceil(len(player.queue) / items_per_page)
@@ -228,7 +228,7 @@ class Music(commands.Cog):
     )
     async def clear_queue(self,ctx):
         try:
-            player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+            player = lavalink.get_player(ctx.guild.id)
             if ctx.author.voice is not None and ctx.author.voice.channel.id == int(player.channel.id):
                 if player.is_playing:
                     while player.is_playing:
