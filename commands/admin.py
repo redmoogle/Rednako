@@ -68,7 +68,7 @@ class Admin(commands.Cog):
             await self.bot.logout()
             path = Path(__file__).parent.parent
             print(path)
-            aawait asyncio.sleep(10)
+            await asyncio.sleep(10)
             subprocess.call(['bash', f'{path}/restart.sh'])
             exit()
         except:
