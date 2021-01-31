@@ -111,14 +111,10 @@ class Music(commands.Cog):
         
         player = await lavalink.connect(ctx.author.voice.channel)
 
-        if not player.is_connected:
-            if not should_connect:
-                raise commands.CommandInvokeError('Not connected.')
+        permissions = ctx.author.voice.channel.permissions_for(ctx.me)
 
-            permissions = ctx.author.voice.channel.permissions_for(ctx.me)
-
-            if not permissions.connect or not permissions.speak:  # Check user limit too?
-                raise commands.CommandInvokeError('I need the `CONNECT` and `SPEAK` permissions.')
+        if not permissions.connect or not permissions.speak:  # Check user limit too?
+            raise commands.CommandInvokeError('I need the `CONNECT` and `SPEAK` permissions.')
 
             player.store('channel', ctx.channel.id)
             await self.connect_to(ctx.guild.id, str(ctx.author.voice.channel.id))
@@ -166,11 +162,8 @@ class Music(commands.Cog):
         """ Disconnects the player from the voice channel and clears its queue. """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
-        if not player.is_connected:
-            # We can't disconnect, if we're not connected.
-            return await ctx.send('Not connected.')
 
-        if not ctx.author.voice or (player.is_connected and ctx.author.voice.channel.id != int(player.channel_id)):
+        if not ctx.author.voice or (ctx.author.voice.channel.id != int(player.channel_id)):
             # Abuse prevention. Users not in voice channels, or not in the same voice channel as the bot
             # may not disconnect the bot.
             return await ctx.send('You\'re not in my voicechannel!')
