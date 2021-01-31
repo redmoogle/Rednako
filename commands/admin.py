@@ -65,10 +65,7 @@ class Admin(commands.Cog):
             embed=helpers.embed(title='Github Update: ', fields=info, inline=False, color=discord.Colour.gold())
             await ctx.send(embed=embed)
         await self.bot.logout()
-        path = Path(__file__).parent.parent
-        print(path)
-        await asyncio.sleep(10)
-        subprocess.call(f'{path}/restart.sh')
+        subprocess.call("(cd .. && ./restart.sh)", shell=True)
         exit()
 
     @commands.command(
