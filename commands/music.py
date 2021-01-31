@@ -14,6 +14,7 @@ Compatibility with Python 3.5 should be possible if f-strings are removed.
 """
 import re
 
+import asyncio
 import discord
 import lavalink
 from discord.ext import commands
