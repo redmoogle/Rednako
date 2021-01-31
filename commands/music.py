@@ -208,7 +208,7 @@ class Music(commands.Cog):
         player = lavalink.get_player(ctx.guild.id)
         info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
-                ['Duration: ', f'{player.current.position}/{parse_duration(player.current.length/1000)}'],
+                ['Duration: ', f'{parse_duration(player.current.length/1000)}'],
                 ['Requested by: ', f'{player.current.requester}']
             ]
         embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
@@ -224,14 +224,14 @@ class Music(commands.Cog):
         start = (page - 1) * items_per_page
         end = start + items_per_page
         if player.is_playing:
-            queue_list = f'`1.` [**{player.current.title}**]({player.current.uri})\n'
+            queue_list = f'`1.` [**{player.current.title}**]({player.current.uri}) | {parse_duration(player.current.length/1000)}\n'
             playeradd = 1
         else:
             queue_list = ''
             playeradd = 0
 
         for index, track in enumerate(player.queue[start:end], start=start):
-            queue_list += f'`{index + 1 + playeradd}.` [**{track.title}**]({track.uri})\n'
+            queue_list += f'`{index + 1 + playeradd}.` [**{track.title}**]({track.uri}) | {parse_duration(track.length/1000)}\n'
 
         embed = discord.Embed(colour=discord.Color.blurple(),
                             description=f'**{len(player.queue) + playeradd} tracks**\n\n{queue_list}')
