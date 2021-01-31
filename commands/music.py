@@ -58,7 +58,6 @@ class Music(commands.Cog):
     """
     def __init__(self, bot):
         self.bot = bot
-        lavalink.add_event_hook(self.track_hook)
 
     async def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
