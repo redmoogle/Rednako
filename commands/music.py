@@ -32,6 +32,23 @@ def DJConfig(ctx):
         return False
     return True
 
+def parse_duration(duration: int):
+    seconds = divmod(duration, 1000)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+
+    duration = []
+    if days > 0:
+        duration.append('{} days'.format(days))
+    if hours > 0:
+        duration.append('{} hours'.format(hours))
+    if minutes > 0:
+        duration.append('{} minutes'.format(minutes))
+    if seconds > 0:
+        duration.append('{} seconds'.format(seconds))
+    return duration
+
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
 
@@ -41,17 +58,12 @@ class Music(commands.Cog):
     """
     def __init__(self, bot):
         self.bot = bot
-
-        if not hasattr(bot, 'lavalink'):  # This ensures the client isn't overwritten during cog reloads.
-            bot.lavalink = lavalink.Client(bot.user.id)
-            bot.lavalink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')  # Host, Port, Password, Region, Name
-            bot.add_listener(bot.lavalink.voice_update_handler, 'on_socket_response')
-
         lavalink.add_event_hook(self.track_hook)
 
-    def cog_unload(self):
+    async def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
         self.bot.lavalink._event_hooks.clear()
+        await lavalink.close()
 
     async def cog_before_invoke(self, ctx):
         """ Command before-invoke handler. """
@@ -106,69 +118,26 @@ class Music(commands.Cog):
         else:
             if int(player.channel_id) != ctx.author.voice.channel.id:
                 raise commands.CommandInvokeError('You need to be in my voicechannel.')
-    
-    async def track_hook(self, event):
-        if isinstance(event, lavalink.events.QueueEndEvent):
-            # When this track_hook receives a "QueueEndEvent" from lavalink.py
-            # it indicates that there are no tracks left in the player's queue.
-            # To save on resources, we can tell the bot to disconnect from the voicechannel.
-            guild_id = int(event.player.guild_id)
-            await self.connect_to(guild_id, None)
 
-    async def connect_to(self, guild_id: int, channel_id: str):
-        """ Connects to the given voicechannel ID. A channel_id of `None` means disconnect. """
-        ws = self.bot._connection._get_websocket(guild_id)
-        await ws.voice_state(str(guild_id), channel_id)
-        # The above looks dirty, we could alternatively use `bot.shards[shard_id].ws` but that assumes
-        # the bot instance is an AutoShardedBot.
-
-    @commands.command(aliases=['p'])
-    async def play(self, ctx, *, query: str):
-        """ Searches and plays a song from a given query. """
-        # Get the player for this guild from cache.
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
-        # Remove leading and trailing <>. <> may be used to suppress embedding links in Discord.
-        query = query.strip('<>')
-
-        # Check if the user input might be a URL. If it isn't, we can Lavalink do a YouTube search for it instead.
-        # SoundCloud searching is possible by prefixing "scsearch:" instead.
-        if not url_rx.match(query):
-            query = f'ytsearch:{query}'
-
-        # Get the results for the query from Lavalink.
-        results = await player.node.get_tracks(query)
-
-        # Results could be None if Lavalink returns an invalid response (non-JSON/non-200 (OK)).
-        # ALternatively, resullts['tracks'] could be an empty array if the query yielded no tracks.
-        if not results or not results['tracks']:
-            return await ctx.send('Nothing found!')
+    @commands.command(
+        name="play",
+        description="play music.",
+        usage="play [song]",
+        aliases=['p']
+        )
+    async def search_and_play(self, ctx, search_terms):
+        if(not ctx.voice_state.voice) and (ctx.author.voice):
+            destination = ctx.author.voice.channel
+        else:
+            return await ctx.send('You\'re not in a voice channel')
+        player = await lavalink.connect(destination)
+        tracks = await player.search_yt(search_terms)
+        track = tracks[0]
+        player.add(track)
 
         embed = discord.Embed(color=discord.Color.blurple())
-
-        # Valid loadTypes are:
-        #   TRACK_LOADED    - single video/direct URL)
-        #   PLAYLIST_LOADED - direct URL to playlist)
-        #   SEARCH_RESULT   - query prefixed with either ytsearch: or scsearch:.
-        #   NO_MATCHES      - query yielded no results
-        #   LOAD_FAILED     - most likely, the video encountered an exception during loading.
-        if results['loadType'] == 'PLAYLIST_LOADED':
-            tracks = results['tracks']
-
-            for track in tracks:
-                # Add all of the tracks from the playlist to the queue.
-                player.add(requester=ctx.author.id, track=track)
-
-            embed.title = 'Playlist Enqueued!'
-            embed.description = f'{results["playlistInfo"]["name"]} - {len(tracks)} tracks'
-        else:
-            track = results['tracks'][0]
-            embed.title = 'Track Enqueued'
-            embed.description = f'[{track["info"]["title"]}]({track["info"]["uri"]})'
-
-            # You can attach additional information to audiotracks through kwargs, however this involves
-            # constructing the AudioTrack class yourself.
-            track = lavalink.models.AudioTrack(track, ctx.author.id, recommended=True)
-            player.add(requester=ctx.author.id, track=track)
+        embed.title = 'Track Enqueued'
+        embed.description = f'[{track.title}]({track.uri})'
 
         if player.is_playing:
             await ctx.send(embed=embed)
@@ -178,7 +147,9 @@ class Music(commands.Cog):
         if not player.is_playing:
             await player.play()
             info = [
-                ['Song: ', f'{player.current.title}(f"https://youtube.com/watch?v={player.current.identifier})']
+                ['Song: ', f'{player.current.title}(f"https://youtube.com/watch?v={player.current.identifier})'],
+                ['Duration: ', f'{parse_duration(player.current.length)}'],
+                ['Requested by: ', f'{player.current.requester}']
             ]
             embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
             await ctx.send(embed=embed)
