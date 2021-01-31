@@ -101,7 +101,6 @@ class Music(commands.Cog):
 
         # These are commands that require the bot to join a voicechannel (i.e. initiating playback).
         # Commands such as volume/skip etc don't require the bot to be in a voicechannel so don't need listing here.
-        should_connect = ctx.command.name in ('play',)
 
         if not ctx.author.voice or not ctx.author.voice.channel:
             # Our cog_command_error handler catches this and sends it to the voicechannel.
@@ -115,11 +114,11 @@ class Music(commands.Cog):
 
         if not permissions.connect or not permissions.speak:  # Check user limit too?
             raise commands.CommandInvokeError('I need the `CONNECT` and `SPEAK` permissions.')
-
+        if ctx.voice_client is None:
             player.store('channel', ctx.channel.id)
             await self.connect_to(ctx.guild.id, str(ctx.author.voice.channel.id))
         else:
-            if int(player.channel_id) != ctx.author.voice.channel.id:
+            if int(player.channel.id) != ctx.author.voice.channel.id:
                 raise commands.CommandInvokeError('You need to be in my voicechannel.')
 
     @commands.command(
@@ -163,7 +162,7 @@ class Music(commands.Cog):
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
 
-        if not ctx.author.voice or (ctx.author.voice.channel.id != int(player.channel_id)):
+        if not ctx.author.voice or (ctx.author.voice.channel.id != int(player.channel.id)):
             # Abuse prevention. Users not in voice channels, or not in the same voice channel as the bot
             # may not disconnect the bot.
             return await ctx.send('You\'re not in my voicechannel!')
@@ -233,7 +232,7 @@ class Music(commands.Cog):
     async def clear_queue(self,ctx):
         try:
             player = self.bot.lavalink.player_manager.get(ctx.guild.id)
-            if ctx.author.voice is not None and ctx.author.voice.channel.id == int(player.channel_id):
+            if ctx.author.voice is not None and ctx.author.voice.channel.id == int(player.channel.id):
                 if player.is_playing:
                     while player.is_playing:
                         await player.skip()
