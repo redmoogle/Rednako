@@ -131,7 +131,7 @@ class Music(commands.Cog):
             return await ctx.send('You\'re not in a voice channel')
         player = await lavalink.connect(destination)
         track = await player.search_yt(search_terms)
-        player.add(track)
+        player.add(ctx.author, track)
 
         embed = discord.Embed(color=discord.Color.blurple())
         embed.title = 'Track Enqueued'
