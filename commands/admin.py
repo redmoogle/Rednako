@@ -220,7 +220,7 @@ class Admin(commands.Cog):
             json.dump(prefixes, f, indent=4)
 
         await ctx.send(f'Prefix changed to: {prefix}')
-        botname = ctx.me.display_name
+        botname = ctx.me.name
         await ctx.me.edit(nick=f'{prefix} | {botname}')
 
 def setup(bot):
