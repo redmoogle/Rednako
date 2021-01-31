@@ -52,9 +52,9 @@ def parse_duration(duration: int):
 
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
-async def create(self):
+async def create(bot):
     await lavalink.initialize(
-        self.bot, host='localhost', password='youshallnotpass',
+        bot, host='localhost', password='youshallnotpass',
         rest_port=2332, ws_port=2333
     )
 
@@ -65,7 +65,7 @@ class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         loop = asyncio.get_event_loop()
-        loop.create_task(create())
+        loop.create_task(create(self.bot))
 
     async def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
