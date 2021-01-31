@@ -174,7 +174,7 @@ class Music(commands.Cog):
         # Stop the current track so Lavalink consumes less resources.
         await player.stop()
         # Disconnect from the voice channel.
-        await ctx.message.guild.voice_client.disconnect(force=True)
+        await ctx.message.guild.VoiceProtocol.disconnect(force=True)
         await ctx.send('*⃣ | Disconnected.')
 
     @commands.check(DJConfig)
