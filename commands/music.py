@@ -125,7 +125,7 @@ class Music(commands.Cog):
         aliases=['p']
         )
     async def search_and_play(self, ctx, search_terms):
-        if(not ctx.voice_state.voice) and (ctx.author.voice):
+        if(not ctx.voice_client) and (ctx.author.voice):
             destination = ctx.author.voice.channel
         else:
             return await ctx.send('You\'re not in a voice channel')
