@@ -58,7 +58,7 @@ class Music(commands.Cog):
     """
     def __init__(self, bot):
         self.bot = bot
-        await self.init_lavalink()
+        self.init_lavalink()
 
     async def init_lavalink(self):
         await lavalink.initialize(
