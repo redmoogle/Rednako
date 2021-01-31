@@ -40,6 +40,7 @@ def parse_duration(duration: int):
     days, hours = divmod(hours, 24)
 
     duration = []
+    stringdur = ''
     if days > 0:
         duration.append('{} days'.format(days))
     if hours > 0:
@@ -48,7 +49,10 @@ def parse_duration(duration: int):
         duration.append('{} minutes'.format(minutes))
     if seconds > 0:
         duration.append('{} seconds'.format(seconds))
-    return duration
+
+    for time in duration:
+        stringdur += time
+    return time
 
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
@@ -146,7 +150,7 @@ class Music(commands.Cog):
         if not player.is_playing:
             await player.play()
             info = [
-                ['Song: ', f'{player.current.title}({player.current.uri})'],
+                ['Song: ', f'[{player.current.title}]({player.current.uri})'],
                 ['Duration: ', f'{parse_duration(player.current.length)}'],
                 ['Requested by: ', f'{player.current.requester}']
             ]
