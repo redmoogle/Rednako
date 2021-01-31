@@ -3,6 +3,7 @@
 
 from discord.ext import commands
 import discord
+import discordtextsanitizer as dts
 import config
 import random
 import git
@@ -26,7 +27,10 @@ class User(commands.Cog):
         aliases=['send', 'args']
     )
     async def args(self, ctx, *, args):
-        await ctx.send(args)
+        sanitized = dts.sanitize_mass_mentions(
+            args, run_preprocess=True, users=True
+        )
+        await ctx.send(sanitized)
 
     @commands.command(
         name='serverinfo',
