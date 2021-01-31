@@ -58,6 +58,13 @@ class Music(commands.Cog):
     """
     def __init__(self, bot):
         self.bot = bot
+        await self.init_lavalink()
+
+    async def init_lavalink(self):
+        await lavalink.initialize(
+            self.bot, host='localhost', password='youshallnotpass',
+            rest_port=2332, ws_port=2333
+        )
 
     async def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
