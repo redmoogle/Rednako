@@ -40,13 +40,13 @@ def parse_duration(duration: int):
 
         duration = []
         if days > 0:
-            duration.append('{}:'.format(int(days)))
+            duration.append(f'{days}:')
         if hours > 0:
-            duration.append('{}:'.format(int(hours)))
+            duration.append(f'{hours}:')
         if minutes > 0:
-            duration.append('{}:'.format(int(minutes)))
+            duration.append(f'{minutes}:')
         if seconds > 0:
-            duration.append('{}:'.format(int(seconds)))
+            duration.append(f'{seconds}:')
 
         return ''.join(duration)
 
