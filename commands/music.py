@@ -59,7 +59,7 @@ class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        lavalink.initialize(
+        await lavalink.initialize(
             bot, host='localhost', password='password',
             rest_port=2332, ws_port=2333
         )
