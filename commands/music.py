@@ -33,26 +33,34 @@ def DJConfig(ctx):
         return False
     return True
 
-def parse_duration(duration: int):
-    seconds, _ = divmod(duration, 1000)
-    minutes, seconds = divmod(seconds, 60)
-    hours, minutes = divmod(minutes, 60)
-    days, hours = divmod(hours, 24)
+def parse_duration(duration: int, formatdur: bool = True):
+        minutes, seconds = divmod(duration, 60)
+        hours, minutes = divmod(minutes, 60)
+        days, hours = divmod(hours, 24)
 
-    duration = []
-    stringdur = ''
-    if days > 0:
-        duration.append('{} days'.format(days))
-    if hours > 0:
-        duration.append('{} hours'.format(hours))
-    if minutes > 0:
-        duration.append('{} minutes'.format(minutes))
-    if seconds > 0:
-        duration.append('{} seconds'.format(seconds))
+        duration = []
+        if formatdur:
+            if days > 0:
+                duration.append('{} days'.format(days))
+            if hours > 0:
+                duration.append('{} hours'.format(hours))
+            if minutes > 0:
+                duration.append('{} minutes'.format(minutes))
+            if seconds > 0:
+                duration.append('{} seconds'.format(seconds))
 
-    for time in duration:
-        stringdur += time
-    return time
+            return ', '.join(duration)
+        else:
+            if days > 0:
+                duration.append('{}:'.format(days))
+            if hours > 0:
+                duration.append('{}:'.format(hours))
+            if minutes > 0:
+                duration.append('{}:'.format(minutes))
+            if seconds > 0:
+                duration.append('{}:'.format(seconds))
+
+            return ', '.join(duration)
 
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
@@ -101,7 +109,7 @@ class Music(commands.Cog):
             notify_channel = self.bot.get_channel(notify_channel)
             info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
-                ['Duration: ', f'{parse_duration(player.current.length)}'],
+                ['Duration: ', f'{parse_duration(player.current.length/1000)}'],
                 ['Requested by: ', f'{player.current.requester}']
             ]
             embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
@@ -211,7 +219,7 @@ class Music(commands.Cog):
         player = lavalink.get_player(ctx.guild.id)
         info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
-                ['Duration: ', f'{parse_duration(player.current.length)}'],
+                ['Duration: ', f'{player.current.position}/{parse_duration(player.current.length/1000, False)}'],
                 ['Requested by: ', f'{player.current.requester}']
             ]
         embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
@@ -227,14 +235,14 @@ class Music(commands.Cog):
         start = (page - 1) * items_per_page
         end = start + items_per_page
         if player.is_playing:
-            queue_list = f'[**{player.current.title}**]({player.current.uri})\n'
+            queue_list = f'`1.` [**{player.current.title}**]({player.current.uri})\n'
             playeradd = 1
         else:
             queue_list = ''
             playeradd = 0
 
         for index, track in enumerate(player.queue[start:end], start=start):
-            queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri})\n'
+            queue_list += f'`{index + 1 + playeradd}.` [**{track.title}**]({track.uri})\n'
 
         embed = discord.Embed(colour=discord.Color.blurple(),
                             description=f'**{len(player.queue) + playeradd} tracks**\n\n{queue_list}')
