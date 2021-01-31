@@ -55,7 +55,7 @@ url_rx = re.compile(r'https?://(?:www\.)?.+')
 async def create(bot):
     await lavalink.initialize(
         bot, host='localhost', password='youshallnotpass',
-        rest_port=2332, ws_port=2333
+        rest_port=2333, ws_port=2333
     )
 
 class Music(commands.Cog):
