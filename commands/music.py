@@ -132,8 +132,7 @@ class Music(commands.Cog):
         player = await lavalink.connect(destination)
         tracks = await player.search_yt(search_terms)
         print(tracks)
-        track = tracks[0]
-        player.add(track)
+        player.add(tracks[0])
 
         embed = discord.Embed(color=discord.Color.blurple())
         embed.title = 'Track Enqueued'
