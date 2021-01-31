@@ -131,6 +131,7 @@ class Music(commands.Cog):
             return await ctx.send('You\'re not in a voice channel')
         player = await lavalink.connect(destination)
         tracks = await player.search_yt(search_terms)
+        print(tracks)
         track = tracks[0]
         player.add(track)
 
