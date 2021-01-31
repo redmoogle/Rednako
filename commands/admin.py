@@ -221,7 +221,7 @@ class Admin(commands.Cog):
 
         await ctx.send(f'Prefix changed to: {prefix}')
         botname = self.bot.user.display_name
-        self.bot.edit(nick=f'{prefix} | {botname}')
+        self.bot.user.edit(nick=f'{prefix} | {botname}')
 
 def setup(bot):
     bot.add_cog(Admin(bot))
