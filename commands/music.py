@@ -34,7 +34,7 @@ def DJConfig(ctx):
     return True
 
 def parse_duration(duration: int):
-    seconds = divmod(duration, 1000)
+    seconds, _ = divmod(duration, 1000)
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
