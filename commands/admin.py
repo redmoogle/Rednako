@@ -68,7 +68,7 @@ class Admin(commands.Cog):
         path = Path(__file__).parent
         print(path)
         await asyncio.sleep(10)
-        subprocess.call(['bash', f'{path}/restart.sh'])
+        subprocess.call(f'{path}/restart.sh')
         exit()
 
     @commands.command(
