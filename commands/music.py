@@ -66,7 +66,7 @@ class Music(commands.Cog):
 
     def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
-        await lavalink.close()
+        lavalink.close()
 
     async def cog_before_invoke(self, ctx):
         """ Command before-invoke handler. """
@@ -121,21 +121,6 @@ class Music(commands.Cog):
         else:
             if int(player.channel_id) != ctx.author.voice.channel.id:
                 raise commands.CommandInvokeError('You need to be in my voicechannel.')
-
-    async def track_hook(self, event):
-        if isinstance(event, lavalink.events.QueueEndEvent):
-            # When this track_hook receives a "QueueEndEvent" from lavalink.py
-            # it indicates that there are no tracks left in the player's queue.
-            # To save on resources, we can tell the bot to disconnect from the voicechannel.
-            guild_id = int(event.player.guild_id)
-            await self.connect_to(guild_id, None)
-
-    async def connect_to(self, guild_id: int, channel_id: str):
-        """ Connects to the given voicechannel ID. A channel_id of `None` means disconnect. """
-        ws = self.bot._connection._get_websocket(guild_id)
-        await ws.voice_state(str(guild_id), channel_id)
-        # The above looks dirty, we could alternatively use `bot.shards[shard_id].ws` but that assumes
-        # the bot instance is an AutoShardedBot.
 
     @commands.command(aliases=['p'])
     async def play(self, ctx, *, query: str):
