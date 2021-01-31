@@ -33,34 +33,22 @@ def DJConfig(ctx):
         return False
     return True
 
-def parse_duration(duration: int, formatdur: bool = True):
+def parse_duration(duration: int):
         minutes, seconds = divmod(duration, 60)
         hours, minutes = divmod(minutes, 60)
         days, hours = divmod(hours, 24)
 
         duration = []
-        if formatdur:
-            if days > 0:
-                duration.append('{} days'.format(days))
-            if hours > 0:
-                duration.append('{} hours'.format(hours))
-            if minutes > 0:
-                duration.append('{} minutes'.format(minutes))
-            if seconds > 0:
-                duration.append('{} seconds'.format(seconds))
+        if days > 0:
+            duration.append('{}:'.format(days))
+        if hours > 0:
+            duration.append('{}:'.format(hours))
+        if minutes > 0:
+            duration.append('{}:'.format(minutes))
+        if seconds > 0:
+            duration.append('{}:'.format(seconds))
 
-            return ', '.join(duration)
-        else:
-            if days > 0:
-                duration.append('{}:'.format(days))
-            if hours > 0:
-                duration.append('{}:'.format(hours))
-            if minutes > 0:
-                duration.append('{}:'.format(minutes))
-            if seconds > 0:
-                duration.append('{}:'.format(seconds))
-
-            return ', '.join(duration)
+        return ''.join(duration)
 
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
@@ -219,7 +207,7 @@ class Music(commands.Cog):
         player = lavalink.get_player(ctx.guild.id)
         info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
-                ['Duration: ', f'{player.current.position}/{parse_duration(player.current.length/1000, False)}'],
+                ['Duration: ', f'{player.current.position}/{parse_duration(player.current.length/1000)}'],
                 ['Requested by: ', f'{player.current.requester}']
             ]
         embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
