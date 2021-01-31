@@ -96,7 +96,7 @@ class Music(commands.Cog):
         current_channel = player.channel
         if not current_channel:
             return
-        print(f'chn: {current_channel}')
+
         if event_type == lavalink.LavalinkEvents.TRACK_START:
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
@@ -109,8 +109,10 @@ class Music(commands.Cog):
             await notify_channel.send(embed=embed)
         
         if event_type == lavalink.LavalinkEvents.QUEUE_END:
-            conn = self.bot._connection._get_websocket(guild)
-            await conn.voice_state(str(guild.id), None)
+            notify_channel = player.fetch("channel") # this is a huge hack but shhh
+            notify_channel = self.bot.get_channel(notify_channel)
+            conn = self.bot._connection._get_websocket(notify_channel.guild)
+            await conn.voice_state(str(notify_channel.guild.id), None)
 
 
     async def ensure_voice(self, ctx):
