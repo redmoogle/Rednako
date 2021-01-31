@@ -93,6 +93,10 @@ class Music(commands.Cog):
             # if you want to do things differently.
 
     async def handle_lavalink_events(self, player: lavalink.Player, event_type: lavalink.LavalinkEvents, extra = None):
+        current_channel = player.channel
+        if not current_channel:
+            return
+        guild = self.getattr(current_channel, "guild", None)
         if event_type == lavalink.LavalinkEvents.TRACK_START:
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
@@ -103,6 +107,10 @@ class Music(commands.Cog):
             ]
             embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
             await notify_channel.send(embed=embed)
+        
+        if event_type == lavalink.LavalinkEvents.QUEUE_END:
+            conn = self.bot._connection._get_websocket(guild)
+            await conn.voice_state(str(guild.id), None)
 
 
     async def ensure_voice(self, ctx):
