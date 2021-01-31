@@ -98,7 +98,7 @@ class Music(commands.Cog):
     async def handle_lavalink_events(self, player: lavalink.Player, event_type: lavalink.LavalinkEvents, extra = None):
         if event_type == lavalink.LavalinkEvents.TRACK_START:
             notify_channel = player.fetch("channel")
-            self.bot.get_channel(notify_channel)
+            notify_channel = self.bot.get_channel(notify_channel)
             info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
                 ['Duration: ', f'{parse_duration(player.current.length)}'],
