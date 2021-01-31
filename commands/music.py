@@ -95,6 +95,19 @@ class Music(commands.Cog):
             # which contain a reason string, such as "Join a voicechannel" etc. You can modify the above
             # if you want to do things differently.
 
+    async def handle_lavalink_events(self, player: lavalink.Player, event_type: lavalink.LavalinkEvents, extra = None):
+        if event_type == lavalink.LavalinkEvents.TRACK_START:
+            notify_channel = player.fetch("channel")
+            self.bot.get_channel(notify_channel)
+            info = [
+                ['Song: ', f'[{player.current.title}]({player.current.uri})'],
+                ['Duration: ', f'{parse_duration(player.current.length)}'],
+                ['Requested by: ', f'{player.current.requester}']
+            ]
+            embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
+            notify_channel.send(embed=embed)
+
+
     async def ensure_voice(self, ctx):
         """ This check ensures that the bot and command author are in the same voicechannel. """
         # Create returns a player if one exists, otherwise creates.
@@ -113,6 +126,7 @@ class Music(commands.Cog):
             raise commands.CommandInvokeError('Join a voicechannel first.')
         
         player = await lavalink.connect(ctx.author.voice.channel)
+        lavalink.register_event_listener(self.handle_lavalink_events)
 
         permissions = ctx.author.voice.channel.permissions_for(ctx.me)
 
@@ -129,14 +143,17 @@ class Music(commands.Cog):
         aliases=['p']
         )
     async def search_and_play(self, ctx, *, search_terms):
+        player = lavalink.get_player(ctx.guild.id)
         if(not ctx.voice_client) and (ctx.author.voice):
             destination = ctx.author.voice.channel
         else:
-            return await ctx.send('You\'re not in a voice channel')
-        player = await lavalink.connect(destination)
+            if player is None:
+                player = await lavalink.connect(destination)
         results = await player.search_yt(search_terms)
         track = results.tracks[0]
         player.add(ctx.author, track)
+        player.store("channel", ctx.channel.id)
+        player.store("guild", ctx.guild.id)
 
         embed = discord.Embed(color=discord.Color.blurple())
         embed.title = 'Track Enqueued'
@@ -187,7 +204,7 @@ class Music(commands.Cog):
         """pauses the player."""
         player = lavalink.get_player(ctx.guild.id)
         if(player):
-           await player.stop()
+           await player.pause()
         if not player.is_playing:
             await ctx.send('*⃣ | Bot is not playing any music.')
 
@@ -199,7 +216,12 @@ class Music(commands.Cog):
         )
     async def current(self,ctx):
         player = lavalink.get_player(ctx.guild.id)
-        embed=discord.Embed(title=player.current.title,url=f"https://youtube.com/watch?v={player.current.identifier}")
+        info = [
+                ['Song: ', f'[{player.current.title}]({player.current.uri})'],
+                ['Duration: ', f'{parse_duration(player.current.length)}'],
+                ['Requested by: ', f'{player.current.requester}']
+            ]
+        embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
         await ctx.send(embed=embed)
 
     @commands.command(name='queue')
@@ -212,7 +234,7 @@ class Music(commands.Cog):
         start = (page - 1) * items_per_page
         end = start + items_per_page
         if player.is_playing:
-            queue_list = f'[**{player.current.title}**](https://youtube.com/watch?v={player.current.identifier})\n'
+            queue_list = f'[**{player.current.title}**]({player.current.uri})\n'
             playeradd = 1
         else:
             queue_list = ''
