@@ -23,7 +23,7 @@ token = config['token']
 connection = sqlite3.connect('database.db')
 pointer = connection.cursor()
 
-def get_prefix(message):
+def get_prefix(client, message):
     """
     Load prefixes from json file if it exists, otherwise generate default prefix file
     """
