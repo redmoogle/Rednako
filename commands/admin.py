@@ -66,7 +66,7 @@ class Admin(commands.Cog):
             await ctx.send(embed=embed)
         try: # Silence, Error.
             await self.bot.logout()
-            path = Path(__file__).parent.parent
+            path = Path(__file__).parent
             print(path)
             await asyncio.sleep(10)
             subprocess.call(['bash', f'{path}/restart.sh'])
