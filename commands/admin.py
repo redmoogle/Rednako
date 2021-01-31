@@ -65,7 +65,7 @@ class Admin(commands.Cog):
             embed=helpers.embed(title='Github Update: ', fields=info, inline=False, color=discord.Colour.gold())
             await ctx.send(embed=embed)
         await self.bot.logout()
-        subprocess.call("(cd .. && ./restart.sh)", shell=True)
+        await subprocess.call("(cd .. && ./restart.sh)", shell=True)
         exit()
 
     @commands.command(
