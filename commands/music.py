@@ -194,15 +194,15 @@ class Music(commands.Cog):
         """pauses the player."""
         player = lavalink.get_player(ctx.guild.id)
         if(player):
-            if(player.paused):
+            if player.current is None:
+                await ctx.send('*⃣ | Bot is not playing any music.')
+
+            elif(player.paused):
                 await ctx.send(':asterisk: | Bot has been unpaused')
                 await player.pause(False)
             elif not player.paused:
                 await ctx.send(':asterisk: | Bot has been paused')
                 await player.pause()
-
-            elif player.current is None:
-                await ctx.send('*⃣ | Bot is not playing any music.')
 
     @commands.command(
         name="current",
