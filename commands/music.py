@@ -235,7 +235,7 @@ class Music(commands.Cog):
         player = lavalink.get_player(ctx.guild.id)
         if int(ctx.author.voice.channel.id) == int(player.channel.id):
             if player.is_playing:
-                await player.stop
+                await player.stop()
                 await ctx.channel.send("Songs Cleared.")
             else:
                 await ctx.channel.send("Nothing playing to clear.")
