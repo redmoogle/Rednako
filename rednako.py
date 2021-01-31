@@ -10,12 +10,12 @@ in the config make sure to update the .format in here
 """
 import asyncio
 import sqlite3
+import json
+from pathlib import Path
 import config
 import discord
 from discord.ext import commands
 from pretty_help import PrettyHelp
-import json
-from pathlib import Path
 
 # Setting up config for open-source shenanigans
 config = config.Config('config.cfg')
@@ -23,17 +23,20 @@ token = config['token']
 connection = sqlite3.connect('database.db')
 pointer = connection.cursor()
 
-def get_prefix(client, message):
+def get_prefix(message):
+    """
+    Load prefixes from json file if it exists, otherwise generate default prefix file
+    """
     prefixes = {}
     if not Path('prefixes.json').is_file(): # make sure it exists, if not generate default params
         for guild in bot.guilds:
             prefixes[str(guild.id)] = '=='
 
-        with open('prefixes.json', 'w') as f:
-            json.dump(prefixes, f, indent=4)
-    
-    with open('prefixes.json', 'r') as f:
-            prefixes = json.load(f)
+        with open('prefixes.json', 'w') as pfxfile:
+            json.dump(prefixes, pfxfile, indent=4)
+
+    with open('prefixes.json', 'r') as pfxfile:
+        prefixes = json.load(pfxfile)
 
     return prefixes[str(message.guild.id)] # Guild Specific Prefixes
 
@@ -103,23 +106,29 @@ async def grab_members():
 
 @bot.event
 async def on_guild_join(guild):
-    with open('prefixes.json', 'r') as f:
-        prefixes = json.load(f)
+    """
+    Called when the bot joins the guild
+    """
+    with open('prefixes.json', 'r') as pfxfile:
+        prefixes = json.load(pfxfile)
 
     prefixes[str(guild.id)] = '=='
 
-    with open('prefixes.json', 'w') as f:
-        json.dump(prefixes, f, indent=4)
+    with open('prefixes.json', 'w') as pfxfile:
+        json.dump(prefixes, pfxfile, indent=4)
 
 @bot.event
 async def on_guild_remove(guild):
-    with open('prefixes.json', 'r') as f:
-        prefixes = json.load(f)
+    """
+    Called when the bot gets ejected/removed from the guild
+    """
+    with open('prefixes.json', 'r') as pfxfile:
+        prefixes = json.load(pfxfile)
 
     prefixes.pop(str(guild.id))
 
-    with open('prefixes.json', 'w') as f:
-        json.dump(prefixes, f, indent=4)
+    with open('prefixes.json', 'w') as pfxfile:
+        json.dump(prefixes, pfxfile, indent=4)
 
 # Finally, login the bot
 bot.loop.create_task(update())
