@@ -1,3 +1,6 @@
+# pylint: disable=E1101
+# error ignore for non-standard module
+
 """
 
 Rednako: Code is from https://raw.githubusercontent.com/Devoxin/Lavalink.py/master/examples/music.py
@@ -16,6 +19,7 @@ import lavalink
 from discord.ext import commands
 import config
 import math
+import helpers
 config = config.Config('./config.cfg')
 
 def DJConfig(ctx):
@@ -166,12 +170,18 @@ class Music(commands.Cog):
             track = lavalink.models.AudioTrack(track, ctx.author.id, recommended=True)
             player.add(requester=ctx.author.id, track=track)
 
-        await ctx.send(embed=embed)
+        if player.is_playing:
+            await ctx.send(embed=embed)
 
         # We don't want to call .play() if the player is playing as that will effectively skip
         # the current track.
         if not player.is_playing:
             await player.play()
+            info = [
+                ['Song: ', f'{player.current.title}(f"https://youtube.com/watch?v={player.current.identifier})']
+            ]
+            embed=helpers.embed(title='Now Playing: ', description=f'```css\n{self.source.title}\n```', thumbnail=self.source.thumbnail, fields=info)
+            await ctx.send(embed=embed)
 
     @commands.command(aliases=['dc'])
     async def disconnect(self, ctx):
