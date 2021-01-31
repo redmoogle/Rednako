@@ -97,6 +97,7 @@ class Music(commands.Cog):
         if not current_channel:
             return
         guild = self.getattr(current_channel, "guild", None)
+        print(f'guild: {guild} | chn: {current_channel}')
         if event_type == lavalink.LavalinkEvents.TRACK_START:
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
