@@ -105,7 +105,7 @@ class Music(commands.Cog):
                 ['Requested by: ', f'{player.current.requester}']
             ]
             embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
-            notify_channel.send(embed=embed)
+            await notify_channel.send(embed=embed)
 
 
     async def ensure_voice(self, ctx):
