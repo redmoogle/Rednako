@@ -14,6 +14,8 @@ import config
 import discord
 from discord.ext import commands
 from pretty_help import PrettyHelp
+import json
+from pathlib import Path
 
 # Setting up config for open-source shenanigans
 config = config.Config('config.cfg')
@@ -22,13 +24,18 @@ connection = sqlite3.connect('database.db')
 pointer = connection.cursor()
 
 def get_prefix(client, message):
-    """Returns the prefix of the bot (stored in config.cfg)"""
+    prefixes = {}
+    if not Path('prefixes.json').is_file(): # make sure it exists, if not generate default params
+        for guild in bot.guilds:
+            prefixes[str(guild.id)] = '=='
 
-    prefixes = list(config['prefix'])    # grab prefix from config
+        with open('prefixes.json', 'w') as f:
+            json.dump(prefixes, f, indent=4)
+    
+    with open('prefixes.json', 'r') as f:
+            prefixes = json.load(f)
 
-    # Allow users to @mention the bot instead of using a prefix when using a command. Also optional
-    # Do `return prefixes` if u don't want to allow mentions instead of prefix.
-    return commands.when_mentioned_or(*prefixes)(client, message)
+    return prefixes[str(message.guild.id)] # Guild Specific Prefixes
 
 intent = discord.Intents.all()
 
@@ -93,6 +100,26 @@ async def grab_members():
     for _ in bot.get_all_members():
         members += 1
     return [members, servers]
+
+@bot.event
+async def on_guild_join(guild):
+    with open('prefixes.json', 'r') as f:
+        prefixes = json.load(f)
+
+    prefixes[str(guild.id)] = '=='
+
+    with open('prefixes.json', 'w') as f:
+        json.dump(prefixes, f, indent=4)
+
+@bot.event
+async def on_guild_remove(guild):
+    with open('prefixes.json', 'r') as f:
+        prefixes = json.load(f)
+
+    prefixes.pop(str(guild.id))
+
+    with open('prefixes.json', 'w') as f:
+        json.dump(prefixes, f, indent=4)
 
 # Finally, login the bot
 bot.loop.create_task(update())

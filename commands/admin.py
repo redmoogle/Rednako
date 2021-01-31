@@ -205,5 +205,23 @@ class Admin(commands.Cog):
         embed = helpers.embed(title='Databases: ', fields=info, color=discord.Colour.dark_blue())
         await ctx.send(embed=embed)
 
+    @commands.command(
+        name='prefix',
+        brief='change the prefix of the bot',
+    )
+    @commands.has_permissions(administrator=True)
+    async def changeprefix(self, ctx, prefix):
+        with open('prefixes.json', 'r') as f:
+            prefixes = json.load(f)
+
+        prefixes[str(ctx.guild.id)] = prefix
+
+        with open('prefixes.json', 'w') as f:
+            json.dump(prefixes, f, indent=4)
+
+        await ctx.send(f'Prefix changed to: {prefix}')
+        botname = self.bot.display_name
+        self.bot.edit(nick=f'{prefix} | {botname}')
+
 def setup(bot):
     bot.add_cog(Admin(bot))
