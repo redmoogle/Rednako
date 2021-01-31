@@ -61,7 +61,6 @@ class Music(commands.Cog):
 
     async def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
-        self.bot.lavalink._event_hooks.clear()
         await lavalink.close()
 
     async def cog_before_invoke(self, ctx):
@@ -86,7 +85,6 @@ class Music(commands.Cog):
 
     async def ensure_voice(self, ctx):
         """ This check ensures that the bot and command author are in the same voicechannel. """
-        player = self.bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
         # Create returns a player if one exists, otherwise creates.
         # This line is important because it ensures that a player always exists for a guild.
 
@@ -102,6 +100,8 @@ class Music(commands.Cog):
             # Exceptions allow us to "short-circuit" command invocation via checks so the
             # execution state of the command goes no further.
             raise commands.CommandInvokeError('Join a voicechannel first.')
+        
+        player = lavalink.connect(ctx.author.voice.channel)
 
         if not player.is_connected:
             if not should_connect:
