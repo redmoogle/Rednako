@@ -232,19 +232,15 @@ class Music(commands.Cog):
         description="Clears all of the currently playing songs and makes the bot disconnect."
     )
     async def clear_queue(self,ctx):
-        try:
-            player = lavalink.get_player(ctx.guild.id)
-            if int(ctx.author.voice.channel.id) == int(player.channel.id):
-                if player.is_playing:
-                    await player.stop
-                    await ctx.channel.send("Songs Cleared.")
-                else:
-                    await ctx.channel.send("Nothing playing to clear.")
-            else: 
-                await ctx.channel.send("Please join the same voice channel as me.")
-        except:
-            await ctx.channel.send("Nothing playing.")
-
+        player = lavalink.get_player(ctx.guild.id)
+        if int(ctx.author.voice.channel.id) == int(player.channel.id):
+            if player.is_playing:
+                await player.stop
+                await ctx.channel.send("Songs Cleared.")
+            else:
+                await ctx.channel.send("Nothing playing to clear.")
+        else: 
+            await ctx.channel.send("Please join the same voice channel as me.")
 
 def setup(bot):
     bot.add_cog(Music(bot))
