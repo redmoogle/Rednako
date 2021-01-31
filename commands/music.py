@@ -46,7 +46,7 @@ def parse_duration(duration: int):
         if minutes > 0:
             duration.append(f'{round(minutes)}:')
         if seconds > 0:
-            duration.append(f'{round(seconds)}:')
+            duration.append(f'{round(seconds)}')
 
         print(duration)
         return ''.join(duration)
