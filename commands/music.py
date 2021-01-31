@@ -166,13 +166,6 @@ class Music(commands.Cog):
         # the current track.
         if not player.is_playing:
             await player.play()
-            info = [
-                ['Song: ', f'[{player.current.title}]({player.current.uri})'],
-                ['Duration: ', f'{parse_duration(player.current.length)}'],
-                ['Requested by: ', f'{player.current.requester}']
-            ]
-            embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
-            await ctx.send(embed=embed)
 
     @commands.command(aliases=['dc'])
     async def disconnect(self, ctx):
