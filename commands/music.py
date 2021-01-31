@@ -128,7 +128,7 @@ class Music(commands.Cog):
         usage="play [song]",
         aliases=['p']
         )
-    async def search_and_play(self, ctx, search_terms):
+    async def search_and_play(self, ctx, *, search_terms):
         if(not ctx.voice_client) and (ctx.author.voice):
             destination = ctx.author.voice.channel
         else:
