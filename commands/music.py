@@ -197,11 +197,11 @@ class Music(commands.Cog):
             if(player.paused):
                 await ctx.send(':asterisk: | Bot has been unpaused')
                 await player.pause(False)
-            else:
+            elif not player.paused:
                 await ctx.send(':asterisk: | Bot has been paused')
                 await player.pause()
 
-            if not player.is_playing and not player.paused:
+            elif player.current is None:
                 await ctx.send('*⃣ | Bot is not playing any music.')
 
     @commands.command(
