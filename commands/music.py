@@ -32,6 +32,23 @@ def DJConfig(ctx):
         return False
     return True
 
+def parse_duration(duration: int):
+    seconds = divmod(duration, 1000)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+
+    duration = []
+    if days > 0:
+        duration.append('{} days'.format(days))
+    if hours > 0:
+        duration.append('{} hours'.format(hours))
+    if minutes > 0:
+        duration.append('{} minutes'.format(minutes))
+    if seconds > 0:
+        duration.append('{} seconds'.format(seconds))
+    return duration
+
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
 
@@ -178,9 +195,11 @@ class Music(commands.Cog):
         if not player.is_playing:
             await player.play()
             info = [
-                ['Song: ', f'{player.current.title}(f"https://youtube.com/watch?v={player.current.identifier})']
+                ['Song: ', f'{player.current.title}(f"https://youtube.com/watch?v={player.current.identifier})'],
+                ['Duration: ', f'{parse_duration(player.current.length)}'],
+                ['Requested by: ', f'{player.current.requester}']
             ]
-            embed=helpers.embed(title='Now Playing: ', description=f'```css\n{self.source.title}\n```', thumbnail=self.source.thumbnail, fields=info)
+            embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
             await ctx.send(embed=embed)
 
     @commands.command(aliases=['dc'])
