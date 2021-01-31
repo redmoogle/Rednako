@@ -174,7 +174,7 @@ class Music(commands.Cog):
         # Stop the current track so Lavalink consumes less resources.
         await player.stop()
         # Disconnect from the voice channel.
-        await ctx.voice_client.disconnect()
+        await player.channel.disconnect()
         await ctx.send('*⃣ | Disconnected.')
 
     @commands.check(DJConfig)
@@ -233,7 +233,7 @@ class Music(commands.Cog):
     async def clear_queue(self,ctx):
         try:
             player = lavalink.get_player(ctx.guild.id)
-            if ctx.author.voice is not None and ctx.author.voice.channel.id == int(player.channel.id):
+            if int(ctx.author.voice.channel.id) == int(player.channel.id):
                 if player.is_playing:
                     await player.stop
                     await ctx.channel.send("Songs Cleared.")
