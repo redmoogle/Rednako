@@ -58,9 +58,11 @@ class Music(commands.Cog):
     """
     def __init__(self, bot):
         self.bot = bot
-        self.init_lavalink()
+        loop = asyncio.get_event_loop()
+        loop.create_task(create())
 
-    async def init_lavalink(self):
+    @classmethod
+    async def create(self):
         await lavalink.initialize(
             self.bot, host='localhost', password='youshallnotpass',
             rest_port=2332, ws_port=2333
