@@ -114,10 +114,7 @@ class Music(commands.Cog):
 
         if not permissions.connect or not permissions.speak:  # Check user limit too?
             raise commands.CommandInvokeError('I need the `CONNECT` and `SPEAK` permissions.')
-        if ctx.voice_client is None:
-            player.store('channel', ctx.channel.id)
-            await lavalink.connect(ctx.author.voice.channel.id)
-        else:
+        if ctx.voice_client:
             if int(player.channel.id) != ctx.author.voice.channel.id:
                 raise commands.CommandInvokeError('You need to be in my voicechannel.')
 
