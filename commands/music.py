@@ -101,7 +101,7 @@ class Music(commands.Cog):
             # execution state of the command goes no further.
             raise commands.CommandInvokeError('Join a voicechannel first.')
         
-        player = lavalink.connect(ctx.author.voice.channel)
+        player = await lavalink.connect(ctx.author.voice.channel)
 
         if not player.is_connected:
             if not should_connect:
