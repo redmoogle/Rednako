@@ -37,7 +37,7 @@ def parse_duration(duration: int):
         minutes, seconds = divmod(duration, 60)
         hours, minutes = divmod(minutes, 60)
         days, hours = divmod(hours, 24)
-
+        print(minutes)
         duration = []
         if days > 0:
             duration.append(f'{str(days)}:')
@@ -48,6 +48,7 @@ def parse_duration(duration: int):
         if seconds > 0:
             duration.append(f'{str(seconds)}:')
 
+        print(duration)
         return ''.join(duration)
 
 url_rx = re.compile(r'https?://(?:www\.)?.+')
