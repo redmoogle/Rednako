@@ -13,6 +13,7 @@ import datetime
 import json
 import sqlite3
 import datetime
+from pathlib import Path
 
 connection = sqlite3.connect('database.db')
 pointer = connection.cursor()
@@ -65,7 +66,10 @@ class Admin(commands.Cog):
             await ctx.send(embed=embed)
         try: # Silence, Error.
             await self.bot.logout()
-            subprocess.call(['bash', '/home/dakotamew/Rednako/commands/restart.sh'])
+            path = Path(__file__).parent.parent
+            print(path)
+            aawait asyncio.sleep(10)
+            subprocess.call(['bash', f'{path}/restart.sh'])
             exit()
         except:
             pass
@@ -78,6 +82,15 @@ class Admin(commands.Cog):
     async def sql(self, ctx, *, sqlinput):
         sqlpass = pointer.execute(sqlinput)
         return await ctx.send(sqlpass.fetchall(), delete_after=10)
+
+    @commands.command(
+        name='exec',
+        brief='run python commands'
+    )
+    @commands.is_owner()
+    async def _exec(self, ctx, *, execinput):
+        execpass = exec(execinput)
+        return await ctx.send(execpass, delete_after=10)
 
     @commands.command(
         name='purge',
