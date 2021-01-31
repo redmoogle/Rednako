@@ -64,15 +64,12 @@ class Admin(commands.Cog):
     
             embed=helpers.embed(title='Github Update: ', fields=info, inline=False, color=discord.Colour.gold())
             await ctx.send(embed=embed)
-        try: # Silence, Error.
-            await self.bot.logout()
-            path = Path(__file__).parent
-            print(path)
-            await asyncio.sleep(10)
-            subprocess.call(['bash', f'{path}/restart.sh'])
-            exit()
-        except:
-            pass
+        await self.bot.logout()
+        path = Path(__file__).parent
+        print(path)
+        await asyncio.sleep(10)
+        subprocess.call(['bash', f'{path}/restart.sh'])
+        exit()
 
     @commands.command(
         name='sql',
