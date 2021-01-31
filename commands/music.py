@@ -164,7 +164,7 @@ class Music(commands.Cog):
         if not player.is_playing:
             await player.play()
 
-    @commands.command(aliases=['dc'])
+    @commands.command(aliases=['dc', 'stop'])
     async def disconnect(self, ctx):
         """ Disconnects the player from the voice channel and clears its queue. """
         player = lavalink.get_player(ctx.guild.id)
@@ -194,7 +194,10 @@ class Music(commands.Cog):
         """pauses the player."""
         player = lavalink.get_player(ctx.guild.id)
         if(player):
-           await player.pause()
+            if(player.paused):
+                await player.pause(False)
+            else:
+                await player.pause()
         if not player.is_playing:
             await ctx.send('*⃣ | Bot is not playing any music.')
 
@@ -237,22 +240,6 @@ class Music(commands.Cog):
                             description=f'**{len(player.queue) + playeradd} tracks**\n\n{queue_list}')
         embed.set_footer(text=f'Viewing page {page}/{pages}')
         await ctx.send(embed=embed)
-
-    @commands.check(DJConfig)
-    @commands.command(
-        name = "clear",
-        description="Clears all of the currently playing songs and makes the bot disconnect."
-    )
-    async def clear_queue(self,ctx):
-        player = lavalink.get_player(ctx.guild.id)
-        if int(ctx.author.voice.channel.id) == int(player.channel.id):
-            if player.is_playing:
-                await player.stop()
-                await ctx.channel.send("Songs Cleared.")
-            else:
-                await ctx.channel.send("Nothing playing to clear.")
-        else: 
-            await ctx.channel.send("Please join the same voice channel as me.")
 
 def setup(bot):
     bot.add_cog(Music(bot))
