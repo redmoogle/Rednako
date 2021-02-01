@@ -57,7 +57,8 @@ botcommands = [
     'commands.user',
     'commands.admin',
     'commands.image',
-    'commands.tasks'
+    'commands.tasks',
+    'commands.equalizer'
 ]
 
 @bot.event
