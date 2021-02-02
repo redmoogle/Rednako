@@ -1,7 +1,7 @@
 /.vscode/**/*
-/__pycache__/**/*
-/commands/__pycache__/**/*
-/logs
+__pycache__/
+.py[cod]
+.log
 .cfg
 .json
 .db

@@ -1,14 +1,21 @@
-# pylint: disable=E1101
-# error ignore for non-standard module
-
-from discord.ext import commands
-import discord
-import discordtextsanitizer as dts
-import config
+# Standard Python Modules
 import random
+
+# Discord Modules
+import discord
+from discord.ext import commands
+import discordtextsanitizer as dts
+
+# Config Module
+import config
+
+# Github Module
 import git
-import helpers
-config = config.Config('./config.cfg')
+
+# ../modules
+from modules import helpers
+
+config = config.Config('./config/bot.cfg')
 repo = git.Repo(search_parent_directories=True)
 
 class User(commands.Cog):

@@ -1,0 +1,2 @@
+init-hook='import sys; sys.path.append(".")'
+disable=E1101

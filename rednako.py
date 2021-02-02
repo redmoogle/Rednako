@@ -8,57 +8,59 @@ Also important note. If you change default_activity
 in the config make sure to update the .format in here
 
 """
-import asyncio
-import sqlite3
+
+# Standard Python Modules
+import os
+import sys
 import json
+import asyncio
 from pathlib import Path
-import config
+
+# Discord Modules
 import discord
 from discord.ext import commands
 from pretty_help import PrettyHelp
 
+# Config
+import config
+
 # Setting up config for open-source shenanigans
-config = config.Config('config.cfg')
-token = config['token']
-connection = sqlite3.connect('database.db')
-pointer = connection.cursor()
+config = config.Config('./config/bot.cfg')
+# Allows cogs to use the ./Modules folder
+sys.path.append(os.path.abspath(__file__ + "/../modules"))
 
 def get_prefix(client, message):
     """
     Load prefixes from json file if it exists, otherwise generate default prefix file
     """
     prefixes = {}
-    if not Path('prefixes.json').is_file(): # make sure it exists, if not generate default params
+    if not Path('./data/guild_prefix.json').is_file(): # make sure it exists, if not generate default params
         for guild in bot.guilds:
             prefixes[str(guild.id)] = '=='
 
-        with open('prefixes.json', 'w') as pfxfile:
+        with open('./data/guild_prefix.json', 'w') as pfxfile:
             json.dump(prefixes, pfxfile, indent=4)
 
-    with open('prefixes.json', 'r') as pfxfile:
+    with open('./data/guild_prefix.json', 'r') as pfxfile:
         prefixes = json.load(pfxfile)
 
     return prefixes[str(message.guild.id)] # Guild Specific Prefixes
-
-intent = discord.Intents.all()
 
 bot = commands.Bot(                         # Create a new bot
     command_prefix=get_prefix,              # Set the prefix
     description='Rednako Public Bot',       # Set a description for the bot
     owner_id=config['owner_id'],            # Your unique User ID
     case_insensitive=True,                  # Make the commands case insensitive
-    intents=intent,                         # Entirely Optional
+    intents=discord.Intents.all(),          # Entirely Optional
     help_command=PrettyHelp()               # Default help command
 )
 
-# case_insensitive=True is used as the commands are case sensitive by default
 botcommands = [
     'commands.music',
     'commands.user',
     'commands.admin',
     'commands.image',
-    'commands.tasks',
-    'commands.equalizer'
+    'commands.tasks'
 ]
 
 @bot.event
@@ -110,12 +112,12 @@ async def on_guild_join(guild):
     """
     Called when the bot joins the guild
     """
-    with open('prefixes.json', 'r') as pfxfile:
+    with open('./guild_prefix.json', 'r') as pfxfile:
         prefixes = json.load(pfxfile)
 
     prefixes[str(guild.id)] = '=='
 
-    with open('prefixes.json', 'w') as pfxfile:
+    with open('./guild_prefix.json', 'w') as pfxfile:
         json.dump(prefixes, pfxfile, indent=4)
 
 @bot.event
@@ -123,14 +125,14 @@ async def on_guild_remove(guild):
     """
     Called when the bot gets ejected/removed from the guild
     """
-    with open('prefixes.json', 'r') as pfxfile:
+    with open('./guild_prefix.json', 'r') as pfxfile:
         prefixes = json.load(pfxfile)
 
     prefixes.pop(str(guild.id))
 
-    with open('prefixes.json', 'w') as pfxfile:
+    with open('./guild_prefix.json', 'w') as pfxfile:
         json.dump(prefixes, pfxfile, indent=4)
 
 # Finally, login the bot
 bot.loop.create_task(update())
-bot.run(token, bot=True, reconnect=True)
+bot.run(config['token'], bot=True, reconnect=True)

@@ -1,5 +1,3 @@
-# pylint: disable=W0702
-# disabling W0702 because bare excepts for testing
 """"
 Common helper functions for bot
 """

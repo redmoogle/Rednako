@@ -1,23 +1,18 @@
-# pylint: disable=E1101
-# error ignore because pylint is retarted
-
-# Handle tasks
-from discord.ext import commands, tasks
-from datetime import datetime
-import discord
+# Standard Python Modules
 import asyncio
-import sqlite3
+import logging
+from datetime import datetime
 
-connection = sqlite3.connect('database.db')
-pointer = connection.cursor()
+# Discord Modules
+from discord.ext import commands, tasks
+import discord
+
+# ../modules
+from modules import sql
 
 tables = [
-    '''CREATE TABLE IF NOT EXISTS mutes
-        (id INTEGER, experation TIME, guild INTEGER, role INTEGER)
-    ''',
-    '''CREATE TABLE IF NOT EXISTS longmutes
-        (id INTEGER, experation TIME, guild INTEGER, role INTEGER)
-    '''
+    ['mutes', ['id', 'INTEGER', 'experation', 'TIME', 'guild', 'INTEGER', 'role', 'INTEGER']],
+    ['longmutes', ['id', 'INTEGER', 'experation', 'TIME', 'guild', 'INTEGER', 'role', 'INTEGER']]
 ]
 
 class Task(commands.Cog):
@@ -25,11 +20,11 @@ class Task(commands.Cog):
     Automatic Tasks
     """
     def __init__(self, bot):
-        for table in tables:
-            pointer.execute(table)
         self.bot = bot
         self.mute.start()
         self.storage.start()
+        for table in tables:
+            sql.create_table(table=table[0], types=table[1], check_exist=True)
 
     async def cog_before_invoke(self, ctx):
         await self.bot.wait_until_ready()
@@ -40,16 +35,14 @@ class Task(commands.Cog):
 
     @tasks.loop(seconds=5)
     async def mute(self):
-        for data in pointer.execute('SELECT * FROM mutes ORDER BY id;'):
-            member = guild.get_member(data[0])
+        for data in sql.select('mutes'):
             time = data[1]
-            guild = self.bot.get_guild(data[2])
+            guild = self.bot.get_guild(int(data[2]))
             role = guild.get_role(data[3])
+            member = guild.get_member(data[0])
             delta = (datetime.strptime(time, '%Y-%m-%d %H:%M:%S') - datetime.now()).total_seconds()
             if(delta <= 0):
-                print(f'SQL-DELETE: {data}')
-                pointer.execute(f'DELETE FROM mutes WHERE id = {int(member.id)} AND guild = {int(guild.id)}')
-                connection.commit()
+                sql.remove('mutes', ['id', int(member.id), 'guild', int(guild.id)])
                 embed = discord.Embed(title=f'You have been unmuted from: `{guild.name}`')
                 await member.send(embed=embed)
                 await member.remove_roles(role)
@@ -59,23 +52,19 @@ class Task(commands.Cog):
         """
         Move long mutes into storage to keep the 5 second task fast
         """
-        for row in pointer.execute('SELECT * FROM mutes ORDER BY id;'): # Move from active to storage
+        for row in sql.select('mutes'): # Move from active to storage
             time = row[1]
             delta = (datetime.strptime(time, '%Y-%m-%d %H:%M:%S') - datetime.now()).total_seconds()
             if(delta > 70): # Small buffer
-                print(f'SQL-MOVE: {row}')
-                pointer.execute(f'INSERT INTO longmutes VALUES {row};')
-                pointer.execute(f'DELETE FROM mutes WHERE id = {row[0]} and guild = {row[2]}')
+                sql.add('longmutes', row)
+                sql.remove('mutes', ['id', row[0], 'guild', row[2]])
 
-        for row in pointer.execute('SELECT * FROM longmutes ORDER BY id;'): # Move from storage to active
+        for row in sql.select('longmutes'): # Move from storage to active
             time = row[1]
             delta = (datetime.strptime(time, '%Y-%m-%d %H:%M:%S') - datetime.now()).total_seconds()
             if(delta <= 70):
-                print(f'SQL-MOVE: {row}')
-                pointer.execute(f'INSERT INTO mutes VALUES {row};')
-                pointer.execute(f'DELETE FROM longmutes WHERE id = {row[0]} and guild = {row[2]}')
-        connection.commit()
-
+                sql.add('mutes', row)
+                sql.remove('longmutes', ['id', row[0], 'guild', row[2]])
 
 def setup(bot):
     bot.add_cog(Task(bot))

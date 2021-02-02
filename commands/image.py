@@ -1,11 +1,15 @@
-# pylint: disable=E1101
-# error ignore for non-standard module
-
-from discord.ext import commands
-import discord
+# Standard Python Modules
 import random
+
+# Discord Modules
+import discord
+from discord.ext import commands
+
+# Misc Modules
 import nekos
-import helpers
+
+# ../modules
+from modules import helpers
 
 # Dont worry I can feel the disappointment from my computer
 class Image(commands.Cog):

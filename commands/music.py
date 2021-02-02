@@ -1,6 +1,3 @@
-# pylint: disable=E1101
-# error ignore for non-standard module
-
 """
 
 Rednako: Code is from https://raw.githubusercontent.com/Devoxin/Lavalink.py/master/examples/music.py
@@ -12,18 +9,32 @@ modifications as necessary for use with another Discord library.
 Usage of this cog requires Python 3.6 or higher due to the use of f-strings.
 Compatibility with Python 3.5 should be possible if f-strings are removed.
 """
-import re
 
-import asyncio
-import discord
-import lavalink
-from discord.ext import commands
-import config
+# Standard Python Modules
+import re
 import math
-import helpers
-config = config.Config('./config.cfg')
+import asyncio
+import logging
+
+# Discord Modules
+import discord
+from discord.ext import commands
+
+# RED lavalink module
+import lavalink
+
+# ../modules
+from modules import helpers
+
+# Config Module
+import config
+
+config = config.Config('./config/bot.cfg')
 
 def DJConfig(ctx):
+    """
+    Check config to see if DJ mode is enabled
+    """
     if(config['enable_dj_role']):
         for role in ctx.author.roles:
             if(config['dj_role'] == role.name):
@@ -34,22 +45,23 @@ def DJConfig(ctx):
     return True
 
 def parse_duration(duration: int):
-        minutes, seconds = divmod(duration, 60)
-        hours, minutes = divmod(minutes, 60)
-        days, hours = divmod(hours, 24)
-        print(minutes)
-        duration = []
-        if days > 0:
-            duration.append(f'{round(days)}:')
-        if hours > 0:
-            duration.append(f'{round(hours)}:')
-        if minutes > 0:
-            duration.append(f'{round(minutes)}:')
-        if seconds > 0:
-            duration.append(f'{round(seconds)}')
+    """
+    Parse duration into DD:HH:MM:SS
+    """
+    minutes, seconds = divmod(duration, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+    duration = []
+    if days > 0:
+        duration.append(f'{round(days)}:')
+    if hours > 0:
+        duration.append(f'{round(hours)}:')
+    if minutes > 0:
+        duration.append(f'{round(minutes)}:')
+    if seconds > 0:
+        duration.append(f'{round(seconds)}')
 
-        print(duration)
-        return ''.join(duration)
+    return ''.join(duration)
 
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
