@@ -1,3 +1,5 @@
+#pylint: disable=bare-except
+
 """"
 Common helper functions for bot
 """

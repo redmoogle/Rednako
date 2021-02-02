@@ -14,7 +14,6 @@ Compatibility with Python 3.5 should be possible if f-strings are removed.
 import re
 import math
 import asyncio
-import logging
 
 # Discord Modules
 import discord
@@ -31,15 +30,15 @@ import config
 
 config = config.Config('./config/bot.cfg')
 
-def DJConfig(ctx):
+def djconfig(ctx):
     """
     Check config to see if DJ mode is enabled
     """
-    if(config['enable_dj_role']):
+    if config['enable_dj_role']:
         for role in ctx.author.roles:
-            if(config['dj_role'] == role.name):
+            if config['dj_role'] == role.name:
                 return True
-            elif(config['dj_role'] == str(role.id)):
+            elif config['dj_role'] == str(role.id):
                 return True
         return False
     return True
@@ -66,6 +65,9 @@ def parse_duration(duration: int):
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
 async def create(bot):
+    """
+    Create lavalink instance
+    """
     await lavalink.initialize(
         bot, host='localhost', password='youshallnotpass',
         rest_port=2333, ws_port=2333
@@ -80,7 +82,7 @@ class Music(commands.Cog):
         loop = asyncio.get_event_loop()
         loop.create_task(create(self.bot))
 
-    async def cog_unload(self):
+    def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
         await lavalink.close()
 
@@ -104,7 +106,10 @@ class Music(commands.Cog):
             # which contain a reason string, such as "Join a voicechannel" etc. You can modify the above
             # if you want to do things differently.
 
-    async def handle_lavalink_events(self, player: lavalink.Player, event_type: lavalink.LavalinkEvents, extra = None):
+    async def handle_lavalink_events(self, player: lavalink.Player, event_type: lavalink.LavalinkEvents):
+        """
+        Lavalink events arent sent here
+        """
         current_channel = player.channel
         if not current_channel:
             return
@@ -119,12 +124,9 @@ class Music(commands.Cog):
             ]
             embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
             await notify_channel.send(embed=embed)
-        
+
         if event_type == lavalink.LavalinkEvents.QUEUE_END:
-            notify_channel = player.fetch("channel") # this is a huge hack but shhh
-            notify_channel = self.bot.get_channel(notify_channel)
-            conn = self.bot._connection._get_websocket(notify_channel.guild)
-            await conn.voice_state(str(notify_channel.guild.id), None)
+            await player.disconnect()
 
 
     async def ensure_voice(self, ctx):
@@ -132,18 +134,14 @@ class Music(commands.Cog):
         # Create returns a player if one exists, otherwise creates.
         # This line is important because it ensures that a player always exists for a guild.
 
-        # Most people might consider this a waste of resources for guilds that aren't playing, but this is
-        # the easiest and simplest way of ensuring players are created.
-
         # These are commands that require the bot to join a voicechannel (i.e. initiating playback).
-        # Commands such as volume/skip etc don't require the bot to be in a voicechannel so don't need listing here.
 
         if not ctx.author.voice or not ctx.author.voice.channel:
             # Our cog_command_error handler catches this and sends it to the voicechannel.
             # Exceptions allow us to "short-circuit" command invocation via checks so the
             # execution state of the command goes no further.
             raise commands.CommandInvokeError('Join a voicechannel first.')
-        
+
         player = await lavalink.connect(ctx.author.voice.channel)
         lavalink.register_event_listener(self.handle_lavalink_events)
 
@@ -160,8 +158,11 @@ class Music(commands.Cog):
         description="play music.",
         usage="play [song]",
         aliases=['p']
-        )
+    )
     async def search_and_play(self, ctx, *, search_terms):
+        """
+        Plays a song will search yt if no link is provided
+        """
         player = lavalink.get_player(ctx.guild.id)
         if(not ctx.voice_client) and (ctx.author.voice):
             destination = ctx.author.voice.channel
@@ -186,6 +187,7 @@ class Music(commands.Cog):
         if not player.is_playing:
             await player.play()
 
+    @commands.check(djconfig)
     @commands.command(aliases=['dc', 'stop'])
     async def disconnect(self, ctx):
         """ Disconnects the player from the voice channel and clears its queue. """
@@ -193,8 +195,7 @@ class Music(commands.Cog):
 
 
         if not ctx.author.voice or (ctx.author.voice.channel.id != int(player.channel.id)):
-            # Abuse prevention. Users not in voice channels, or not in the same voice channel as the bot
-            # may not disconnect the bot.
+            # Abuse prevention
             return await ctx.send('You\'re not in my voicechannel!')
 
         # Clear the queue to ensure old tracks don't start playing
@@ -203,11 +204,10 @@ class Music(commands.Cog):
         # Stop the current track so Lavalink consumes less resources.
         await player.stop()
         # Disconnect from the voice channel.
-        conn = self.bot._connection._get_websocket(ctx.message.guild.id)
-        await conn.voice_state(str(ctx.message.guild.id), None)
+        player.disconnect()
         await ctx.send('*⃣ | Disconnected.')
 
-    @commands.check(DJConfig)
+    @commands.check(djconfig)
     @commands.command(
         name='pause',
         brief='pauses the song'
@@ -215,11 +215,11 @@ class Music(commands.Cog):
     async def pause(self, ctx):
         """pauses the player."""
         player = lavalink.get_player(ctx.guild.id)
-        if(player):
+        if player:
             if player.current is None:
                 await ctx.send('*⃣ | Bot is not playing any music.')
 
-            elif(player.paused):
+            elif player.paused:
                 await ctx.send(':asterisk: | Bot has been unpaused')
                 await player.pause(False)
             elif not player.paused:
@@ -231,19 +231,28 @@ class Music(commands.Cog):
         description="Shows the current playing song.",
         usage="current",
         aliases=['np','nowplaying']
-        )
+    )
     async def current(self,ctx):
+        """
+        Shows whats poppin
+        """
         player = lavalink.get_player(ctx.guild.id)
         info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
                 ['Duration: ', f'{parse_duration(player.current.length/1000)}'],
                 ['Requested by: ', f'{player.current.requester}']
             ]
-        embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
+        embed=helpers.embed(
+            title='Now Playing: ',
+            description=f'```css\n{player.current.title}\n```',
+            thumbnail=player.current.thumbnail,
+            fields=info
+        )
         await ctx.send(embed=embed)
 
     @commands.command(name='queue')
     async def queue(self, ctx, page: int = 1):
+        """Shows the queue"""
         player = lavalink.get_player(ctx.guild.id)
 
         items_per_page = 10
@@ -267,4 +276,7 @@ class Music(commands.Cog):
         await ctx.send(embed=embed)
 
 def setup(bot):
+    """
+    Setup Music Cog
+    """
     bot.add_cog(Music(bot))

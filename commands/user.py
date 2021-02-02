@@ -1,16 +1,17 @@
-# Standard Python Modules
-import random
+"""
+Random commands for the user
+"""
 
 # Discord Modules
 import discord
 from discord.ext import commands
 import discordtextsanitizer as dts
 
-# Config Module
-import config
-
 # Github Module
 import git
+
+# Config Module
+import config
 
 # ../modules
 from modules import helpers
@@ -34,6 +35,9 @@ class User(commands.Cog):
         aliases=['send', 'args']
     )
     async def args(self, ctx, *, args):
+        """
+        Prints what the user put in
+        """
         sanitized = dts.sanitize_mass_mentions(
             args, run_preprocess=True, users=True
         )
@@ -45,6 +49,9 @@ class User(commands.Cog):
         aliases=['si']
     )
     async def serverinfo(self, ctx):
+        """
+        prints guild info
+        """
         guild = ctx.guild           # grab guild
         textchannels = 0            # all text channels
         voicechannels = 0           # all voice channels
@@ -57,7 +64,7 @@ class User(commands.Cog):
 
         for _ in guild.text_channels:
             textchannels += 1
-        
+
         for _ in guild.categories:
             categorys += 1
 
@@ -85,10 +92,13 @@ class User(commands.Cog):
         aliases=['globalinfo']
     )
     async def info(self, ctx):
+        """
+        Prints Bot Info
+        """
         botuser = ctx.bot                       # shortcut for bot. var/bot is taken
         sha = repo.head.object.hexsha           # Hash of commit that the local files are
         totalservers = len(botuser.guilds)      # List of all guilds, is a list so can len() it
-        members = botuser.get_all_members()     # Reference to members, is a generator so cant len() it
+        members = botuser.get_all_members()     # Reference to members, generator
         link = config['invitelink']             # Link to invite bot
         githublink = config['github']           # Github link
         prefixformat = ""                       # Formatted Prefixes
@@ -102,7 +112,7 @@ class User(commands.Cog):
         for prefix in prefixes:
             _counter += 1
             prefixformat += prefix
-            if(_counter+1 <= int(len(prefixes))):
+            if _counter+1 <= int(len(prefixes)):
                 prefixformat += ", "
 
         info = [ # Makes adding easy and pretty
@@ -115,7 +125,11 @@ class User(commands.Cog):
                 ['Commit: ',            f'{sha}']
             ]
 
-        embed=helpers.embed(title='Bot Statistics: ', thumbnail=botuser.user.avatar_url, fields=info)
+        embed=helpers.embed(
+            title='Bot Statistics: ',
+            thumbnail=botuser.user.avatar_url,
+            fields=info
+        )
         await ctx.send(embed=embed)
 
     @commands.command(
@@ -123,17 +137,15 @@ class User(commands.Cog):
         brief='ping discord api/bot'
     )
     async def ping(self, ctx):
+        """
+        Ping Discord API
+        """
         embed = discord.Embed(title="Pong!", color=discord.Color.blurple())
         embed.add_field(name='API: ', value=(f'Latency: {round(self.bot.latency*1000)}ms'))
         await ctx.send(embed=embed)
 
-    @commands.command(
-        name='embed',
-        brief='make an embed'
-    )
-    async def embed(self, ctx, *, title):
-        embed=helpers.embed(title=title)
-        await ctx.send(embed=embed)
-
 def setup(bot):
+    """
+    Sets up user cog
+    """
     bot.add_cog(User(bot))

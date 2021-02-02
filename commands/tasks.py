@@ -1,6 +1,4 @@
 # Standard Python Modules
-import asyncio
-import logging
 from datetime import datetime
 
 # Discord Modules
@@ -67,6 +65,9 @@ class Task(commands.Cog):
                 sql.remove('longmutes', ['id', row[0], 'guild', row[2]])
 
 def setup(bot):
+    """
+    Setup Task Cog
+    """
     bot.add_cog(Task(bot))
 
 
