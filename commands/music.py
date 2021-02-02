@@ -84,7 +84,7 @@ class Music(commands.Cog):
 
     def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
-        await lavalink.close()
+        lavalink.close()
 
     async def cog_before_invoke(self, ctx):
         """ Command before-invoke handler. """
