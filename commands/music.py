@@ -23,7 +23,7 @@ from discord.ext import commands
 import lavalink
 
 # ../modules
-from configurations import Config
+from settings import Config
 from modules import helpers
 
 def parse_duration(duration: int):
