@@ -14,6 +14,7 @@ Compatibility with Python 3.5 should be possible if f-strings are removed.
 import re
 import math
 import asyncio
+import logging
 
 # Discord Modules
 import discord
@@ -99,7 +100,7 @@ class Music(commands.Cog):
             guildrole = jsonreader.read_file(self.bot, ctx, 'djmode', None)
             if guildrole is None:
                 return True
-            print(f'Guildrole is not None: Is {guildrole}')
+            logging.warning('Guildrole is not None: Is %s: %s', guildrole, guildrole.name)
             return commands.has_role(int(guildrole))
         return commands.check(checkdj)
 
