@@ -35,8 +35,14 @@ async def djconfig(ctx):
     if guildrole is None:
         await ctx.send('True')
         return True
-    await ctx.send(f'{commands.has_role(int(guildrole))} by ID')
-    return commands.has_role(int(guildrole))
+
+    role = ctx.guild.get_role(guildrole)
+    await ctx.send(f'looking for role {guildrole}')
+    if role in ctx.author.roles:
+        await ctx.send(f'Found role {role}, user has: {ctx.author.roles}')
+        return True
+    await ctx.send(f'Did not find {role}, user has: {ctx.author.roles}')
+    return False
 
 def parse_duration(duration: int):
     """
