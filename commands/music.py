@@ -31,12 +31,11 @@ def djconfig(ctx):
     """
     Checks config to see if that guild has defined a DJ role
     """
-    logging.warning('Check ran')
     guildrole = jsonreader.read_file(ctx.bot, ctx, 'djmode', None)
     if guildrole is None:
-        logging.warning('Is None %s', guildrole)
+        await ctx.send('True')
         return True
-    logging.warning('Guildrole is not None: Is %s', guildrole)
+    await ctx.send(f'{commands.has_role(int(guildrole))} by ID')
     return commands.has_role(int(guildrole))
 
 def parse_duration(duration: int):
