@@ -27,6 +27,20 @@ import lavalink
 from modules import jsonreader
 from modules import helpers
 
+def djconfig():
+    """
+    Checks config to see if that guild has defined a DJ role
+    """
+    def checkdj(ctx):
+        logging.warning('Check ran')
+        guildrole = jsonreader.read_file(ctx.bot, ctx, 'djmode', None)
+        if guildrole is None:
+            logging.warning('Is None %s', guildrole)
+            return True
+        logging.warning('Guildrole is not None: Is %s: %s', guildrole, guildrole.name)
+        return commands.has_role(int(guildrole))
+    return commands.check(checkdj)
+
 def parse_duration(duration: int):
     """
     Parse duration into DD:HH:MM:SS
@@ -91,20 +105,6 @@ class Music(commands.Cog):
             # This shouldn't be a problem as the only errors thrown in this cog are from `ensure_voice`
             # which contain a reason string, such as "Join a voicechannel" etc. You can modify the above
             # if you want to do things differently.
-
-    def djconfig(self):
-        """
-        Checks config to see if that guild has defined a DJ role
-        """
-        def checkdj(self, ctx):
-            logging.warning('Check ran')
-            guildrole = jsonreader.read_file(self.bot, ctx, 'djmode', None)
-            if guildrole is None:
-                logging.warning('Is None %s', guildrole)
-                return True
-            logging.warning('Guildrole is not None: Is %s: %s', guildrole, guildrole.name)
-            return commands.has_role(int(guildrole))
-        return commands.check(checkdj)
 
     async def handle_lavalink_events(self, player: lavalink.Player, event_type: lavalink.LavalinkEvents, extra = None):
         """
