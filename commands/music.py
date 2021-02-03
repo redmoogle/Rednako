@@ -89,6 +89,7 @@ class Music(commands.Cog):
 
     async def cog_before_invoke(self, ctx):
         """ Command before-invoke handler. """
+        await self.bot.wait_until_ready()
         guild_check = ctx.guild is not None
         #  This is essentially the same as `@commands.guild_only()`
         #  except it saves us repeating ourselves (and also a few lines).
@@ -107,13 +108,12 @@ class Music(commands.Cog):
             # which contain a reason string, such as "Join a voicechannel" etc. You can modify the above
             # if you want to do things differently.
 
-    async def cog_before_invoke(self, ctx):
-        await self.bot.wait_until_ready()
-
-    async def handle_lavalink_events(self, player: lavalink.Player, event_type: lavalink.LavalinkEvents):
+    async def handle_lavalink_events(self, player: lavalink.Player, event_type: lavalink.LavalinkEvents, extra = None):
         """
         Lavalink events arent sent here
         """
+        if extra is None: # Placeholder so pylint doesnt get angry
+            pass
         current_channel = player.channel
         if not current_channel:
             return
