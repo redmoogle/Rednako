@@ -159,6 +159,7 @@ class Music(commands.Cog):
         usage="play [song]",
         aliases=['p']
     )
+    @commands.check(djconfig)
     async def search_and_play(self, ctx, *, search_terms):
         """
         Plays a song will search yt if no link is provided
@@ -187,8 +188,8 @@ class Music(commands.Cog):
         if not player.is_playing:
             await player.play()
 
-    @commands.check(djconfig)
     @commands.command(aliases=['dc', 'stop'])
+    @commands.check(djconfig)
     async def disconnect(self, ctx):
         """ Disconnects the player from the voice channel and clears its queue. """
         player = lavalink.get_player(ctx.guild.id)
@@ -207,11 +208,11 @@ class Music(commands.Cog):
         await player.disconnect()
         await ctx.send('*⃣ | Disconnected.')
 
-    @commands.check(djconfig)
     @commands.command(
         name='pause',
         brief='pauses the song'
     )
+    @commands.check(djconfig)
     async def pause(self, ctx):
         """pauses the player."""
         player = lavalink.get_player(ctx.guild.id)
