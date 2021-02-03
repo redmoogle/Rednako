@@ -27,16 +27,6 @@ from modules import helpers, sql
 config = config.Config('./config/bot.cfg')
 repo = git.Repo(search_parent_directories=True)
 
-def dmcheck():
-    """
-    Check if it's in the dms
-    """
-    def indm(ctx):
-        if not ctx.guild:
-            return True
-        return False
-    return commands.check(indm)
-
 async def grabmute(ctx, victim: discord.Member = None):
     """
     Grabs a mute from the DB
@@ -108,7 +98,7 @@ class Admin(commands.Cog):
         name='purge',
         brief='delete messages'
     )
-    @commands.check_any(dmcheck(), commands.has_permissions(manage_messages=True))
+    @commands.has_permissions(manage_messages=True)
     async def purge(self, ctx, purge: int):
         """
         purge messages
