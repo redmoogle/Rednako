@@ -6,7 +6,6 @@ Various admin commands
 
 # Standard Python Modules
 import sys
-import json
 import random
 import datetime
 import subprocess
@@ -237,27 +236,6 @@ class Admin(commands.Cog):
 
         embed = helpers.embed(title='Databases: ', fields=info, color=discord.Colour.dark_blue())
         await ctx.send(embed=embed)
-
-    @commands.command(
-        name='prefix',
-        brief='change the prefix of the bot',
-    )
-    @commands.check_any(dmcheck(), commands.has_permissions(administrator=True))
-    async def changeprefix(self, ctx, prefix):
-        """
-        Change the prefix of the bot
-        """
-        with open('./data/guild_prefix.json', 'r') as pfxfile:
-            prefixes = json.load(pfxfile)
-
-        prefixes[str(ctx.guild.id)] = prefix
-
-        with open('./data/guild_prefix.json', 'w') as pfxfile:
-            json.dump(prefixes, pfxfile, indent=4)
-
-        await ctx.send(f'Prefix changed to: {prefix}')
-        botname = ctx.me.name
-        await ctx.me.edit(nick=f'{prefix} | {botname}')
 
 def setup(bot):
     """

@@ -1,5 +1,6 @@
-# Standard Python Modules
-import random
+"""
+Image commands
+"""
 
 # Discord Modules
 import discord
@@ -21,13 +22,16 @@ class Image(commands.Cog):
 
     async def cog_before_invoke(self, ctx):
         await ctx.message.delete()
-        
+
     # Define a new command
     @commands.command(
         name='neko',
         brief='send embedded catgirl'
     )
     async def neko(self, ctx):
+        """
+        Embeds a neko
+        """
         embed=helpers.embed(title='Neko', image=nekos.img('neko'))
         await ctx.send(embed=embed)
 
@@ -36,6 +40,9 @@ class Image(commands.Cog):
         brief='send embedded foxgirl'
     )
     async def kitsune(self, ctx):
+        """
+        Embeds a kitsune
+        """
         embed=helpers.embed(title='Kitsune', image=nekos.img('fox_girl'))
         await ctx.send(embed=embed)
 
@@ -45,6 +52,9 @@ class Image(commands.Cog):
         aliases=['avtr']
     )
     async def avatar(self, ctx: commands.Context, victim: discord.Member = None):
+        """
+        Shows avatar
+        """
         # grabs their avatar and embeds it
         if victim is None:
             victim = ctx.author
@@ -53,4 +63,7 @@ class Image(commands.Cog):
         await ctx.send(embed=embed)
 
 def setup(bot):
+    """
+    Add Image Cog
+    """
     bot.add_cog(Image(bot))
