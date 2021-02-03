@@ -35,7 +35,7 @@ class Config(commands.Cog):
     async def djmode(self, ctx, djrole: discord.Role = None):
         if djrole is None:
             await ctx.send('Disabling DJ-Mode')
-            jsonreader.write_file(ctx, 'djmode', None, None)
+            jsonreader.write_file(self.bot, ctx, 'djmode', None, None)
             return
 
         await ctx.send(f'Enabling DJ-Config for role: {djrole.name}')
