@@ -34,9 +34,13 @@ def get_prefix(client, message):
     Load prefixes from json file if it exists, otherwise generate default prefix file
     """
     prefixes = {}
+    defaultprefix = '=='
+    if not message.guild:
+        return commands.when_mentioned_or(defaultprefix)(client, message)
+
     if not Path('./data/guild_prefix.json').is_file(): # make sure it exists, if not generate default params
         for guild in bot.guilds:
-            prefixes[str(guild.id)] = '=='
+            prefixes[str(guild.id)] = defaultprefix
 
         with open('./data/guild_prefix.json', 'w') as pfxfile:
             json.dump(prefixes, pfxfile, indent=4)
