@@ -27,7 +27,7 @@ import lavalink
 from modules import jsonreader
 from modules import helpers
 
-def djconfig(ctx):
+async def djconfig(ctx):
     """
     Checks config to see if that guild has defined a DJ role
     """
