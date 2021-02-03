@@ -27,21 +27,17 @@ import lavalink
 from modules import jsonreader
 from modules import helpers
 
-async def djconfig(ctx):
+def djconfig(ctx):
     """
     Checks config to see if that guild has defined a DJ role
     """
     guildrole = jsonreader.read_file(ctx.bot, ctx, 'djmode', None)
     if guildrole is None:
-        await ctx.send('True')
         return True
 
     role = ctx.guild.get_role(int(guildrole))
-    await ctx.send(f'looking for role {guildrole}')
     if role in ctx.author.roles:
-        await ctx.send(f'Found role {role}, user has: {ctx.author.roles}')
         return True
-    await ctx.send(f'Did not find {role}, user has: {ctx.author.roles}')
     return False
 
 def parse_duration(duration: int):
