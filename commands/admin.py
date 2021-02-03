@@ -28,7 +28,7 @@ from modules import helpers, sql
 config = config.Config('./config/bot.cfg')
 repo = git.Repo(search_parent_directories=True)
 
-def dmcheck(ctx, ban: bool = False, manage: bool = False, kick: bool = False, admin: bool = False):
+def dmcheck(ctx):
     """
     Check if it's in the dms
     """
@@ -107,7 +107,7 @@ class Admin(commands.Cog):
         name='purge',
         brief='delete messages'
     )
-    @commands.check_any(dmcheck(), has_permissions(manage_messages=True))
+    @commands.check_any(dmcheck(ctx), command.has_permissions(manage_messages=True))
     async def purge(self, ctx, purge: int):
         """
         purge messages
@@ -240,7 +240,7 @@ class Admin(commands.Cog):
         name='prefix',
         brief='change the prefix of the bot',
     )
-    @commands.check_any(dmcheck(), has_permissions(administrator=True))
+    @commands.check_any(dmcheck(ctx), commands.has_permissions(administrator=True))
     async def changeprefix(self, ctx, prefix):
         """
         Change the prefix of the bot
