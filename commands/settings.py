@@ -53,7 +53,7 @@ class Config(commands.Cog):
 
     @commands.command(
         name='prefix',
-        brief='change the prefix of the bot',
+        brief='change the prefix of the bot'
     )
     @commands.has_permissions(administrator=True)
     async def changeprefix(self, ctx, prefix):
@@ -67,7 +67,7 @@ class Config(commands.Cog):
 
     @commands.command(
         name='djmode',
-        brief='enable or disable djmode, nothing to turn it off',
+        brief='enable or disable djmode, nothing to turn it off'
     )
     @commands.has_permissions(administrator=True)
     async def djmode(self, ctx, djrole: discord.Role = None):
