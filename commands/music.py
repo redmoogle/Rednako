@@ -23,7 +23,7 @@ from discord.ext import commands
 import lavalink
 
 # ../modules
-from modules import json
+from modules import jsonreader
 from modules import helpers
 
 def parse_duration(duration: int):
