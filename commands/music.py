@@ -36,7 +36,7 @@ async def djconfig(ctx):
         await ctx.send('True')
         return True
 
-    role = ctx.guild.get_role(guildrole)
+    role = ctx.guild.get_role(int(guildrole))
     await ctx.send(f'looking for role {guildrole}')
     if role in ctx.author.roles:
         await ctx.send(f'Found role {role}, user has: {ctx.author.roles}')
