@@ -30,18 +30,10 @@ repo = git.Repo(search_parent_directories=True)
 
 def dmcheck(ctx, ban: bool = False, manage: bool = False, kick: bool = False, admin: bool = False):
     """
-    Check config to see if DJ mode is enabled
+    Check if it's in the dms
     """
     if not ctx.guild:
         return True
-    if ban:
-        return commands.has_permissions(ban_members=True)
-    if manage:
-        return commands.has_permissions(manage_channels=True)
-    if kick:
-        return commands.has_permissions(kick_members=True)
-    if admin:
-        return commands.has_permissions(administrator=True)
     return False
 
 async def grabmute(ctx, victim: discord.Member = None):
@@ -115,7 +107,7 @@ class Admin(commands.Cog):
         name='purge',
         brief='delete messages'
     )
-    @commands.check(dmcheck, manage=True)
+    @commands.check_any(dmcheck(), has_permissions(manage_messages=True))
     async def purge(self, ctx, purge: int):
         """
         purge messages
@@ -248,7 +240,7 @@ class Admin(commands.Cog):
         name='prefix',
         brief='change the prefix of the bot',
     )
-    @commands.check(dmcheck, admin=True)
+    @commands.check_any(dmcheck(), has_permissions(administrator=True))
     async def changeprefix(self, ctx, prefix):
         """
         Change the prefix of the bot
