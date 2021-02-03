@@ -36,7 +36,7 @@ def djconfig(ctx):
     if guildrole is None:
         logging.warning('Is None %s', guildrole)
         return True
-    logging.warning('Guildrole is not None: Is %s: %s', guildrole, guildrole.name)
+    logging.warning('Guildrole is not None: Is %s', guildrole)
     return commands.has_role(int(guildrole))
 
 def parse_duration(duration: int):
