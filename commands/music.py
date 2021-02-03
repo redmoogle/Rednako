@@ -97,8 +97,10 @@ class Music(commands.Cog):
         Checks config to see if that guild has defined a DJ role
         """
         def checkdj(self, ctx):
+            logging.warning('Check ran')
             guildrole = jsonreader.read_file(self.bot, ctx, 'djmode', None)
             if guildrole is None:
+                logging.warning('Is None %s', guildrole)
                 return True
             logging.warning('Guildrole is not None: Is %s: %s', guildrole, guildrole.name)
             return commands.has_role(int(guildrole))
