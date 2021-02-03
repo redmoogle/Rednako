@@ -23,7 +23,7 @@ from discord.ext import commands
 import lavalink
 
 # ../modules
-from settings import Config
+from modules import json
 from modules import helpers
 
 def parse_duration(duration: int):
@@ -95,7 +95,7 @@ class Music(commands.Cog):
         """
         Checks config to see if that guild has defined a DJ role
         """
-        guildrole = Config.read_file(self, ctx, 'djmode', None)
+        guildrole = json.read_file(self.bot, ctx, 'djmode', None)
         if guildrole is None:
             return True
         print(f'Guildrole is not None: Is {guildrole}')
