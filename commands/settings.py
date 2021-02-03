@@ -4,7 +4,7 @@ Handles all thing config
 
 from discord.ext import commands
 import discord
-from modules import json
+from modules import jsonreader
 
 class Config(commands.Cog):
     """
