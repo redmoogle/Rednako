@@ -91,15 +91,17 @@ class Music(commands.Cog):
             # which contain a reason string, such as "Join a voicechannel" etc. You can modify the above
             # if you want to do things differently.
 
-    def djconfig(self, ctx):
+    def djconfig(self):
         """
         Checks config to see if that guild has defined a DJ role
         """
-        guildrole = json.read_file(self.bot, ctx, 'djmode', None)
-        if guildrole is None:
-            return True
-        print(f'Guildrole is not None: Is {guildrole}')
-        return commands.has_role(int(guildrole))
+        def checkdj(self, ctx):
+            guildrole = json.read_file(self.bot, ctx, 'djmode', None)
+            if guildrole is None:
+                return True
+            print(f'Guildrole is not None: Is {guildrole}')
+            return commands.has_role(int(guildrole))
+        return commands.check(checkdj)
 
     async def handle_lavalink_events(self, player: lavalink.Player, event_type: lavalink.LavalinkEvents, extra = None):
         """
