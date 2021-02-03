@@ -5,10 +5,11 @@ Handles all thing config
 import json
 from pathlib import Path
 from discord.ext import commands
+import discord
 
-class Configuration(commands.Cog):
+class Config(commands.Cog):
     """
-    Guild-Specific Configuration
+    Guild-Specific Config
     """
     def __init__(self, bot):
         self.bot = bot
@@ -64,8 +65,22 @@ class Configuration(commands.Cog):
         botname = ctx.me.name
         await ctx.me.edit(nick=f'{prefix} | {botname}')
 
+    @commands.command(
+        name='djmode',
+        brief='enable or disable djmode, nothing to turn it off',
+    )
+    @commands.has_permissions(administrator=True)
+    async def djmode(self, ctx, djrole: discord.Role = None):
+        if djrole is None:
+            await ctx.send('Disabling DJ-Mode')
+            self.write_file(ctx, 'djmode', None, None)
+            return
+
+        await ctx.send(f'Enabling DJ-Config for role: {djrole.name}')
+        self.write_file(ctx, 'djmode', str(djrole.id), None)
+
 def setup(bot):
     """
-    Add Configuration Cog
+    Add Config Cog
     """
-    bot.add_cog(Configuration(bot))
+    bot.add_cog(Config(bot))

@@ -65,7 +65,7 @@ botcommands = [
     'commands.admin',
     'commands.image',
     'commands.tasks',
-    'commands.config'
+    'commands.configurations'
 ]
 
 @bot.event

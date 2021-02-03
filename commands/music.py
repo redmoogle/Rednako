@@ -23,25 +23,8 @@ from discord.ext import commands
 import lavalink
 
 # ../modules
+from configurations import Config
 from modules import helpers
-
-# Config Module
-import config
-
-config = config.Config('./config/bot.cfg')
-
-def djconfig(ctx):
-    """
-    Check config to see if DJ mode is enabled
-    """
-    if config['enable_dj_role']:
-        for role in ctx.author.roles:
-            if config['dj_role'] == role.name:
-                return True
-            elif config['dj_role'] == str(role.id):
-                return True
-        return False
-    return True
 
 def parse_duration(duration: int):
     """
@@ -107,6 +90,16 @@ class Music(commands.Cog):
             # This shouldn't be a problem as the only errors thrown in this cog are from `ensure_voice`
             # which contain a reason string, such as "Join a voicechannel" etc. You can modify the above
             # if you want to do things differently.
+
+    def djconfig(self, ctx):
+        """
+        Checks config to see if that guild has defined a DJ role
+        """
+        guildrole = Config.read_file(self, ctx, 'djmode', None)
+        if guildrole is None:
+            return True
+        print(f'Guildrole is not None: Is {guildrole}')
+        return commands.has_role(int(guildrole))
 
     async def handle_lavalink_events(self, player: lavalink.Player, event_type: lavalink.LavalinkEvents, extra = None):
         """
