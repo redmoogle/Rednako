@@ -84,7 +84,8 @@ class Music(commands.Cog):
 
     def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
-        lavalink.close()
+        loop = asyncio.get_event_loop()
+        loop.create_task(lavalink.close())
 
     async def cog_before_invoke(self, ctx):
         """ Command before-invoke handler. """
@@ -105,6 +106,9 @@ class Music(commands.Cog):
             # This shouldn't be a problem as the only errors thrown in this cog are from `ensure_voice`
             # which contain a reason string, such as "Join a voicechannel" etc. You can modify the above
             # if you want to do things differently.
+
+    async def cog_before_invoke(self, ctx):
+        await self.bot.wait_until_ready()
 
     async def handle_lavalink_events(self, player: lavalink.Player, event_type: lavalink.LavalinkEvents):
         """
