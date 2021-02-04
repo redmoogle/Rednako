@@ -171,7 +171,7 @@ class Music(commands.Cog):
         aliases=['p']
     )
     @commands.check(djconfig)
-    async def search_and_play(self, ctx, *, search_terms):
+    async def search_and_play(self, ctx, *, query):
         """ Searches and plays a song from a given query. """
         # Get the player for this guild from cache.
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
