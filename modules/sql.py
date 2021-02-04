@@ -5,8 +5,6 @@ import os
 import sqlite3
 import logging
 
-logging.basicConfig(filename='./logs/bot.log', level=logging.DEBUG)
-
 def add(table, values):
     """
     Insert something into the database
