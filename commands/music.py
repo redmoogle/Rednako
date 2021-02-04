@@ -149,11 +149,12 @@ class Music(commands.Cog):
             player = event.player
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
-            await notify_channel.send('t')
+            requester = player.fetch("requestee")
             info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
                 ['Duration: ', f'{parse_duration(player.current.duration/1000)}'],
-                ['Requested by: ', f'{player.current.author}']
+                ['By: ', f'{player.current.author}'],
+                ['Requested By: ', f'{requester}']
             ]
             embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', fields=info)
             await notify_channel.send(embed=embed)
@@ -224,6 +225,7 @@ class Music(commands.Cog):
 
         player.store("channel", ctx.channel.id)
         player.store("guild", ctx.guild.id)
+        player.store("requestee", ctx.author.mention)
 
         if player.is_playing:
             await ctx.send(embed=embed)
@@ -248,7 +250,7 @@ class Music(commands.Cog):
         # Stop the current track so Lavalink consumes less resources.
         await player.stop()
         # Disconnect from the voice channel.
-        await player.disconnect()
+        await player.connect_to(ctx.guild.id, None)
         await ctx.send('*⃣ | Disconnected.')
 
     @commands.command(
@@ -281,10 +283,12 @@ class Music(commands.Cog):
         Shows whats poppin
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        requester = player.fetch("requestee")
         info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
                 ['Duration: ', f'{parse_duration(player.current.duration/1000)}'],
-                ['Requested by: ', f'{player.current.requester}']
+                ['By: ', f'{player.current.author}']
+                ['Requested By: ', f'{requester}']
             ]
         embed=helpers.embed(
             title='Now Playing: ',
