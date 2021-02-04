@@ -175,7 +175,7 @@ class Music(commands.Cog):
         """
         Plays a song will search yt if no link is provided
         """
-        player = lavalink.get_player(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if(not ctx.voice_client) and (ctx.author.voice):
             destination = ctx.author.voice.channel
         else:
@@ -203,7 +203,7 @@ class Music(commands.Cog):
     @commands.check(djconfig)
     async def disconnect(self, ctx):
         """ Disconnects the player from the voice channel and clears its queue. """
-        player = lavalink.get_player(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
 
         if not ctx.author.voice or (ctx.author.voice.channel.id != int(player.channel.id)):
@@ -226,7 +226,7 @@ class Music(commands.Cog):
     @commands.check(djconfig)
     async def pause(self, ctx):
         """pauses the player."""
-        player = lavalink.get_player(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
                 await ctx.send('*⃣ | Bot is not playing any music.')
@@ -248,7 +248,7 @@ class Music(commands.Cog):
         """
         Shows whats poppin
         """
-        player = lavalink.get_player(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
                 ['Duration: ', f'{parse_duration(player.current.length/1000)}'],
@@ -265,7 +265,7 @@ class Music(commands.Cog):
     @commands.command(name='queue')
     async def queue(self, ctx, page: int = 1):
         """Shows the queue"""
-        player = lavalink.get_player(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         items_per_page = 10
         pages = math.ceil(len(player.queue) / items_per_page)
