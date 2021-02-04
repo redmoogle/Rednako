@@ -149,13 +149,13 @@ class Music(commands.Cog):
             player = event.player
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
-            await ctx.send('t')
+            await notify_channel.send('t')
             info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
                 ['Duration: ', f'{parse_duration(player.current.duration/1000)}'],
                 ['Requested by: ', f'{player.current.author}']
             ]
-            embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
+            embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', fields=info)
             await notify_channel.send(embed=embed)
 
     async def connect_to(self, guild_id: int, channel_id: str):
@@ -289,7 +289,6 @@ class Music(commands.Cog):
         embed=helpers.embed(
             title='Now Playing: ',
             description=f'```css\n{player.current.title}\n```',
-            thumbnail=player.current.thumbnail,
             fields=info
         )
         await ctx.send(embed=embed)
