@@ -172,27 +172,51 @@ class Music(commands.Cog):
     )
     @commands.check(djconfig)
     async def search_and_play(self, ctx, *, search_terms):
-        """
-        Plays a song will search yt if no link is provided
-        """
+        """ Searches and plays a song from a given query. """
+        # Get the player for this guild from cache.
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
-        if(not ctx.voice_client) and (ctx.author.voice):
-            destination = ctx.author.voice.channel
-        else:
-            if player is None:
-                player = await lavalink.connect(destination)
-        results = await player.search_yt(search_terms)
-        track = results.tracks[0]
-        player.add(ctx.author, track)
-        player.store("channel", ctx.channel.id)
-        player.store("guild", ctx.guild.id)
+        # Remove leading and trailing <>. <> may be used to suppress embedding links in Discord.
+        query = query.strip('<>')
+
+        # Check if the user input might be a URL. If it isn't, we can Lavalink do a YouTube search for it instead.
+        # SoundCloud searching is possible by prefixing "scsearch:" instead.
+        if not url_rx.match(query):
+            query = f'ytsearch:{query}'
+
+        # Get the results for the query from Lavalink.
+        results = await player.node.get_tracks(query)
+
+        # Results could be None if Lavalink returns an invalid response (non-JSON/non-200 (OK)).
+        # ALternatively, resullts['tracks'] could be an empty array if the query yielded no tracks.
+        if not results or not results['tracks']:
+            return await ctx.send('Nothing found!')
 
         embed = discord.Embed(color=discord.Color.blurple())
-        embed.title = 'Track Enqueued'
-        embed.description = f'[{track.title}]({track.uri})'
 
-        if player.is_playing:
-            await ctx.send(embed=embed)
+        # Valid loadTypes are:
+        #   TRACK_LOADED    - single video/direct URL)
+        #   PLAYLIST_LOADED - direct URL to playlist)
+        #   SEARCH_RESULT   - query prefixed with either ytsearch: or scsearch:.
+        #   NO_MATCHES      - query yielded no results
+        #   LOAD_FAILED     - most likely, the video encountered an exception during loading.
+        if results['loadType'] == 'PLAYLIST_LOADED':
+            tracks = results['tracks']
+
+            for track in tracks:
+                # Add all of the tracks from the playlist to the queue.
+                player.add(requester=ctx.author.id, track=track)
+
+            embed.title = 'Playlist Enqueued!'
+            embed.description = f'{results["playlistInfo"]["name"]} - {len(tracks)} tracks'
+        else:
+            track = results['tracks'][0]
+            embed.title = 'Track Enqueued'
+            embed.description = f'[{track["info"]["title"]}]({track["info"]["uri"]})'
+
+            # You can attach additional information to audiotracks through kwargs, however this involves
+            # constructing the AudioTrack class yourself.
+            track = lavalink.models.AudioTrack(track, ctx.author.id, recommended=True)
+            player.add(requester=ctx.author.id, track=track)
 
         # We don't want to call .play() if the player is playing as that will effectively skip
         # the current track.
