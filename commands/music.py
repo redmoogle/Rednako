@@ -151,8 +151,8 @@ class Music(commands.Cog):
             notify_channel = self.bot.get_channel(notify_channel)
             info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
-                ['Duration: ', f'{parse_duration(player.current.length/1000)}'],
-                ['Requested by: ', f'{player.current.requester}']
+                ['Duration: ', f'{parse_duration(player.current.duration/1000)}'],
+                ['Requested by: ', f'{player.current.author}']
             ]
             embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
             await notify_channel.send(embed=embed)
@@ -220,6 +220,13 @@ class Music(commands.Cog):
 
         # We don't want to call .play() if the player is playing as that will effectively skip
         # the current track.
+
+        player.store("channel", ctx.channel.id)
+        player.store("guild", ctx.guild.id)
+
+        if player.is_playing:
+            await ctx.send(embed=embed)
+
         if not player.is_playing:
             await player.play()
 
