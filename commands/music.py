@@ -149,6 +149,7 @@ class Music(commands.Cog):
             player = event.player
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
+            await ctx.send('t')
             info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
                 ['Duration: ', f'{parse_duration(player.current.duration/1000)}'],
@@ -282,7 +283,7 @@ class Music(commands.Cog):
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
-                ['Duration: ', f'{parse_duration(player.current.length/1000)}'],
+                ['Duration: ', f'{parse_duration(player.current.duration/1000)}'],
                 ['Requested by: ', f'{player.current.requester}']
             ]
         embed=helpers.embed(
@@ -304,14 +305,14 @@ class Music(commands.Cog):
         start = (page - 1) * items_per_page
         end = start + items_per_page
         if player.is_playing:
-            queue_list = f'`1.` [**{player.current.title}**]({player.current.uri}) | {parse_duration(player.current.length/1000)}\n'
+            queue_list = f'`1.` [**{player.current.title}**]({player.current.uri}) | {parse_duration(player.current.duration/1000)}\n'
             playeradd = 1
         else:
             queue_list = ''
             playeradd = 0
 
         for index, track in enumerate(player.queue[start:end], start=start):
-            queue_list += f'`{index + 1 + playeradd}.` [**{track.title}**]({track.uri}) | {parse_duration(track.length/1000)}\n'
+            queue_list += f'`{index + 1 + playeradd}.` [**{track.title}**]({track.uri}) | {parse_duration(track.duration/1000)}\n'
 
         embed = discord.Embed(colour=discord.Color.blurple(),
                             description=f'**{len(player.queue) + playeradd} tracks**\n\n{queue_list}')
