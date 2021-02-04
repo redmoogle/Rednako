@@ -66,7 +66,7 @@ class Music(commands.Cog):
     """
     def __init__(self, bot):
         self.bot = bot
-        
+
         if not hasattr(bot, 'lavalink'):  # This ensures the client isn't overwritten during cog reloads.
             self.bot.lavalink = lavalink.Client(self.bot.user.id)
             self.bot.lavalink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')  # Host, Port, Password, Region, Name
@@ -100,7 +100,44 @@ class Music(commands.Cog):
             # which contain a reason string, such as "Join a voicechannel" etc. You can modify the above
             # if you want to do things differently.
 
+    async def ensure_voice(self, ctx):
+        """ This check ensures that the bot and command author are in the same voicechannel. """
+        player = self.bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
+        # Create returns a player if one exists, otherwise creates.
+        # This line is important because it ensures that a player always exists for a guild.
+
+        # Most people might consider this a waste of resources for guilds that aren't playing, but this is
+        # the easiest and simplest way of ensuring players are created.
+
+        # These are commands that require the bot to join a voicechannel (i.e. initiating playback).
+        # Commands such as volume/skip etc don't require the bot to be in a voicechannel so don't need listing here.
+        should_connect = ctx.command.name in ('play',)
+
+        if not ctx.author.voice or not ctx.author.voice.channel:
+            # Our cog_command_error handler catches this and sends it to the voicechannel.
+            # Exceptions allow us to "short-circuit" command invocation via checks so the
+            # execution state of the command goes no further.
+            raise commands.CommandInvokeError('Join a voicechannel first.')
+
+        if not player.is_connected:
+            if not should_connect:
+                raise commands.CommandInvokeError('Not connected.')
+
+            permissions = ctx.author.voice.channel.permissions_for(ctx.me)
+
+            if not permissions.connect or not permissions.speak:  # Check user limit too?
+                raise commands.CommandInvokeError('I need the `CONNECT` and `SPEAK` permissions.')
+
+            player.store('channel', ctx.channel.id)
+            await self.connect_to(ctx.guild.id, str(ctx.author.voice.channel.id))
+        else:
+            if int(player.channel_id) != ctx.author.voice.channel.id:
+                raise commands.CommandInvokeError('You need to be in my voicechannel.')
+
     async def track_hook(self, event):
+        """
+        Track lavalink events
+        """
         if isinstance(event, lavalink.events.QueueEndEvent):
             # When this track_hook receives a "QueueEndEvent" from lavalink.py
             # it indicates that there are no tracks left in the player's queue.
@@ -109,6 +146,7 @@ class Music(commands.Cog):
             await self.connect_to(guild_id, None)
 
         if isinstance(event, lavalink.events.TrackStartEvent):
+            player = event.player
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
             info = [
@@ -119,29 +157,12 @@ class Music(commands.Cog):
             embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
             await notify_channel.send(embed=embed)
 
-    async def ensure_voice(self, ctx):
-        """ This check ensures that the bot and command author are in the same voicechannel. """
-        # Create returns a player if one exists, otherwise creates.
-        # This line is important because it ensures that a player always exists for a guild.
-
-        # These are commands that require the bot to join a voicechannel (i.e. initiating playback).
-
-        if not ctx.author.voice or not ctx.author.voice.channel:
-            # Our cog_command_error handler catches this and sends it to the voicechannel.
-            # Exceptions allow us to "short-circuit" command invocation via checks so the
-            # execution state of the command goes no further.
-            raise commands.CommandInvokeError('Join a voicechannel first.')
-
-        player = await lavalink.connect(ctx.author.voice.channel)
-        lavalink.register_event_listener(self.handle_lavalink_events)
-
-        permissions = ctx.author.voice.channel.permissions_for(ctx.me)
-
-        if not permissions.connect or not permissions.speak:  # Check user limit too?
-            raise commands.CommandInvokeError('I need the `CONNECT` and `SPEAK` permissions.')
-        if ctx.voice_client:
-            if int(player.channel.id) != ctx.author.voice.channel.id:
-                raise commands.CommandInvokeError('You need to be in my voicechannel.')
+    async def connect_to(self, guild_id: int, channel_id: str):
+        """ Connects to the given voicechannel ID. A channel_id of `None` means disconnect. """
+        ws = self.bot._connection._get_websocket(guild_id)
+        await ws.voice_state(str(guild_id), channel_id)
+        # The above looks dirty, we could alternatively use `bot.shards[shard_id].ws` but that assumes
+        # the bot instance is an AutoShardedBot.
 
     @commands.command(
         name="play",
