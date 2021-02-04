@@ -14,7 +14,6 @@ Compatibility with Python 3.5 should be possible if f-strings are removed.
 import re
 import math
 import asyncio
-import logging
 
 # Discord Modules
 import discord
