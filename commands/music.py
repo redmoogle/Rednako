@@ -230,7 +230,7 @@ class Music(commands.Cog):
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
 
-        if not ctx.author.voice or (ctx.author.voice.channel.id != int(player.channel.id)):
+        if not ctx.author.voice or (ctx.author.voice.channel.id != int(player.channel_id)):
             # Abuse prevention
             return await ctx.send('You\'re not in my voicechannel!')
 
