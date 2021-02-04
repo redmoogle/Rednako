@@ -287,7 +287,7 @@ class Music(commands.Cog):
         info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
                 ['Duration: ', f'{parse_duration(player.current.duration/1000)}'],
-                ['By: ', f'{player.current.author}']
+                ['By: ', f'{player.current.author}'],
                 ['Requested By: ', f'{requester}']
             ]
         embed=helpers.embed(
@@ -321,6 +321,84 @@ class Music(commands.Cog):
                             description=f'**{len(player.queue) + playeradd} tracks**\n\n{queue_list}')
         embed.set_footer(text=f'Viewing page {page}/{pages}')
         await ctx.send(embed=embed)
+
+    @commands.command(
+        name='bass',
+        brief='blow eardrums up'
+    )
+    @commands.check(djconfig)
+    async def bass(self, ctx, gain: int = 0):
+        """increases the base."""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        if player:
+            if player.current is None:
+                await ctx.send('*⃣ | Bot is not playing any music.')
+
+        gain = max(min(1, gain), -0.25)
+        player.set_gains((0, gain*.75),(1, gain*.75),(2, gain*.75),(3, gain),(4, gain*.75))
+        if gain > 0:
+            await ctx.send(f'Bass set to {(gain-1)*100}%')
+        elif gain < 0 :
+            await ctx.send(f'Bass set to {(1-gain)*100}%')
+        else:
+            await ctx.send('Bass set to 100%')
+
+    @commands.command(
+        name='mid',
+        brief='serinity'
+    )
+    @commands.check(djconfig)
+    async def mids(self, ctx, gain: int = 0):
+        """increases the mids."""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        if player:
+            if player.current is None:
+                await ctx.send('*⃣ | Bot is not playing any music.')
+
+        gain = max(min(1, gain), -0.25)
+        player.set_gains((5, gain*.75),(6, gain*.75),(7, gain*.75),(8, gain),(9, gain*.75))
+        if gain > 0:
+            await ctx.send(f'Mids set to {(gain-1)*100}%')
+        elif gain < 0:
+            await ctx.send(f'Mids set to {(1-gain)*100}%')
+        else:
+            await ctx.send('Mids set to 100%')
+
+    @commands.command(
+        name='treble',
+        brief='blow eardrums up'
+    )
+    @commands.check(djconfig)
+    async def treble(self, ctx, gain: int = 0):
+        """increases the treble."""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        if player:
+            if player.current is None:
+                await ctx.send('*⃣ | Bot is not playing any music.')
+
+        gain = max(min(1, gain), -0.25)
+        player.set_gains((10, gain*.75),(11, gain*.75),(12, gain*.75),(13, gain),(14, gain*.75))
+        if gain > 0:
+            await ctx.send(f'Treble set to {(gain-1)*100}%')
+        elif gain < 0:
+            await ctx.send(f'Treble set to {(1-gain)*100}%')
+        else:
+            await ctx.send('Treble set to 100%')
+
+    @commands.command(
+        name='reset',
+        brief='unfuck the EQ'
+    )
+    @commands.check(djconfig)
+    async def reset(self, ctx):
+        """increases the EQ."""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        if player:
+            if player.current is None:
+                await ctx.send('*⃣ | Bot is not playing any music.')
+
+        player.reset_equalizer()
+        await ctx.send('EQ has been reset')
 
 def setup(bot):
     """
