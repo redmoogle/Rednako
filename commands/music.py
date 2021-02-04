@@ -376,7 +376,9 @@ class Music(commands.Cog):
             if player.current is None:
                 await ctx.send('*⃣ | Bot is not playing any music.')
 
-        gain = max(min(1, gain), -0.25)
+        await ctx.send(f'Unadj Gain {gain}')
+        gain = max(-0.25, min(1, gain))
+        await ctx.send(f'adj Gain {gain}')
         player.set_gains((10, gain*.75),(11, gain*.75),(12, gain*.75),(13, gain),(14, gain*.75))
         if gain > 0:
             await ctx.send(f'Treble set to {(gain-1)*100}%')
