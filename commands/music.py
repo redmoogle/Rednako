@@ -336,7 +336,7 @@ class Music(commands.Cog):
 
         gain = max(min(1, gain), -0.25)
         death = [(0, gain*.75),(1, gain*.75),(2, gain*.75),(3, gain),(4, gain*.75)]
-        player.set_gains(death)
+        await player.set_gains(death)
         if gain:
             await ctx.send(f'Bass set to {gain*100}%')
         else:
@@ -356,7 +356,7 @@ class Music(commands.Cog):
 
         gain = max(min(1, gain), -0.25)
         death = [(5, gain*.75),(6, gain*.75),(7, gain*.75),(8, gain),(9, gain*.75)]
-        player.set_gains(death)
+        await player.set_gains(death)
         if gain:
             await ctx.send(f'Mids set to {gain*100}%')
         else:
@@ -376,7 +376,7 @@ class Music(commands.Cog):
 
         gain = max(-0.25, min(1, gain))
         death = [(10, gain*.75),(11, gain*.75),(12, gain*.75),(13, gain),(14, gain*.75)]
-        player.set_gains(death)
+        await player.set_gains(death)
         if gain:
             await ctx.send(f'Treble set to {gain*100}%')
         else:
