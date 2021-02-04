@@ -60,23 +60,19 @@ def parse_duration(duration: int):
 
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
-async def create(bot):
-    """
-    Create lavalink instance
-    """
-    await lavalink.initialize(
-        bot, host='localhost', password='youshallnotpass',
-        rest_port=2333, ws_port=2333
-    )
-
 class Music(commands.Cog):
     """
     Play your weeb songs
     """
     def __init__(self, bot):
         self.bot = bot
-        loop = asyncio.get_event_loop()
-        loop.create_task(create(self.bot))
+        
+        if not hasattr(bot, 'lavalink'):  # This ensures the client isn't overwritten during cog reloads.
+            bot.lavalink = lavalink.Client(bot.user.id)
+            bot.lavalink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'eu', 'default-node')  # Host, Port, Password, Region, Name
+            bot.add_listener(bot.lavalink.voice_update_handler, 'on_socket_response')
+
+        lavalink.add_event_hook(self.track_hook)
 
     def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
@@ -104,17 +100,15 @@ class Music(commands.Cog):
             # which contain a reason string, such as "Join a voicechannel" etc. You can modify the above
             # if you want to do things differently.
 
-    async def handle_lavalink_events(self, player: lavalink.Player, event_type: lavalink.LavalinkEvents, extra = None):
-        """
-        Lavalink events arent sent here
-        """
-        if extra is None: # Placeholder so pylint doesnt get angry
-            pass
-        current_channel = player.channel
-        if not current_channel:
-            return
+    async def track_hook(self, event):
+        if isinstance(event, lavalink.events.QueueEndEvent):
+            # When this track_hook receives a "QueueEndEvent" from lavalink.py
+            # it indicates that there are no tracks left in the player's queue.
+            # To save on resources, we can tell the bot to disconnect from the voicechannel.
+            guild_id = int(event.player.guild_id)
+            await self.connect_to(guild_id, None)
 
-        if event_type == lavalink.LavalinkEvents.TRACK_START:
+        if isinstance(event, lavalink.events.TrackStartEvent):
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
             info = [
@@ -124,10 +118,6 @@ class Music(commands.Cog):
             ]
             embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', thumbnail=player.current.thumbnail, fields=info)
             await notify_channel.send(embed=embed)
-
-        if event_type == lavalink.LavalinkEvents.QUEUE_END:
-            await player.disconnect()
-
 
     async def ensure_voice(self, ctx):
         """ This check ensures that the bot and command author are in the same voicechannel. """
