@@ -14,7 +14,6 @@ Compatibility with Python 3.5 should be possible if f-strings are removed.
 import re
 import math
 import asyncio
-import logging
 
 # Discord Modules
 import discord
@@ -109,7 +108,8 @@ class Music(commands.Cog):
 
         # These are commands that require the bot to join a voicechannel (i.e. initiating playback).
         # Commands such as volume/skip etc don't require the bot to be in a voicechannel so don't need listing here.
-        should_connect = ctx.command.name in ('play',)
+        should_connect = ctx.command.name in ('play')
+        ignored = ctx.command.name in ('queue', 'np', 'current',)
 
         if not ctx.author.voice or not ctx.author.voice.channel:
             # Our cog_command_error handler catches this and sends it to the voicechannel.
@@ -129,9 +129,10 @@ class Music(commands.Cog):
                     await ctx.send('Currently playing')
                     raise commands.CommandInvokeError(None)
         else:
-            if int(player.channel_id) != ctx.author.voice.channel.id:
-                await ctx.send('You need to be in my voicechannel.')
-                raise commands.CommandInvokeError(None)
+            if not ignored:
+                if int(player.channel_id) != ctx.author.voice.channel.id:
+                    await ctx.send('You need to be in my voicechannel.')
+                    raise commands.CommandInvokeError(None)
 
     async def track_hook(self, event):
         """
@@ -280,7 +281,7 @@ class Music(commands.Cog):
         name="current",
         description="Shows the current playing song.",
         usage="current",
-        aliases=['np','nowplaying']
+        aliases=['np']
     )
     async def current(self,ctx):
         """
