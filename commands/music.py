@@ -168,7 +168,7 @@ class Music(commands.Cog):
         # Get the player for this guild from cache.
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if not player:
-            self.ensure_voice(ctx)
+            await self.ensure_voice(ctx)
             player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if self.voice_status(ctx):
