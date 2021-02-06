@@ -14,6 +14,7 @@ Compatibility with Python 3.5 should be possible if f-strings are removed.
 import re
 import math
 import asyncio
+import logging
 
 # Discord Modules
 import discord
@@ -111,6 +112,8 @@ class Music(commands.Cog):
             return False
 
         # Check if channel IDs matches
+        logging.warning(player.channel_id)
+        logging.warning(ctx.author.voice.channel.id)
         if int(player.channel_id) != ctx.author.voice.channel.id:
             await ctx.send('You\'re not in the same voice channel!')
             return False
