@@ -28,3 +28,6 @@ lavalink == 3.1.4
 
 # ~\Rednako\commands\image.py: 10
 nekos.py == 1.0.3
+
+# ~\Rednako\rednako.py
+discord-pretty-help==1.1.2
