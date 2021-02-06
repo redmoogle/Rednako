@@ -111,10 +111,7 @@ class Music(commands.Cog):
             return False
 
         # Check if channel IDs matches
-        chn = player.fetch("channel")
-        chn = self.bot.get_channel(chn)
-
-        if chn.id != ctx.author.voice.channel.id:
+        if int(player.channel_id) != ctx.author.voice.channel.id:
             await ctx.send('You\'re not in the same voice channel!')
             return False
         return True
