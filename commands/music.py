@@ -168,10 +168,10 @@ class Music(commands.Cog):
         # Get the player for this guild from cache.
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if not player:
-            await self.ensure_voice(ctx)
+            await self.ensure_voice(ctx=ctx)
             player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
-        if self.voice_status(ctx):
+        if await self.voice_status(ctx=ctx):
             # Remove leading and trailing <>. <> may be used to suppress embedding links in Discord.
             query = query.strip('<>')
 
@@ -234,7 +234,7 @@ class Music(commands.Cog):
         """ Disconnects the player from the voice channel and clears its queue. """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
-        if self.voice_status(ctx):
+        if await self.voice_status(ctx=ctx):
             # Clear the queue to ensure old tracks don't start playing
             # when someone else queues something.
             player.queue.clear()
@@ -256,7 +256,7 @@ class Music(commands.Cog):
             if player.current is None:
                 await ctx.send(':asterisk: | Bot is not playing any music.')
 
-        if self.voice_status(ctx):
+        if await self.voice_status(ctx=ctx):
             if player.paused:
                 await ctx.send(':asterisk: | Bot has been unpaused')
                 await player.pause(False)
@@ -330,7 +330,7 @@ class Music(commands.Cog):
             if player.current is None:
                 await ctx.send(':asterisk: | Bot is not playing any music.')
 
-        if self.voice_status(ctx):
+        if await self.voice_status(ctx=ctx):
             gain = max(min(1, gain), -0.25)
             await player.set_gains((0, gain*.75),(1, gain*.75),(2, gain*.75),(3, gain),(4, gain*.75))
             if gain:
@@ -350,7 +350,7 @@ class Music(commands.Cog):
             if player.current is None:
                 await ctx.send(':asterisk: | Bot is not playing any music.')
 
-        if self.voice_status(ctx):
+        if await self.voice_status(ctx=ctx):
             gain = max(min(1, gain), -0.25)
             await player.set_gains((5, gain*.75),(6, gain*.75),(7, gain*.75),(8, gain),(9, gain*.75))
             if gain:
@@ -370,7 +370,7 @@ class Music(commands.Cog):
             if player.current is None:
                 await ctx.send(':asterisk: | Bot is not playing any music.')
 
-        if self.voice_status(ctx):
+        if await self.voice_status(ctx=ctx):
             gain = max(-0.25, min(1, gain))
             await player.set_gains((10, gain*.75),(11, gain*.75),(12, gain*.75),(13, gain),(14, gain*.75))
             if gain:
@@ -389,7 +389,7 @@ class Music(commands.Cog):
         if player:
             if player.current is None:
                 await ctx.send(':asterisk: | Bot is not playing any music.')
-        if self.voice_status(ctx):
+        if await self.voice_status(ctx=ctx):
             player.reset_equalizer()
             await ctx.send('EQ has been reset')
 
