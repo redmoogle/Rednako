@@ -75,6 +75,11 @@ class Music(commands.Cog):
 
         lavalink.add_event_hook(self.track_hook)
 
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error, commands.CommandInvokeError):
+            if error is not None:
+                await ctx.send(error.original)
+
     def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
         loop = asyncio.get_event_loop()
@@ -94,30 +99,39 @@ class Music(commands.Cog):
         return guild_check
 
     async def ensure_voice(self, ctx):
-        """ joins the voice channel"""
-        self.bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
-        await self.connect_to(ctx.guild.id, str(ctx.author.voice.channel.id))
+        """ This check ensures that the bot and command author are in the same voicechannel. """
+        player = self.bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
+        # Create returns a player if one exists, otherwise creates.
+        # This line is important because it ensures that a player always exists for a guild.
 
-    async def voice_status(self, ctx):
-        """
-        Checks to see if the bot should allow an action
-        """
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
-        if not player:
-            await ctx.send('Bot is not connected')
-            return False
+        # Most people might consider this a waste of resources for guilds that aren't playing, but this is
+        # the easiest and simplest way of ensuring players are created.
 
-        if not ctx.author.voice:
-            await ctx.send('You\'re not in any voice channel')
-            return False
+        # These are commands that require the bot to join a voicechannel (i.e. initiating playback).
+        # Commands such as volume/skip etc don't require the bot to be in a voicechannel so don't need listing here.
+        should_connect = ctx.command.name in ('play',)
 
-        # Check if channel IDs matches
-        logging.warning(player.channel_id)
-        logging.warning(ctx.author.voice.channel.id)
-        if int(player.channel_id) != ctx.author.voice.channel.id:
-            await ctx.send('You\'re not in the same voice channel!')
-            return False
-        return True
+        if not ctx.author.voice or not ctx.author.voice.channel:
+            # Our cog_command_error handler catches this and sends it to the voicechannel.
+            # Exceptions allow us to "short-circuit" command invocation via checks so the
+            # execution state of the command goes no further.
+            raise commands.CommandInvokeError('Join a voicechannel first.')
+
+        if not player.is_connected:
+            if not should_connect:
+                await ctx.send('player is not connected')
+                raise commands.CommandInvokeError(None)
+
+            if (not player.is_playing) and (not player.paused):
+                await ctx.guild.change_voice_state(channel=ctx.author.voice.channel)
+            else:
+                if player.paused:
+                    await ctx.send('Currently playing')
+                    raise commands.CommandInvokeError(None)
+        else:
+            if int(player.channel_id) != ctx.author.voice.channel.id:
+                await ctx.send('You need to be in my voicechannel.')
+                raise commands.CommandInvokeError(None)
 
     async def track_hook(self, event):
         """
@@ -172,62 +186,61 @@ class Music(commands.Cog):
             await self.ensure_voice(ctx=ctx)
             player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
-        if await self.voice_status(ctx=ctx):
-            # Remove leading and trailing <>. <> may be used to suppress embedding links in Discord.
-            query = query.strip('<>')
+        # Remove leading and trailing <>. <> may be used to suppress embedding links in Discord.
+        query = query.strip('<>')
 
-            # Check if the user input might be a URL. If it isn't, we can Lavalink do a YouTube search for it instead.
-            # SoundCloud searching is possible by prefixing "scsearch:" instead.
-            if not url_rx.match(query):
-                query = f'ytsearch:{query}'
+        # Check if the user input might be a URL. If it isn't, we can Lavalink do a YouTube search for it instead.
+        # SoundCloud searching is possible by prefixing "scsearch:" instead.
+        if not url_rx.match(query):
+            query = f'ytsearch:{query}'
 
-            # Get the results for the query from Lavalink.
-            results = await player.node.get_tracks(query)
+        # Get the results for the query from Lavalink.
+        results = await player.node.get_tracks(query)
 
-            # Results could be None if Lavalink returns an invalid response (non-JSON/non-200 (OK)).
-            # ALternatively, resullts['tracks'] could be an empty array if the query yielded no tracks.
-            if not results or not results['tracks']:
-                return await ctx.send('Nothing found!')
+        # Results could be None if Lavalink returns an invalid response (non-JSON/non-200 (OK)).
+        # ALternatively, resullts['tracks'] could be an empty array if the query yielded no tracks.
+        if not results or not results['tracks']:
+            return await ctx.send('Nothing found!')
 
-            embed = discord.Embed(color=discord.Color.blurple())
+        embed = discord.Embed(color=discord.Color.blurple())
 
-            # Valid loadTypes are:
-            #   TRACK_LOADED    - single video/direct URL)
-            #   PLAYLIST_LOADED - direct URL to playlist)
-            #   SEARCH_RESULT   - query prefixed with either ytsearch: or scsearch:.
-            #   NO_MATCHES      - query yielded no results
-            #   LOAD_FAILED     - most likely, the video encountered an exception during loading.
-            if results['loadType'] == 'PLAYLIST_LOADED':
-                tracks = results['tracks']
+        # Valid loadTypes are:
+        #   TRACK_LOADED    - single video/direct URL)
+        #   PLAYLIST_LOADED - direct URL to playlist)
+        #   SEARCH_RESULT   - query prefixed with either ytsearch: or scsearch:.
+        #   NO_MATCHES      - query yielded no results
+        #   LOAD_FAILED     - most likely, the video encountered an exception during loading.
+        if results['loadType'] == 'PLAYLIST_LOADED':
+            tracks = results['tracks']
 
-                for track in tracks:
-                    # Add all of the tracks from the playlist to the queue.
-                    player.add(requester=ctx.author.id, track=track)
-
-                embed.title = 'Playlist Enqueued!'
-                embed.description = f'{results["playlistInfo"]["name"]} - {len(tracks)} tracks'
-            else:
-                track = results['tracks'][0]
-                embed.title = 'Track Enqueued'
-                embed.description = f'[{track["info"]["title"]}]({track["info"]["uri"]})'
-
-                # You can attach additional information to audiotracks through kwargs, however this involves
-                # constructing the AudioTrack class yourself.
-                track = lavalink.models.AudioTrack(track, ctx.author.id, recommended=True)
+            for track in tracks:
+                # Add all of the tracks from the playlist to the queue.
                 player.add(requester=ctx.author.id, track=track)
 
-            # We don't want to call .play() if the player is playing as that will effectively skip
-            # the current track.
+            embed.title = 'Playlist Enqueued!'
+            embed.description = f'{results["playlistInfo"]["name"]} - {len(tracks)} tracks'
+        else:
+            track = results['tracks'][0]
+            embed.title = 'Track Enqueued'
+            embed.description = f'[{track["info"]["title"]}]({track["info"]["uri"]})'
 
-            player.store("channel", ctx.channel.id)
-            player.store("guild", ctx.guild.id)
-            player.store("requestee", ctx.author.mention)
+            # You can attach additional information to audiotracks through kwargs, however this involves
+            # constructing the AudioTrack class yourself.
+            track = lavalink.models.AudioTrack(track, ctx.author.id, recommended=True)
+            player.add(requester=ctx.author.id, track=track)
 
-            if player.is_playing:
-                await ctx.send(embed=embed)
+        # We don't want to call .play() if the player is playing as that will effectively skip
+        # the current track.
 
-            if not player.is_playing:
-                await player.play()
+        player.store("channel", ctx.channel.id)
+        player.store("guild", ctx.guild.id)
+        player.store("requestee", ctx.author.mention)
+
+        if player.is_playing:
+            await ctx.send(embed=embed)
+
+        if not player.is_playing:
+            await player.play()
 
     @commands.command(aliases=['dc', 'stop'])
     @commands.check(djconfig)
@@ -235,15 +248,14 @@ class Music(commands.Cog):
         """ Disconnects the player from the voice channel and clears its queue. """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
-        if await self.voice_status(ctx=ctx):
-            # Clear the queue to ensure old tracks don't start playing
-            # when someone else queues something.
-            player.queue.clear()
-            # Stop the current track so Lavalink consumes less resources.
-            await player.stop()
-            # Disconnect from the voice channel.
-            await self.connect_to(ctx.guild.id, None)
-            await ctx.send(':asterisk: | Disconnected.')
+        # Clear the queue to ensure old tracks don't start playing
+        # when someone else queues something.
+        player.queue.clear()
+        # Stop the current track so Lavalink consumes less resources.
+        await player.stop()
+        # Disconnect from the voice channel.
+        await self.connect_to(ctx.guild.id, None)
+        await ctx.send(':asterisk: | Disconnected.')
 
     @commands.command(
         name='pause',
@@ -257,13 +269,12 @@ class Music(commands.Cog):
             if player.current is None:
                 await ctx.send(':asterisk: | Bot is not playing any music.')
 
-        if await self.voice_status(ctx=ctx):
-            if player.paused:
-                await ctx.send(':asterisk: | Bot has been unpaused')
-                await player.pause(False)
-            elif not player.paused:
-                await ctx.send(':asterisk: | Bot has been paused')
-                await player.pause()
+        if player.paused:
+            await ctx.send(':asterisk: | Bot has been unpaused')
+            await player.pause(False)
+        elif not player.paused:
+            await ctx.send(':asterisk: | Bot has been paused')
+            await player.pause()
 
     @commands.command(
         name="current",
@@ -331,13 +342,12 @@ class Music(commands.Cog):
             if player.current is None:
                 await ctx.send(':asterisk: | Bot is not playing any music.')
 
-        if await self.voice_status(ctx=ctx):
-            gain = max(min(1, gain), -0.25)
-            await player.set_gains((0, gain*.75),(1, gain*.75),(2, gain*.75),(3, gain),(4, gain*.75))
-            if gain:
-                await ctx.send(f'Bass set to {(gain+1)*100}%')
-            else:
-                await ctx.send('Bass set to 100%')
+        gain = max(min(1, gain), -0.25)
+        await player.set_gains((0, gain*.75),(1, gain*.75),(2, gain*.75),(3, gain),(4, gain*.75))
+        if gain:
+            await ctx.send(f'Bass set to {(gain+1)*100}%')
+        else:
+            await ctx.send('Bass set to 100%')
 
     @commands.command(
         name='mid',
@@ -351,13 +361,12 @@ class Music(commands.Cog):
             if player.current is None:
                 await ctx.send(':asterisk: | Bot is not playing any music.')
 
-        if await self.voice_status(ctx=ctx):
-            gain = max(min(1, gain), -0.25)
-            await player.set_gains((5, gain*.75),(6, gain*.75),(7, gain*.75),(8, gain),(9, gain*.75))
-            if gain:
-                await ctx.send(f'Mids set to {(gain+1)*100}%')
-            else:
-                await ctx.send('Mids set to 100%')
+        gain = max(min(1, gain), -0.25)
+        await player.set_gains((5, gain*.75),(6, gain*.75),(7, gain*.75),(8, gain),(9, gain*.75))
+        if gain:
+            await ctx.send(f'Mids set to {(gain+1)*100}%')
+        else:
+            await ctx.send('Mids set to 100%')
 
     @commands.command(
         name='treble',
@@ -371,13 +380,12 @@ class Music(commands.Cog):
             if player.current is None:
                 await ctx.send(':asterisk: | Bot is not playing any music.')
 
-        if await self.voice_status(ctx=ctx):
-            gain = max(-0.25, min(1, gain))
-            await player.set_gains((10, gain*.75),(11, gain*.75),(12, gain*.75),(13, gain),(14, gain*.75))
-            if gain:
-                await ctx.send(f'Treble set to {(gain+1)*100}%')
-            else:
-                await ctx.send('Treble set to 100%')
+        gain = max(-0.25, min(1, gain))
+        await player.set_gains((10, gain*.75),(11, gain*.75),(12, gain*.75),(13, gain),(14, gain*.75))
+        if gain:
+            await ctx.send(f'Treble set to {(gain+1)*100}%')
+        else:
+            await ctx.send('Treble set to 100%')
 
     @commands.command(
         name='reset',
@@ -390,7 +398,6 @@ class Music(commands.Cog):
         if player:
             if player.current is None:
                 await ctx.send(':asterisk: | Bot is not playing any music.')
-        if await self.voice_status(ctx=ctx):
             player.reset_equalizer()
             await ctx.send('EQ has been reset')
 
