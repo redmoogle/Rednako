@@ -169,6 +169,8 @@ class Music(commands.Cog):
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if not player:
             self.ensure_voice(ctx)
+            player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+
         if self.voice_status(ctx):
             # Remove leading and trailing <>. <> may be used to suppress embedding links in Discord.
             query = query.strip('<>')
