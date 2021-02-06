@@ -150,13 +150,19 @@ class Music(commands.Cog):
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
             requester = player.fetch("requestee")
+            vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
                 ['Duration: ', f'{parse_duration(player.current.duration/1000)}'],
                 ['By: ', f'{player.current.author}'],
                 ['Requested By: ', f'{requester}']
             ]
-            embed=helpers.embed(title='Now Playing: ', description=f'```css\n{player.current.title}\n```', fields=info)
+            embed=helpers.embed(
+                title='Now Playing: ',
+                description=f'```css\n{player.current.title}\n```',
+                thumbnail=vidthumbnail,
+                fields=info
+                )
             await notify_channel.send(embed=embed)
 
     async def connect_to(self, guild_id: int, channel_id: str):
@@ -251,7 +257,7 @@ class Music(commands.Cog):
         await player.stop()
         # Disconnect from the voice channel.
         await self.connect_to(ctx.guild.id, None)
-        await ctx.send('*⃣ | Disconnected.')
+        await ctx.send(':asterisk: | Disconnected.')
 
     @commands.command(
         name='pause',
@@ -263,7 +269,7 @@ class Music(commands.Cog):
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
-                await ctx.send('*⃣ | Bot is not playing any music.')
+                await ctx.send(':asterisk: | Bot is not playing any music.')
 
             elif player.paused:
                 await ctx.send(':asterisk: | Bot has been unpaused')
@@ -284,18 +290,22 @@ class Music(commands.Cog):
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         requester = player.fetch("requestee")
-        info = [
-                ['Song: ', f'[{player.current.title}]({player.current.uri})'],
-                ['Duration: ', f'{parse_duration(player.current.duration/1000)}'],
-                ['By: ', f'{player.current.author}'],
-                ['Requested By: ', f'{requester}']
-            ]
-        embed=helpers.embed(
-            title='Now Playing: ',
-            description=f'```css\n{player.current.title}\n```',
-            fields=info
-        )
-        await ctx.send(embed=embed)
+        if(player.is_playing() or player.queue):
+            vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
+            info = [
+                    ['Song: ', f'[{player.current.title}]({player.current.uri})'],
+                    ['Duration: ', f'{parse_duration(player.current.duration/1000)}'],
+                    ['By: ', f'{player.current.author}'],
+                    ['Requested By: ', f'{requester}']
+                ]
+            embed=helpers.embed(
+                title='Now Playing: ',
+                description=f'```css\n{player.current.title}\n```',
+                thumbnail=vidthumbnail,
+                fields=info
+            )
+            return await ctx.send(embed=embed)
+        return await ctx.send('Nothing playing')
 
     @commands.command(name='queue')
     async def queue(self, ctx, page: int = 1):
@@ -332,7 +342,7 @@ class Music(commands.Cog):
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
-                await ctx.send('*⃣ | Bot is not playing any music.')
+                await ctx.send(':asterisk: | Bot is not playing any music.')
 
         gain = max(min(1, gain), -0.25)
         await player.set_gains((0, gain*.75),(1, gain*.75),(2, gain*.75),(3, gain),(4, gain*.75))
@@ -351,7 +361,7 @@ class Music(commands.Cog):
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
-                await ctx.send('*⃣ | Bot is not playing any music.')
+                await ctx.send(':asterisk: | Bot is not playing any music.')
 
         gain = max(min(1, gain), -0.25)
         await player.set_gains((5, gain*.75),(6, gain*.75),(7, gain*.75),(8, gain),(9, gain*.75))
@@ -370,7 +380,7 @@ class Music(commands.Cog):
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
-                await ctx.send('*⃣ | Bot is not playing any music.')
+                await ctx.send(':asterisk: | Bot is not playing any music.')
 
         gain = max(-0.25, min(1, gain))
         await player.set_gains((10, gain*.75),(11, gain*.75),(12, gain*.75),(13, gain),(14, gain*.75))
@@ -389,7 +399,7 @@ class Music(commands.Cog):
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
-                await ctx.send('*⃣ | Bot is not playing any music.')
+                await ctx.send(':asterisk: | Bot is not playing any music.')
 
         player.reset_equalizer()
         await ctx.send('EQ has been reset')
