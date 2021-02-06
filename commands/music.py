@@ -102,7 +102,7 @@ class Music(commands.Cog):
         Checks to see if the bot should allow an action
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
-        if not player.is_connected():
+        if not player.is_connected:
             await ctx.send('Bot is not connected')
             return False
 
