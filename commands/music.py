@@ -94,6 +94,7 @@ class Music(commands.Cog):
 
     async def ensure_voice(self, ctx):
         """ joins the voice channel"""
+        self.bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
         await self.connect_to(ctx.guild.id, str(ctx.author.voice.channel.id))
 
     async def voice_status(self, ctx):
