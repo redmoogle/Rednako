@@ -319,6 +319,9 @@ class Music(commands.Cog):
         # End of that page
         end = start + items_per_page
 
+        if page > pages:
+            return await ctx.send('Theres nothing on that page')
+
         for index, track in enumerate(playerqueue[start:end], start=start):
             queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri}) | {parse_duration(track.duration/1000)}\n'
 
