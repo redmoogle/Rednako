@@ -319,6 +319,10 @@ class Music(commands.Cog):
         # End of that page
         end = start + items_per_page
 
+        # Make sure they dont print a empty queue
+        if not playerqueue:
+            return await ctx.send('Nothing is playing')
+        # Make sure they dont pull up a 'invalid' page
         if page > pages:
             return await ctx.send('Theres nothing on that page')
 
