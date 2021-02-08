@@ -99,23 +99,20 @@ class Music(commands.Cog):
 
     async def ensure_voice(self, ctx):
         """ This check ensures that the bot and command author are in the same voicechannel. """
+
+        # This creates a player, OR returns the existing one, this is to make sure the player exists
         player = self.bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
-        # Create returns a player if one exists, otherwise creates.
-        # This line is important because it ensures that a player always exists for a guild.
 
-        # Most people might consider this a waste of resources for guilds that aren't playing, but this is
-        # the easiest and simplest way of ensuring players are created.
+        # Should_connect is used for commands that start playback ~~aka 1 command~~
+        should_connect = ctx.command.name in ('play', 'p')
+        # This is to ignore commands that shouldnt require people in the same VC
+        ignored = ctx.command.name in ('queue', 'np', 'current')
 
-        # These are commands that require the bot to join a voicechannel (i.e. initiating playback).
-        # Commands such as volume/skip etc don't require the bot to be in a voicechannel so don't need listing here.
-        should_connect = ctx.command.name in ('play')
-        ignored = ctx.command.name in ('queue', 'np', 'current',)
-
+        # Make sure they're in a voice-chat
         if not ctx.author.voice or not ctx.author.voice.channel:
-            # Our cog_command_error handler catches this and sends it to the voicechannel.
-            # Exceptions allow us to "short-circuit" command invocation via checks so the
-            # execution state of the command goes no further.
-            raise commands.CommandInvokeError('Join a voicechannel first.')
+            await ctx.send('Join a voice-channel first!')
+            # Raise a fake error to make the command halt
+            raise commands.CommandInvokeError(None)
 
         if not player.is_connected:
             if not should_connect:
@@ -138,13 +135,12 @@ class Music(commands.Cog):
         """
         Track lavalink events
         """
+        # When it gets to the end of the Queue, automatically disconnect to save resources
         if isinstance(event, lavalink.events.QueueEndEvent):
-            # When this track_hook receives a "QueueEndEvent" from lavalink.py
-            # it indicates that there are no tracks left in the player's queue.
-            # To save on resources, we can tell the bot to disconnect from the voicechannel.
             guild_id = int(event.player.guild_id)
             await self.connect_to(guild_id, None)
 
+        # When a new track(song) starts it will send a message to the original channel
         if isinstance(event, lavalink.events.TrackStartEvent):
             player = event.player
             notify_channel = player.fetch("channel")
@@ -184,6 +180,7 @@ class Music(commands.Cog):
         # Get the player for this guild from cache.
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if not player:
+            # if for some reason the player doesnt exist, forcefully create it
             await self.ensure_voice(ctx=ctx)
             player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
@@ -289,6 +286,7 @@ class Music(commands.Cog):
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         requester = player.fetch("requestee")
+        await ctx.send(player.queue)
         if(player.is_playing() or player.queue):
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
@@ -310,6 +308,7 @@ class Music(commands.Cog):
     async def queue(self, ctx, page: int = 1):
         """Shows the queue"""
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        await ctx.send(player.queue)
 
         items_per_page = 10
         pages = math.ceil(len(player.queue) / items_per_page)
