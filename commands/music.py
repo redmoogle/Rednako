@@ -98,7 +98,7 @@ class Music(commands.Cog):
         return guild_check
 
     async def ensure_voice(self, ctx):
-        """ This check ensures that the bot and command author are in the same voicechannel. """
+        """ Various checks to prevent people from breaking the bot """
 
         # This creates a player, OR returns the existing one, this is to make sure the player exists
         player = self.bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
@@ -116,7 +116,7 @@ class Music(commands.Cog):
 
         if not player.is_connected:
             if not should_connect:
-                await ctx.send('player is not connected')
+                await ctx.send('Player is not connected')
                 raise commands.CommandInvokeError(None)
 
             if (not player.is_playing) and (not player.paused):
@@ -250,6 +250,7 @@ class Music(commands.Cog):
         player.queue.clear()
         # Stop the current track so Lavalink consumes less resources.
         await player.stop()
+        await self.connect_to(ctx.guild.id, None)
         await ctx.send(':asterisk: | Disconnected.')
 
     @commands.command(
@@ -319,10 +320,6 @@ class Music(commands.Cog):
         # End of that page
         end = start + items_per_page
 
-        # Make sure they dont print a empty queue
-        await ctx.send(playerqueue)
-        if not playerqueue:
-            return await ctx.send('Nothing is playing')
         # Make sure they dont pull up a 'invalid' page
         if page > pages:
             return await ctx.send('Theres nothing on that page')
