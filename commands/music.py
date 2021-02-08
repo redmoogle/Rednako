@@ -247,12 +247,9 @@ class Music(commands.Cog):
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         # Clear the queue to ensure old tracks don't start playing
-        # when someone else queues something.
         player.queue.clear()
         # Stop the current track so Lavalink consumes less resources.
         await player.stop()
-        # Disconnect from the voice channel.
-        await self.connect_to(ctx.guild.id, None)
         await ctx.send(':asterisk: | Disconnected.')
 
     @commands.command(
@@ -263,9 +260,8 @@ class Music(commands.Cog):
     async def pause(self, ctx):
         """pauses the player."""
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
-        if player:
-            if player.current is None:
-                await ctx.send(':asterisk: | Bot is not playing any music.')
+        if player.current is None:
+            await ctx.send(':asterisk: | Bot is not playing any music.')
 
         if player.paused:
             await ctx.send(':asterisk: | Bot has been unpaused')
@@ -286,7 +282,7 @@ class Music(commands.Cog):
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         requester = player.fetch("requestee")
-        if player.is_playing:
+        if player.current:
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
                     ['Song: ', f'[{player.current.title}]({player.current.uri})'],
@@ -308,19 +304,22 @@ class Music(commands.Cog):
         """Shows the queue"""
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
+        # player.current is a track but we want it to be a list with that track
         playerqueue = [player.current]
+        # Add the rest of the queue on it
         playerqueue += player.queue
-
+        # Formatting
         queue_list = ''
-
+        # How many songs to display per page
         items_per_page = 10
+        # Round up how many pages to make
         pages = math.ceil(len(playerqueue) / items_per_page)
-
+        # Where to start the index to print the page
         start = (page - 1) * items_per_page
+        # End of that page
         end = start + items_per_page
 
         for index, track in enumerate(playerqueue[start:end], start=start):
-            await ctx.send(track)
             queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri}) | {parse_duration(track.duration/1000)}\n'
 
         embed = discord.Embed(colour=discord.Color.blurple(),
@@ -330,7 +329,7 @@ class Music(commands.Cog):
 
     @commands.command(
         name='bass',
-        brief='blow eardrums up'
+        brief='*Thump* *Thump* *Thump*'
     )
     @commands.check(djconfig)
     async def bass(self, ctx, gain: int = 0):
@@ -349,7 +348,7 @@ class Music(commands.Cog):
 
     @commands.command(
         name='mid',
-        brief='serinity'
+        brief='Increase Volume through the EQ'
     )
     @commands.check(djconfig)
     async def mids(self, ctx, gain: int = 0):
@@ -368,7 +367,7 @@ class Music(commands.Cog):
 
     @commands.command(
         name='treble',
-        brief='blow eardrums up'
+        brief='Earrape someone'
     )
     @commands.check(djconfig)
     async def treble(self, ctx, gain: int = 0):
@@ -394,8 +393,6 @@ class Music(commands.Cog):
         """increases the EQ."""
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
-            if player.current is None:
-                await ctx.send(':asterisk: | Bot is not playing any music.')
             player.reset_equalizer()
             await ctx.send('EQ has been reset')
 
