@@ -312,6 +312,8 @@ class Music(commands.Cog):
         playerqueue.append(player.current)
         playerqueue.append(player.queue)
 
+        queue_list = ''
+
         items_per_page = 10
         pages = math.ceil(len(playerqueue) / items_per_page)
 
