@@ -15,6 +15,7 @@ import config
 
 # ../modules
 from modules import helpers
+from modules import jsonreader
 
 config = config.Config('./config/bot.cfg')
 repo = git.Repo(search_parent_directories=True)
@@ -108,7 +109,7 @@ class User(commands.Cog):
             totalmembers += 1
 
         _counter = 0 # touch this and die
-        prefixes = config['prefix'] # Contains a list of prefixes
+        prefixes = jsonreader.read_file(self.bot, ctx, 'prefix', '==')
         for prefix in prefixes:
             _counter += 1
             prefixformat += prefix
