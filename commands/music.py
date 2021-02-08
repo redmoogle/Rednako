@@ -286,8 +286,7 @@ class Music(commands.Cog):
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         requester = player.fetch("requestee")
-        await ctx.send(player.queue)
-        if(player.is_playing() or player.queue):
+        if player.is_playing:
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
                     ['Song: ', f'[{player.current.title}]({player.current.uri})'],
@@ -308,25 +307,20 @@ class Music(commands.Cog):
     async def queue(self, ctx, page: int = 1):
         """Shows the queue"""
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
-        await ctx.send(player.queue)
+
+        playerqueue = player.current + player.queue
 
         items_per_page = 10
         pages = math.ceil(len(player.queue) / items_per_page)
 
         start = (page - 1) * items_per_page
         end = start + items_per_page
-        if player.is_playing:
-            queue_list = f'`1.` [**{player.current.title}**]({player.current.uri}) | {parse_duration(player.current.duration/1000)}\n'
-            playeradd = 1
-        else:
-            queue_list = ''
-            playeradd = 0
 
-        for index, track in enumerate(player.queue[start:end], start=start):
-            queue_list += f'`{index + 1 + playeradd}.` [**{track.title}**]({track.uri}) | {parse_duration(track.duration/1000)}\n'
+        for index, track in enumerate(playerqueue[start:end], start=start):
+            queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri}) | {parse_duration(track.duration/1000)}\n'
 
         embed = discord.Embed(colour=discord.Color.blurple(),
-                            description=f'**{len(player.queue) + playeradd} tracks**\n\n{queue_list}')
+                            description=f'**{len(playerqueue)} tracks**\n\n{queue_list}')
         embed.set_footer(text=f'Viewing page {page}/{pages}')
         await ctx.send(embed=embed)
 
