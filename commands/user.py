@@ -53,43 +53,21 @@ class User(commands.Cog):
         """
         prints guild info
         """
-        guild = ctx.guild           # grab guild
-        textchannels = 0            # all text channels
-        voicechannels = 0           # all voice channels
-        categorys = 0               # all categorys
-        roles = 0                   # all roles
-        members = 0                 # all members
-        prefixformat = ""           # Formatted Prefixes
+        guild = ctx.guild                           # grab guild
+        textchannels = len(guild.text_channels)     # all text channels
+        voicechannels = len(guild.voice_channels)   # all voice channels
+        categorys = len(guild.categories)           # all categorys
+        roles = len(guild.roles)                    # all roles
+        members = len(guild.members)                # all members
 
-        for _ in guild.voice_channels:
-            voicechannels += 1
-
-        for _ in guild.text_channels:
-            textchannels += 1
-
-        for _ in guild.categories:
-            categorys += 1
-
-        for _ in guild.roles:
-            roles += 1
-
-        for _ in guild.members: #Theres a reason this is async
-            members += 1
-
-        _counter = 0 # touch this and die
-        prefixes = jsonreader.read_file(self.bot, ctx, 'prefix', '==')
-        for prefix in prefixes:
-            _counter += 1
-            prefixformat += prefix
-            if _counter+1 <= int(len(prefixes)):
-                prefixformat += ", "
+        prefix = jsonreader.read_file(self.bot, ctx, 'prefix', '==')
 
         info = [ # Makes adding easy and pretty
             ['Server Owner: ',      f'{guild.owner.name}#{guild.owner.discriminator}'],
             ['Server ID: ',         f'{guild.id}'],
             ['Categorys: ',         f'{categorys}'],
             ['Channels: ',          f'T: {textchannels} V: {voicechannels}'],
-            ['Prefix: ',            f'{prefixformat}'],
+            ['Prefix: ',            f'{prefix}'],
             ['Roles: ',             f'{roles}'],
             ['Members: ',           f'{members}']
         ]
@@ -109,13 +87,11 @@ class User(commands.Cog):
         botuser = ctx.bot                       # shortcut for bot. var/bot is taken
         sha = repo.head.object.hexsha           # Hash of commit that the local files are
         totalservers = len(botuser.guilds)      # List of all guilds, is a list so can len() it
-        members = botuser.get_all_members()     # Reference to members, generator
         link = config['invitelink']             # Link to invite bot
         githublink = config['github']           # Github link
-        prefixformat = ""                       # Formatted Prefixes
 
         totalmembers = 0
-        for _ in members:
+        for _ in botuser.get_all_members():
             totalmembers += 1
 
         info = [ # Makes adding easy and pretty
