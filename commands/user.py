@@ -58,7 +58,8 @@ class User(commands.Cog):
         voicechannels = 0           # all voice channels
         categorys = 0               # all categorys
         roles = 0                   # all roles
-        members = 0                 # all membersr
+        members = 0                 # all members
+        prefixformat = ""           # Formatted Prefixes
 
         for _ in guild.voice_channels:
             voicechannels += 1
