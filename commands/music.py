@@ -308,7 +308,7 @@ class Music(commands.Cog):
         """Shows the queue"""
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
-        player.current = [player.current]
+        playerqueue = [player.current]
         playerqueue += player.queue
 
         queue_list = ''
