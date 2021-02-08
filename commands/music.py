@@ -321,8 +321,8 @@ class Music(commands.Cog):
         end = start + items_per_page
 
         for index, track in enumerate(playerqueue[start:end], start=start):
-            await ctx.send(track)
-            queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri}) | {parse_duration(track.duration/1000)}\n'
+            await ctx.send(track[0])
+            queue_list += f'`{index + 1}.` [**{track[0].title}**]({track[0].uri}) | {parse_duration(track[0].duration/1000)}\n'
 
         embed = discord.Embed(colour=discord.Color.blurple(),
                             description=f'**{len(playerqueue)} tracks**\n\n{queue_list}')
