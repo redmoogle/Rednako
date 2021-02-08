@@ -308,10 +308,12 @@ class Music(commands.Cog):
         """Shows the queue"""
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
-        playerqueue = player.current + player.queue
+        playerqueue = []
+        playerqueue.append(player.current)
+        playerqueue.append(player.queue)
 
         items_per_page = 10
-        pages = math.ceil(len(player.queue) / items_per_page)
+        pages = math.ceil(len(playerqueue) / items_per_page)
 
         start = (page - 1) * items_per_page
         end = start + items_per_page
