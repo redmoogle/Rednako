@@ -75,11 +75,20 @@ class User(commands.Cog):
         for _ in guild.members: #Theres a reason this is async
             members += 1
 
+        _counter = 0 # touch this and die
+        prefixes = jsonreader.read_file(self.bot, ctx, 'prefix', '==')
+        for prefix in prefixes:
+            _counter += 1
+            prefixformat += prefix
+            if _counter+1 <= int(len(prefixes)):
+                prefixformat += ", "
+
         info = [ # Makes adding easy and pretty
             ['Server Owner: ',      f'{guild.owner.name}#{guild.owner.discriminator}'],
             ['Server ID: ',         f'{guild.id}'],
             ['Categorys: ',         f'{categorys}'],
             ['Channels: ',          f'T: {textchannels} V: {voicechannels}'],
+            ['Prefix: ',            f'{prefixformat}'],
             ['Roles: ',             f'{roles}'],
             ['Members: ',           f'{members}']
         ]
@@ -108,19 +117,10 @@ class User(commands.Cog):
         for _ in members:
             totalmembers += 1
 
-        _counter = 0 # touch this and die
-        prefixes = jsonreader.read_file(self.bot, ctx, 'prefix', '==')
-        for prefix in prefixes:
-            _counter += 1
-            prefixformat += prefix
-            if _counter+1 <= int(len(prefixes)):
-                prefixformat += ", "
-
         info = [ # Makes adding easy and pretty
                 ['Bot Owner: ',         f'{botuser.get_user(botuser.owner_id)}'],
                 ['Global Servers: ',    f'{totalservers}'],
                 ['Global Members: ',    f'{totalmembers}'],
-                ['Prefix/s: ',          f'{prefixformat}'],
                 ['Invite: ',            f'[Invite Bot]({link})'],
                 ['Repository: ',        f'[Github]({githublink})'],
                 ['Commit: ',            f'{sha}']
