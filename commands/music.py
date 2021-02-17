@@ -401,6 +401,23 @@ class Music(commands.Cog):
             player.reset_equalizer()
             await ctx.send('EQ has been reset')
 
+    @commands.command(
+        name='skip',
+        brief='nobody likes your trash'
+    )
+    @commands.check(djconfig)
+    async def skip(self, ctx):
+        """skips songs"""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        if player:
+            if player.is_playing:
+                await ctx.send('Skipping song')
+                await player.skip()
+            else:
+                return await ctx.send('Nothing Playing')
+        else:
+            return await ctx.send('Nothing Playing')
+
 
 def setup(bot):
     """
