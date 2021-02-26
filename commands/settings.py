@@ -33,6 +33,7 @@ class Config(commands.Cog):
     )
     @commands.has_permissions(administrator=True)
     async def djmode(self, ctx, djrole: discord.Role = None):
+        """Stops people from messing with the bot too much while"""
         if djrole is None:
             await ctx.send('Disabling DJ-Mode')
             jsonreader.write_file(self.bot, ctx, 'djmode', None, None)

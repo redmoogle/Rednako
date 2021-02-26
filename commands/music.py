@@ -47,14 +47,21 @@ def parse_duration(duration: int):
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
     duration = []
+    _ = "" # used for zfill
     if days > 0:
         duration.append(f'{round(days)}:')
     if hours > 0:
         duration.append(f'{round(hours)}:')
     if minutes > 0:
-        duration.append(f'{round(minutes)}:')
+        _ = str(round(minutes))
+        _ = _.zfill(2)
+        _ += ":"
+        duration.append(_)
     if seconds > 0:
-        duration.append(f'{round(seconds)}')
+        _ = str(round(seconds))
+        _ = _.zfill(2)
+        _ += ":"
+        duration.append(_)
 
     return ''.join(duration)
 
