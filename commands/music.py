@@ -51,16 +51,21 @@ def parse_duration(duration: int):
     if days > 0:
         duration.append(f'{round(days)}:')
     if hours > 0:
-        duration.append(f'{round(hours)}:')
+        _ = str(round(hours))
+        if days > 0:
+            _ = _.zfill(2)
+        _ += ":"
+        duration.append(_)
     if minutes > 0:
         _ = str(round(minutes))
-        _ = _.zfill(2)
+        if hours > 0:
+            _ = _.zfill(2)
         _ += ":"
         duration.append(_)
     if seconds > 0:
         _ = str(round(seconds))
-        _ = _.zfill(2)
-        _ += ":"
+        if minutes > 0:
+            _ = _.zfill(2)
         duration.append(_)
 
     return ''.join(duration)
