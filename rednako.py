@@ -24,7 +24,7 @@ from pretty_help import PrettyHelp
 import config
 
 # ./modules
-from modules import jsonreader
+from ./modules import jsonreader
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
