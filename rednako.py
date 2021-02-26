@@ -15,9 +15,6 @@ import sys
 import json
 import asyncio
 
-# Allows cogs to use the ./Modules folder
-sys.path.append(os.path.abspath(__file__ + "/../modules"))
-
 # Discord Modules
 import discord
 from discord.ext import commands
@@ -28,6 +25,9 @@ import config
 
 # ./modules
 from modules import jsonreader
+
+# Allows cogs to use the ./Modules folder
+sys.path.append(os.path.abspath(__file__ + "/../modules"))
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
