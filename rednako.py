@@ -14,7 +14,6 @@ import os
 import sys
 import json
 import asyncio
-from pathlib import Path
 
 # Discord Modules
 import discord
@@ -23,6 +22,9 @@ from pretty_help import PrettyHelp
 
 # Config
 import config
+
+# ./modules
+from modules import jsonreader
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
@@ -38,16 +40,10 @@ def get_prefix(client, message):
     if not message.guild:
         return commands.when_mentioned_or(defaultprefix)(client, message)
 
-    if not Path('./data/guild_prefix.json').is_file(): # make sure it exists, if not generate default params
-        for guild in bot.guilds:
-            prefixes[str(guild.id)] = defaultprefix
+    if not jsonreader.check_exist('prefix'): # File will be created shortly
+        return commands.when_mentioned
 
-        with open('./data/guild_prefix.json', 'w') as pfxfile:
-            json.dump(prefixes, pfxfile, indent=4)
-
-    with open('./data/guild_prefix.json', 'r') as pfxfile:
-        prefixes = json.load(pfxfile)
-
+    prefixes = jsonreader.read_file(message, 'prefix')
     return prefixes[str(message.guild.id)] # Guild Specific Prefixes
 
 bot = commands.Bot(                         # Create a new bot

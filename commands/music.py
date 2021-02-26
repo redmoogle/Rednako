@@ -30,7 +30,7 @@ def djconfig(ctx):
     """
     Checks config to see if that guild has defined a DJ role
     """
-    guildrole = jsonreader.read_file(ctx.bot, ctx, 'djmode', None)
+    guildrole = jsonreader.read_file(ctx, 'djmode')
     if guildrole is None:
         return True
 
