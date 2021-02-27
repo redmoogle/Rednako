@@ -35,19 +35,17 @@ from modules import jsonreader
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
 
-def get_prefix(client, message):
+def get_prefix(botpfx, ctx):
     """
     Load prefixes from json file if it exists, otherwise generate default prefix file
     """
-    prefixes = {}
-    defaultprefix = '=='
-    if not message.guild:
-        return commands.when_mentioned_or(defaultprefix)(client, message)
+    if not ctx.guild:
+        return commands.when_mentioned_or('==')(botpfx, ctx)
 
     if not jsonreader.check_exist('prefix'): # File will be created shortly
         return commands.when_mentioned
 
-    return jsonreader.read_file(message, 'prefix') # Guild Specific Preset
+    return jsonreader.read_file(ctx, 'prefix') # Guild Specific Preset
 
 bot = commands.Bot(                         # Create a new bot
     command_prefix=get_prefix,              # Set the prefix
