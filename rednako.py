@@ -15,7 +15,6 @@ in the config make sure to update the .format in here
 # Standard Python Modules
 import os
 import sys
-import json
 import asyncio
 
 # Discord Modules
@@ -34,13 +33,14 @@ from modules import jsonreader
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
+DEFAULTPREFIX = '=='
 
 def get_prefix(botpfx, ctx):
     """
     Load prefixes from json file if it exists, otherwise generate default prefix file
     """
     if not ctx.guild:
-        return commands.when_mentioned_or('==')(botpfx, ctx)
+        return commands.when_mentioned_or(DEFAULTPREFIX)(botpfx, ctx)
 
     if not jsonreader.check_exist('prefix'): # File will be created shortly
         return commands.when_mentioned
@@ -114,26 +114,14 @@ async def on_guild_join(guild):
     """
     Called when the bot joins the guild
     """
-    with open('./guild_prefix.json', 'r') as pfxfile:
-        prefixes = json.load(pfxfile)
-
-    prefixes[str(guild.id)] = '=='
-
-    with open('./guild_prefix.json', 'w') as pfxfile:
-        json.dump(prefixes, pfxfile, indent=4)
+    jsonreader.write_file(guild.id, 'prefix', DEFAULTPREFIX)
 
 @bot.event
 async def on_guild_remove(guild):
     """
     Called when the bot gets ejected/removed from the guild
     """
-    with open('./guild_prefix.json', 'r') as pfxfile:
-        prefixes = json.load(pfxfile)
-
-    prefixes.pop(str(guild.id))
-
-    with open('./guild_prefix.json', 'w') as pfxfile:
-        json.dump(prefixes, pfxfile, indent=4)
+    jsonreader.remove(guild.id, 'prefix')
 
 # Finally, login the bot
 bot.loop.create_task(update())

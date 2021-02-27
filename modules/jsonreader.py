@@ -52,6 +52,26 @@ def write_file(guild, key: str, value):
         json.dump(data, fileout, indent=4)
     return True
 
+def remove(guild, key: str):
+    """
+    Removes a given guild from the file
+    """
+    data = {}
+    guild = str(guild)
+
+    if not Path(f'./data/guild_{key}.json').is_file():
+        return False
+
+    with open(f'./data/guild_{key}.json', 'r') as filein:
+        data = json.load(filein)
+
+    data.pop(guild)
+
+    with open(f'./data/guild_{key}.json', 'w') as fileout:
+        json.dump(data, fileout, indent=4)
+
+    return True
+
 def check_exist(key: str):
     """
     Checks if a given key exists

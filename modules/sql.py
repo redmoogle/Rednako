@@ -26,7 +26,7 @@ def add(table, values):
     database.close()
     return True
 
-def update(table, what, moveto, where: list = None):
+def update(table, source, change, where: list = None):
     """
     Update something in the database
     """
@@ -38,24 +38,22 @@ def update(table, what, moveto, where: list = None):
     pointer = database.cursor()
 
     # construct WHERE x AND...
-    _itercalc = 0
     _sqlstring = ''
     if where:
-        for this in where:
-            _itercalc += 1
-            if _itercalc == 1:
+        for index, args in enumerate(where):
+            if index == 1:
                 _sqlstring += ' WHERE '
-            if _itercalc%2 == 0:
-                _sqlstring += f'= {this} '
+            if index%2 == 0:
+                _sqlstring += f'= {args} '
             else:
-                _sqlstring += f'{this} '
-            if(_itercalc != len(where)) and (_itercalc%2 == 0):
+                _sqlstring += f'{args} '
+            if(index != len(where)) and (index%2 == 0):
                 _sqlstring += 'AND '
 
     # Check if it executed
     try:
-        pointer.execute(f'UPDATE {table} SET {what} = {moveto}{_sqlstring}')
-        logging.info('SQL-UPDATE: "UPDATE %s SET %s = %s%s"', table, what, moveto, _sqlstring)
+        pointer.execute(f'UPDATE {table} SET {source} = {change}{_sqlstring}')
+        logging.info('SQL-UPDATE: "UPDATE %s SET %s = %s%s"', table, source, change, _sqlstring)
     except Exception as error:
         logging.error('SQL-UPDATE Error: %s', error)
         return False
@@ -75,18 +73,17 @@ def remove(table, where: list = None):
     pointer = database.cursor()
 
     # construct WHERE x AND...
-    _itercalc = 0
     _sqlstring = ''
-    for this in where:
-        _itercalc += 1
-        if _itercalc == 1:
-            _sqlstring += 'WHERE '
-        if _itercalc%2 == 0:
-            _sqlstring += f'= {this} '
-        else:
-            _sqlstring += f'{this} '
-        if(_itercalc != len(where)) and (_itercalc%2 == 0):
-            _sqlstring += 'AND '
+    if where:
+        for index, args in enumerate(where):
+            if index == 1:
+                _sqlstring += ' WHERE '
+            if index%2 == 0:
+                _sqlstring += f'= {args} '
+            else:
+                _sqlstring += f'{args} '
+            if(index != len(where)) and (index%2 == 0):
+                _sqlstring += 'AND '
 
     # Check if it executed
     try:
@@ -177,18 +174,16 @@ def select(table, where: list = None, toselect: str = '*'):
     pointer = database.cursor()
 
     # construct WHERE x AND...
-    _itercalc = 0
     _sqlstring = ''
     if where:
-        for this in where:
-            _itercalc += 1
-            if _itercalc == 1:
+        for index, args in enumerate(where):
+            if index == 1:
                 _sqlstring += ' WHERE '
-            if _itercalc%2 == 0:
-                _sqlstring += f'= {this} '
+            if index%2 == 0:
+                _sqlstring += f'= {args} '
             else:
-                _sqlstring += f'{this} '
-            if(_itercalc != len(where)) and (_itercalc%2 == 0):
+                _sqlstring += f'{args} '
+            if(index != len(where)) and (index%2 == 0):
                 _sqlstring += 'AND '
 
     # Check if it executed
