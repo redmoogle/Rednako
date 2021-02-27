@@ -13,6 +13,7 @@ in the config make sure to update the .format in here
 """
 
 # Standard Python Modules
+import os
 import asyncio
 
 # Discord Modules
@@ -51,15 +52,6 @@ bot = commands.Bot(                         # Create a new bot
     help_command=PrettyHelp()               # Default help command
 )
 
-botcommands = [
-    'commands.music',
-    'commands.user',
-    'commands.admin',
-    'commands.image',
-    'commands.tasks',
-    'commands.settings'
-]
-
 @bot.event
 async def on_ready():
     """Function is called when bot thinks it is fully online"""
@@ -68,8 +60,9 @@ async def on_ready():
     print(f'Global Servers: {memlogging[1]}')
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
-    for command in botcommands:
-        bot.load_extension(command)
+    for cog in os.listdir('./commands'):
+        if cog.endswith('.py'):
+            bot.load_extension(f'commands.{cog[:-3]}')
 
 async def update():
     """
