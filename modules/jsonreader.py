@@ -4,7 +4,6 @@ handles json files
 
 import json
 from pathlib import Path
-from discord.ext import commands
 
 def create_file(bot, key: str, default, wipe: bool = False):
     """
@@ -21,7 +20,7 @@ def create_file(bot, key: str, default, wipe: bool = False):
         json.dump(data, fileout, indent=4)
     return True
 
-def read_file(ctx: commands.Context, key: str):
+def read_file(guild: str, key: str):
     """
     Get the guild configs for a key
     """
@@ -33,9 +32,9 @@ def read_file(ctx: commands.Context, key: str):
     with open(f'./data/guild_{key}.json', 'r') as filein:
         data = json.load(filein)
 
-    return data[str(ctx.guild.id)]
+    return data[guild]
 
-def write_file(ctx: commands.Context, key: str, value):
+def write_file(guild: str, key: str, value):
     """
     Get the guild configs will make a new file if not detected
     """
@@ -47,10 +46,11 @@ def write_file(ctx: commands.Context, key: str, value):
     with open(f'./data/guild_{key}.json', 'r') as filein:
         data = json.load(filein)
 
-    data[str(ctx.guild.id)] = value
+    data[guild] = value
 
     with open(f'./data/guild_{key}.json', 'w') as fileout:
         json.dump(data, fileout, indent=4)
+    return True
 
 def check_exist(key: str):
     """

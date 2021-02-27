@@ -22,7 +22,7 @@ class Config(commands.Cog):
         """
         Change the prefix of the bot
         """
-        jsonreader.write_file(ctx, 'prefix', prefix)
+        jsonreader.write_file(ctx.guild.id, 'prefix', prefix)
         await ctx.send(f'Prefix changed to: {prefix}')
         botname = ctx.me.name
         await ctx.me.edit(nick=f'{prefix} | {botname}')
@@ -36,11 +36,11 @@ class Config(commands.Cog):
         """Stops people from messing with the bot too much while"""
         if djrole is None:
             await ctx.send('Disabling DJ-Mode')
-            jsonreader.write_file(ctx, 'djmode', djrole)
+            jsonreader.write_file(ctx.guild.id, 'djmode', djrole)
             return
 
         await ctx.send(f'Enabling DJ-Config for role: {djrole.name}')
-        jsonreader.write_file(ctx, 'djmode', str(djrole.id))
+        jsonreader.write_file(ctx.guild.id, 'djmode', str(djrole.id))
 
 def setup(bot):
     """
