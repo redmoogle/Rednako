@@ -1,3 +1,6 @@
+#pylint: disable=wrong-import-position
+# have to do this because I have to append the path first
+
 """
 Rednako Public Discord Bot
 Main Repository: https://github.com/redmoogle/Rednako
@@ -23,11 +26,11 @@ from pretty_help import PrettyHelp
 # Config
 import config
 
-# ./modules
-from modules import jsonreader
-
 # Allows cogs to use the ./Modules folder
 sys.path.append(os.path.abspath(__file__ + "/../modules"))
+
+# ./modules
+from modules import jsonreader
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
