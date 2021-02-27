@@ -47,9 +47,7 @@ def get_prefix(client, message):
     if not jsonreader.check_exist('prefix'): # File will be created shortly
         return commands.when_mentioned
 
-    prefixes = jsonreader.read_file(message, 'prefix')
-    print(prefixes)
-    return prefixes[str(message.guild.id)] # Guild Specific Prefixes
+    return jsonreader.read_file(message, 'prefix') # Guild Specific Preset
 
 bot = commands.Bot(                         # Create a new bot
     command_prefix=get_prefix,              # Set the prefix
