@@ -13,8 +13,6 @@ in the config make sure to update the .format in here
 """
 
 # Standard Python Modules
-import os
-import sys
 import asyncio
 
 # Discord Modules
@@ -24,9 +22,6 @@ from pretty_help import PrettyHelp
 
 # Config
 import config
-
-# Allows cogs to use the ./Modules folder
-sys.path.append(os.path.abspath(__file__ + "/../modules"))
 
 # ./modules
 from modules import jsonreader
