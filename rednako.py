@@ -41,7 +41,6 @@ def get_prefix(botpfx, ctx):
     if not jsonreader.check_exist('prefix'): # File will be created shortly
         return commands.when_mentioned
 
-    data = jsonreader.dump('prefix')
     return jsonreader.read_file(ctx.guild.id, 'prefix') # Guild Specific Preset
 
 bot = commands.Bot(                         # Create a new bot
