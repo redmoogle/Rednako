@@ -35,9 +35,6 @@ def read_file(guild, key: str):
     with open(f'./data/guild_{key}.json', 'r') as filein:
         data = json.load(filein)
 
-    print(data)
-    print(guild)
-    print(data[str(guild)])
     return data[guild]
 
 def write_file(guild, key: str, value):
@@ -84,3 +81,14 @@ def check_exist(key: str):
     Checks if a given key exists
     """
     return Path(f'./data/guild_{key}.json').is_file()
+
+def dump(key: str):
+    """
+    Dumps json data
+    """
+    data = {}
+
+    with open(f'./data/guild_{key}.json', 'r') as filein:
+        data = json.load(filein)
+
+    return data
