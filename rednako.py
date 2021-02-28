@@ -42,7 +42,7 @@ def get_prefix(botpfx, ctx):
         return commands.when_mentioned
 
     data = jsonreader.dump('prefix')
-    return data[str(ctx.guild.id)] # Guild Specific Preset
+    return jsonreader.read_file(ctx.guild.id, 'prefix') # Guild Specific Preset
 
 bot = commands.Bot(                         # Create a new bot
     command_prefix=get_prefix,              # Set the prefix
