@@ -1,6 +1,3 @@
-#pylint: disable=wrong-import-position
-# have to do this because I have to append the path first
-
 """
 Rednako Public Discord Bot
 Main Repository: https://github.com/redmoogle/Rednako
