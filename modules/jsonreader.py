@@ -13,8 +13,10 @@ def create_file(bot, key: str, default, wipe: bool = False):
         return False
 
     data = {}
+
     for guild in bot.guilds:
-        data[str(guild.id)] = default
+        _guild = str(guild.id)
+        data[_guild] = default
 
     with open(f'./data/guild_{key}.json', 'w') as fileout:
         json.dump(data, fileout, indent=4)
@@ -25,6 +27,7 @@ def read_file(guild, key: str):
     Get the guild configs for a key
     """
     data = {}
+    guild = str(guild)
 
     if not Path(f'./data/guild_{key}.json').is_file():
         return False
@@ -32,13 +35,14 @@ def read_file(guild, key: str):
     with open(f'./data/guild_{key}.json', 'r') as filein:
         data = json.load(filein)
 
-    return data[str(guild)]
+    return data[guild]
 
 def write_file(guild, key: str, value):
     """
     Get the guild configs will make a new file if not detected
     """
     data = {}
+    guild = str(guild)
 
     if not Path(f'./data/guild_{key}.json').is_file():
         return False
@@ -46,7 +50,7 @@ def write_file(guild, key: str, value):
     with open(f'./data/guild_{key}.json', 'r') as filein:
         data = json.load(filein)
 
-    data[str(guild)] = value
+    data[guild] = value
 
     with open(f'./data/guild_{key}.json', 'w') as fileout:
         json.dump(data, fileout, indent=4)
