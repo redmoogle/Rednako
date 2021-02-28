@@ -1,3 +1,7 @@
-# Placeholder
+# Logging Folder
 
-placeholder, github cant see blank folders
+This contains various debug things
+
+Mainly lavalink.
+
+Don't forget to purge it!
