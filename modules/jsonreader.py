@@ -35,6 +35,9 @@ def read_file(guild, key: str):
     with open(f'./data/guild_{key}.json', 'r') as filein:
         data = json.load(filein)
 
+    print(data)
+    print(guild)
+    print(data[str(guild)])
     return data[guild]
 
 def write_file(guild, key: str, value):
