@@ -8,7 +8,19 @@ import discord
 
 def embed(title: str = None, description: str = None, thumbnail: str = None, image: str = None, fields: list = None, inline: bool = True, color = discord.Colour.default()):
     """
-    Helps with making clean embeds, has common needs
+    Creates a embed with various arguments.
+
+        Parameters:
+            title (str): Title of the embed
+            description (str): Descriptipon of the embed
+            thumbnail (str): Link to a image, displayed in the top right
+            image (str): Link to a image, displayed at the bottom
+            fields (list): Used to make lines [Line Name, Value]
+            inline (bool): Is there one field for line or as many as can be jammed
+            color (discord.Colour): color of the embed
+
+        Returns:
+            embed (discord.Embed): embed with all the arguments
     """
     embedhelper = discord.Embed(title=title, description=description)
     embedhelper.color = color
@@ -30,7 +42,13 @@ def embed(title: str = None, description: str = None, thumbnail: str = None, ima
 
 def timeconv(time: str = None):
     """
-    Convert time to second from string(w,d,h,m,s)
+    Convert time from a 1w1d1h1m1s format to a int format
+
+        Parameters:
+            time (str): Time to convert in the format of 1w down to 1s
+
+        Returns:
+            time (int): Amount of time in seconds
     """
     if time is None:
         return 0
@@ -39,11 +57,13 @@ def timeconv(time: str = None):
     timelist = time.split()
     for times in timelist:
         try:
+            # Attempts to change the `7` from `7m` into a int, if it fails then it's not a valid format
             temp = times[:-1]
             int(temp)
         except:
             return None # Unknown Format was provided
 
+        # This converts if the above passes to actual seconds
         if times[-1] == "s":
             timeseconds += int(times[:-1])
         if times[-1] == "m":

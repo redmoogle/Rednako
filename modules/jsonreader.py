@@ -7,7 +7,16 @@ from pathlib import Path
 
 def create_file(bot, key: str, default, wipe: bool = False):
     """
-    This is done to do this half inteligently this is used to "create" your config files
+    Creates a JSON config file for all guilds it can see with a default
+
+        Parameters:
+            bot (discord.Bot): Reference to the bot so it can get the guilds
+            key (str): The `guild_key.json` to generate
+            default (any): The value to put in as a placeholder
+            wipe (bool): Wipe the files forcefully
+
+        Returns:
+            Success (bool): Did it succede
     """
     if Path(f'./data/guild_{key}.json').is_file() and not wipe: # allows for wiping of the config
         return False
@@ -24,7 +33,14 @@ def create_file(bot, key: str, default, wipe: bool = False):
 
 def read_file(guild, key: str):
     """
-    Get the guild configs for a key
+    Reads a JSON file given the ID to find and key to look in
+
+        Parameters:
+            guild (str/int): the ID of the guild to return given key
+            key (str): The key to look up
+
+        Returns:
+            The data for that guild and key
     """
     data = {}
     guild = str(guild)
@@ -39,7 +55,15 @@ def read_file(guild, key: str):
 
 def write_file(guild, key: str, value):
     """
-    Get the guild configs will make a new file if not detected
+    Writes data to a guild JSON given a key
+
+        Parameters:
+            guild (str/int): ID of the guild
+            key (str): The key to modify
+            value (any): The value to write for that guild and key
+
+        Returns:
+            Success (bool): Did it succede
     """
     data = {}
     guild = str(guild)
@@ -58,7 +82,14 @@ def write_file(guild, key: str, value):
 
 def remove(guild, key: str):
     """
-    Removes a given guild from the file
+    Removes a guild from a given key
+
+        Parameters:
+            guild (str/int): ID of the guild
+            key (str): The key to modify
+
+        Returns:
+            Success (bool): Did it succede
     """
     data = {}
     guild = str(guild)
@@ -78,13 +109,25 @@ def remove(guild, key: str):
 
 def check_exist(key: str):
     """
-    Checks if a given key exists
+    Checks if a JSON key has been generated yet
+
+        Parameters:
+            key (str): The key to check
+
+        Returns:
+            Exist (bool): Does it exist
     """
     return Path(f'./data/guild_{key}.json').is_file()
 
 def dump(key: str):
     """
-    Dumps json data
+    Dumps all the JSON given the key
+
+        Parameters:
+            key (str): The key to dump
+
+        Returns:
+            data (dict): The JSON data
     """
     data = {}
 

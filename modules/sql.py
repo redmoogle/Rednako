@@ -7,7 +7,14 @@ import logging
 
 def add(table, values):
     """
-    Insert something into the database
+    Writes to a sql table with provided values
+
+        Parameters:
+            table (str): table to add to
+            values (tuple): values to add
+
+        Returns:
+            Success (bool): Did it succede
     """
     datapath = os.path.abspath(os.path.join(os.path.dirname(__file__),"../data"))
     sqldb = f"{os.path.join(datapath, 'database.db')}"
@@ -28,7 +35,16 @@ def add(table, values):
 
 def update(table, source, change, where: list = None):
     """
-    Update something in the database
+    Update a sql table with provided values and location
+
+        Parameters:
+            table (str): table to update
+            source (str): What datapoint to modify
+            change (str): What to change the datapoints too
+            where (list): Filter what your changing
+
+        Returns:
+            Success (bool): Did it succede
     """
     datapath = os.path.abspath(os.path.join(os.path.dirname(__file__),"../data"))
     sqldb = f"{os.path.join(datapath, 'database.db')}"
@@ -63,7 +79,14 @@ def update(table, source, change, where: list = None):
 
 def remove(table, where: list = None):
     """
-    Remove something in the database
+    Removes data from a table provided values
+
+        Parameters:
+            table (str): table to remove from
+            where (list): Filter on what to remove
+
+        Returns:
+            Success (bool): Did it succede
     """
     datapath = os.path.abspath(os.path.join(os.path.dirname(__file__),"../data"))
     sqldb = f"{os.path.join(datapath, 'database.db')}"
@@ -98,7 +121,15 @@ def remove(table, where: list = None):
 
 def create_table(table: str, types: list, check_exist: bool = False):
     """
-    Create a table
+    Creates a SQL table with provided values
+
+        Parameters:
+            table (str): table to create
+            types (list): columns to add
+            check_exist (bool): Check if it already exists
+
+        Returns:
+            Success (bool): Did it succede
     """
     datapath = os.path.abspath(os.path.join(os.path.dirname(__file__),"../data"))
     sqldb = f"{os.path.join(datapath, 'database.db')}"
@@ -109,15 +140,12 @@ def create_table(table: str, types: list, check_exist: bool = False):
     # Check if it executed
 
     # construct (X: TYPE, B: TYPE)
-    _itercalc = 0
     _sqlstring = ''
-    for _type in types:
-        _itercalc += 1
-        if _itercalc%2 == 1: # spacing
-            _sqlstring += f'{_type} '
-        else:
-            _sqlstring += f'{_type}'
-        if(_itercalc != len(types)) and (_itercalc%2 == 0): # dont append a comma onto the end
+    for index, _type in enumerate(types):
+        if index%2 == 1: # spacing
+            _sqlstring += ' '
+        _sqlstring += f'{_type}'
+        if(index != len(types)) and (index%2 == 0): # dont append a comma onto the end
             _sqlstring += ', '
 
     if check_exist:
@@ -137,7 +165,14 @@ def create_table(table: str, types: list, check_exist: bool = False):
 
 def remove_table(table, check_exist: bool = False):
     """
-    drop a table
+    Drop a SQL table
+
+        Parameters:
+            table (str): table to drop
+            check_exist (bool): Check if it exists
+
+        Returns:
+            Success (bool): Did it succede
     """
     datapath = os.path.abspath(os.path.join(os.path.dirname(__file__),"../data"))
     sqldb = f"{os.path.join(datapath, 'database.db')}"
@@ -164,7 +199,15 @@ def remove_table(table, check_exist: bool = False):
 
 def select(table, where: list = None, toselect: str = '*'):
     """
-    Insert something into the database
+    Grab data from a given sql table
+
+        Parameters:
+            table (str): table to grab from
+            where (list): Filter what your grabbing
+            toselect (str): What column to grab
+
+        Returns:
+            data (list): data fetched from table
     """
     datapath = os.path.abspath(os.path.join(os.path.dirname(__file__),"../data"))
     sqldb = f"{os.path.join(datapath, 'database.db')}"
@@ -201,7 +244,13 @@ def select(table, where: list = None, toselect: str = '*'):
 
 def raw_sql(sql):
     """
-    Execute raw SQL
+    Grab data from a given sql table
+
+        Parameters:
+            sql (str): SQL to execute
+
+        Returns:
+            data (list): data from that sql
     """
     datapath = os.path.abspath(os.path.join(os.path.dirname(__file__),"../data"))
     sqldb = f"{os.path.join(datapath, 'database.db')}"
