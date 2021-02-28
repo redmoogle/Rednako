@@ -1,6 +1,7 @@
 """
 Handles various money things
 """
+#pylint: disable=bare-except
 
 # Standard Python Modules
 import random
@@ -28,8 +29,9 @@ class Economy(commands.Cog):
         ''Steals money''
         """
         guild_economy = jsonreader.read_file(ctx.guild.id, 'economy')
-        money = guild_economy[str(ctx.author.id)]
-        if not money:
+        try:
+            money = guild_economy[str(ctx.author.id)]
+        except:
             jsonreader.write_file(ctx.guild.id, 'economy', {str(ctx.author.id): 0})
             return await ctx.send('Lets set you up a bank account!')
 
@@ -47,8 +49,9 @@ class Economy(commands.Cog):
         Check your offshore
         """
         guild_economy = jsonreader.read_file(ctx.guild.id, 'economy')
-        money = guild_economy[str(ctx.author.id)]
-        if not money:
+        try:
+            money = guild_economy[str(ctx.author.id)]
+        except:
             return await ctx.send('You\'re not registered with OffSafe:tm:!')
 
         info = [
