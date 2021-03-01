@@ -20,7 +20,11 @@ class Config(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def changeprefix(self, ctx, prefix):
         """
-        Change the prefix of the bot
+        Changes the name of the bot to PREFIX | USERNAME and sets the guild prefix to that
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                prefix (str): what to change the prefix to
         """
         jsonreader.write_file(ctx.guild.id, 'prefix', prefix)
         await ctx.send(f'Prefix changed to: {prefix}')
@@ -33,14 +37,19 @@ class Config(commands.Cog):
     )
     @commands.has_permissions(administrator=True)
     async def djmode(self, ctx, djrole: discord.Role = None):
-        """Stops people from messing with the bot too much while"""
-        if djrole is None:
-            await ctx.send('Disabling DJ-Mode')
-            jsonreader.write_file(ctx.guild.id, 'djmode', djrole)
-            return
+        """
+        Enables DJ mode for the role provided
 
-        await ctx.send(f'Enabling DJ-Config for role: {djrole.name}')
+            Parameters:
+                ctx (commands.Context): Context Reference
+                djrole (discord.Role): Role to enable for
+        """
+        if djrole is None:
+            jsonreader.write_file(ctx.guild.id, 'djmode', djrole)
+            return await ctx.send('Disabling DJ-Mode')
+
         jsonreader.write_file(ctx.guild.id, 'djmode', str(djrole.id))
+        await ctx.send(f'Enabling DJ-Config for role: {djrole.name}')
 
 def setup(bot):
     """

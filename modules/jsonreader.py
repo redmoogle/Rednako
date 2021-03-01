@@ -40,7 +40,7 @@ def read_file(guild, key: str):
             key (str): The key to look up
 
         Returns:
-            The data for that guild and key
+            data(any): The data for that guild and key
     """
     data = {}
     guild = str(guild)

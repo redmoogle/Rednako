@@ -1,7 +1,6 @@
 """
 Handles various money things
 """
-#pylint: disable=bare-except
 
 # Standard Python Modules
 import random
@@ -63,17 +62,21 @@ class Economy(commands.Cog):
     @commands.cooldown(1, 21600, commands.BucketType.member)
     async def payday(self, ctx):
         """
-        ''Steals money''
+        Steals money from somewhere random
+
+            Parameters:
+                ctx (commands.Context): Context Reference
         """
         guild_economy = jsonreader.read_file(ctx.guild.id, 'economy')
         try:
             money = guild_economy[str(ctx.author.id)]
-        except:
+        except KeyError:
             jsonreader.write_file(ctx.guild.id, 'economy', {str(ctx.author.id): 0})
             await ctx.send('Lets set you up a bank account!')
             await asyncio.sleep(5)
             await ctx.send('Done! You now have a OffSafe:tm: Account!')
             await asyncio.sleep(2)
+            return
 
         heisted = random.randint(5, 30)
         money += heisted
@@ -87,12 +90,15 @@ class Economy(commands.Cog):
     )
     async def checking(self, ctx):
         """
-        Check your offshore
+        Checks how much money that have
+
+            Parameters:
+                ctx (commands.Context): Context Reference
         """
         guild_economy = jsonreader.read_file(ctx.guild.id, 'economy')
         try:
             money = guild_economy[str(ctx.author.id)]
-        except:
+        except KeyError:
             return await ctx.send('You\'re not registered with OffSafe:tm:!')
 
         info = [

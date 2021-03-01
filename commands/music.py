@@ -28,7 +28,13 @@ from modules import helpers
 
 def djconfig(ctx):
     """
-    Checks config to see if that guild has defined a DJ role
+    Checks the key djmode to see if djmode is on
+
+        Parameters:
+            ctx (commands.Context): Context Reference
+
+        Returns:
+            check (bool): Is DJMode disabled(True) or does user have the right role
     """
     guildrole = jsonreader.read_file(ctx.guild.id, 'djmode')
     if guildrole is None:
@@ -41,7 +47,13 @@ def djconfig(ctx):
 
 def parse_duration(duration: int):
     """
-    Parse duration into DD:HH:MM:SS
+    Parses seconds into DD:HH:MM:SS
+
+        Parameters:
+            duration (int): How long in seconds
+
+        Returns:
+            time (str): DD:HH:MM:SS gives a time as a str
     """
     minutes, seconds = divmod(duration, 60)
     hours, minutes = divmod(minutes, 60)
@@ -97,7 +109,15 @@ class Music(commands.Cog):
         loop.create_task(lavalink.close())
 
     async def cog_before_invoke(self, ctx):
-        """ Command before-invoke handler. """
+        """
+        Cog Signal called before invoking a command in this cog
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+
+            Returns:
+                runnable (bool): Can the command run
+        """
         await self.bot.wait_until_ready()
         guild_check = ctx.guild is not None
         #  This is essentially the same as `@commands.guild_only()`
@@ -110,7 +130,15 @@ class Music(commands.Cog):
         return guild_check
 
     async def ensure_voice(self, ctx):
-        """ Various checks to prevent people from breaking the bot """
+        """
+        Additonal checks that prevents the lavalink code from breaking
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+
+            Raises:
+                CommandInvokeError(AdditonalDetail (str)): Error that prevents the bot from doing something
+        """
 
         # This creates a player, OR returns the existing one, this is to make sure the player exists
         player = self.bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
@@ -145,7 +173,10 @@ class Music(commands.Cog):
 
     async def track_hook(self, event):
         """
-        Track lavalink events
+        Event Signal for lavalink events
+
+            Parameters:
+                event (lavalink.events): The type of event that happened
         """
         # When it gets to the end of the Queue, automatically disconnect to save resources
         if isinstance(event, lavalink.events.QueueEndEvent):
@@ -174,7 +205,13 @@ class Music(commands.Cog):
             await notify_channel.send(embed=embed)
 
     async def connect_to(self, guild_id: int, channel_id: str):
-        """ Connects to the given voicechannel ID. A channel_id of `None` means disconnect. """
+        """
+        Connects to a voicechannel via websocket
+
+            Parameters:
+                guild_id (int): ID of the guild to connect to
+                channel_id (int): ID of the channel in the guild to connect to
+        """
         websoc = self.bot._connection._get_websocket(guild_id)
         await websoc.voice_state(str(guild_id), channel_id)
         # The above looks dirty, we could alternatively use `bot.shards[shard_id].ws` but that assumes
@@ -188,7 +225,13 @@ class Music(commands.Cog):
     )
     @commands.check(djconfig)
     async def search_and_play(self, ctx, *, query):
-        """ Searches and plays a song from a given query. """
+        """
+        Plays a link or searches youtube with the provided query
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                query (str): Thing or link to search/play
+        """
         # Get the player for this guild from cache.
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if not player:
@@ -255,7 +298,12 @@ class Music(commands.Cog):
     @commands.command(aliases=['dc', 'stop'])
     @commands.check(djconfig)
     async def disconnect(self, ctx):
-        """ Disconnects the player from the voice channel and clears its queue. """
+        """
+        Disconnects the bot from the voicechat and clears the queue
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+        """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         # Clear the queue to ensure old tracks don't start playing
@@ -271,7 +319,12 @@ class Music(commands.Cog):
     )
     @commands.check(djconfig)
     async def pause(self, ctx):
-        """pauses the player."""
+        """
+        Pauses the currently playing queue
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+        """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player.current is None:
             await ctx.send(':asterisk: | Bot is not playing any music.')
@@ -289,9 +342,12 @@ class Music(commands.Cog):
         usage="current",
         aliases=['np']
     )
-    async def current(self,ctx):
+    async def current(self, ctx):
         """
-        Shows whats poppin
+        Shows the currently playing song
+
+            Parameters:
+                ctx (commands.Context): Context Reference
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         requester = player.fetch("requestee")
@@ -314,7 +370,13 @@ class Music(commands.Cog):
 
     @commands.command(name='queue')
     async def queue(self, ctx, page: int = 1):
-        """Shows the queue"""
+        """
+        Iterates over the queue and sends a embed of queued tracks
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                page (int): Page of the queue to look up (10 per page)
+        """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         # player.current is a track but we want it to be a list with that track
@@ -350,7 +412,13 @@ class Music(commands.Cog):
     )
     @commands.check(djconfig)
     async def bass(self, ctx, gain: int = 0):
-        """increases the base."""
+        """
+        Increases the first five bands (0-4) by an unknown amount
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                gain (int): How much to increase the bands
+        """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
@@ -369,7 +437,13 @@ class Music(commands.Cog):
     )
     @commands.check(djconfig)
     async def mids(self, ctx, gain: int = 0):
-        """increases the mids."""
+        """
+        Increases the middle five bands (5-9) by an unknown amount
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                gain (int): How much to increase the bands
+        """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
@@ -388,7 +462,13 @@ class Music(commands.Cog):
     )
     @commands.check(djconfig)
     async def treble(self, ctx, gain: int = 0):
-        """increases the treble."""
+        """
+        Increases the last five bands (10-14) by an unknown amount
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                gain (int): How much to increase the bands
+        """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
@@ -407,7 +487,12 @@ class Music(commands.Cog):
     )
     @commands.check(djconfig)
     async def reset(self, ctx):
-        """increases the EQ."""
+        """
+        Resets all 15 bands to default
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+        """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             player.reset_equalizer()
@@ -419,7 +504,12 @@ class Music(commands.Cog):
     )
     @commands.check(djconfig)
     async def skip(self, ctx):
-        """skips songs"""
+        """
+        Skips the currently playing song
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+        """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.is_playing:

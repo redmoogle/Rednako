@@ -140,8 +140,6 @@ disable=print-statement,
         exception-escape,
         comprehension-escape,
         no-member,
-        line-too-long,
-        broad-except,
         protected-access
 
 # Enable the message, report, category or checker with the given id(s). You can
@@ -308,7 +306,7 @@ variable-naming-style=snake_case
 [FORMAT]
 
 # Expected format of line ending, e.g. empty (any line ending), LF or CRLF.
-expected-line-ending-format=
+expected-line-ending-format=CRLF
 
 # Regexp for a line that is allowed to be longer than the limit.
 ignore-long-lines=^\s*(# )?<?https?://\S+>?$
@@ -321,7 +319,7 @@ indent-after-paren=4
 indent-string='    '
 
 # Maximum number of characters on a single line.
-max-line-length=100
+max-line-length=200
 
 # Maximum number of lines in a module.
 max-module-lines=1000

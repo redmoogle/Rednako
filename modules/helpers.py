@@ -1,5 +1,3 @@
-#pylint: disable=bare-except
-
 """"
 Common helper functions for bot
 """
@@ -60,7 +58,7 @@ def timeconv(time: str = None):
             # Attempts to change the `7` from `7m` into a int, if it fails then it's not a valid format
             temp = times[:-1]
             int(temp)
-        except:
+        except ValueError:
             return None # Unknown Format was provided
 
         # This converts if the above passes to actual seconds

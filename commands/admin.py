@@ -1,5 +1,3 @@
-#pylint: disable=exec-used
-
 """
 Various admin commands
 """
@@ -30,6 +28,13 @@ repo = git.Repo(search_parent_directories=True)
 async def grabmute(ctx, victim: discord.Member = None):
     """
     Grabs a mute from the DB
+
+        Parameters:
+            ctx (commands.Context): Context Reference
+            victim (discord.Member): Member Reference
+
+        Returns:
+            mutee (discord.Member.ID): Returns the ID of the muted person, or false
     """
     if victim is None:
         return False
@@ -58,7 +63,10 @@ class Admin(commands.Cog):
     @commands.is_owner()
     async def update(self, ctx):
         """
-        Updates the bot
+        Updates the bot from github and restart it
+
+            Parameters:
+                ctx (commands.Context): Context Reference
         """
         local = repo.head.object.hexsha
         remote = repo.remotes.origin.fetch()[0].commit
@@ -82,17 +90,16 @@ class Admin(commands.Cog):
     @commands.is_owner()
     async def sql(self, ctx, *, sqlinput):
         """
-        Execute unfiltered sql
+        Executes SQL with no filtering
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                sqlinput (str): SQL string to run
+
+            Returns:
+                raw_sql (any) Anything that it might return
         """
         return await ctx.send(sql.raw_sql(sqlinput), delete_after=10)
-
-    @commands.command(
-        name='exec',
-        brief='run python commands'
-    )
-    @commands.is_owner()
-    async def _exec(self, ctx, *, execinput):
-        return await ctx.send(exec(execinput), delete_after=10)
 
     @commands.command(
         name='purge',
@@ -101,7 +108,11 @@ class Admin(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def purge(self, ctx, purge: int):
         """
-        purge messages
+        Purges upto 250 messages from a given channel
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                purge (int<250): How many messages to purge
         """
         if purge > 250:
             return await ctx.send('You can only purge upto 250 messages', delete_after=3)
@@ -115,7 +126,11 @@ class Admin(commands.Cog):
     @commands.has_permissions(ban_members=True)
     async def ban(self, ctx, victim: discord.Member = None):
         """
-        Delete someone
+        Bans someone and send some funny text with it
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                victim (discord.Member): Person to ban
         """
         if victim is None:
             return await ctx.send('You need to specify a person to ban', delete_after=3)
@@ -138,7 +153,11 @@ class Admin(commands.Cog):
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, victim: discord.Member = None):
         """
-        Yeet Someone
+        Kicks someone and send some funny text with it
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                victim (discord.Member): Person to kick
         """
         if victim is None:
             temp = await ctx.send('You need to specify a person to kick')
@@ -162,7 +181,12 @@ class Admin(commands.Cog):
     @commands.has_permissions(kick_members=True)
     async def mute(self, ctx, victim: discord.Member = None, *, time: str = None):
         """
-        Mime someone
+        Mutes someone and DM's them the seconds they've been muted for
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                victim (discord.Member): Person to mute
+                time (str): Time in 1w1d1h1m1s to mute for
         """
         time = helpers.timeconv(time)
 
@@ -196,7 +220,11 @@ class Admin(commands.Cog):
     @commands.has_permissions(kick_members=True)
     async def unmute(self, ctx, victim: discord.Member = None):
         """
-        Unmime someone
+        Mutes someone and DM's them the seconds they've been muted for
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                victim (discord.Member): Person to unmute
         """
         if victim is None:
             return await ctx.send('You need to specify someone to unmute', delete_after=3)
@@ -217,7 +245,10 @@ class Admin(commands.Cog):
     @commands.is_owner()
     async def database(self, ctx):
         """
-        Show the DB
+        Shows the name of all tables and their len()'s
+
+            Parameters:
+                ctx (commands.Context): Context Reference
         """
         info = []
         for table in sql.select('sqlite_master', ['type',"'table'"], 'name'):

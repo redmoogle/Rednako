@@ -30,7 +30,14 @@ DEFAULTPREFIX = '=='
 
 def get_prefix(botpfx, ctx):
     """
-    Load prefixes from json file if it exists, otherwise generate default prefix file
+    Called from commands.Bot to set the prefix for guilds
+
+        Parameters:
+            botpfx (discord.Bot): Bot Reference
+            ctx (commands.Context): Context Reference
+
+        Returns:
+            Prefix (str): Prefix for that guild
     """
     if not ctx.guild:
         return commands.when_mentioned_or(DEFAULTPREFIX)(botpfx, ctx)
@@ -51,7 +58,9 @@ bot = commands.Bot(                         # Create a new bot
 
 @bot.event
 async def on_ready():
-    """Function is called when bot thinks it is fully online"""
+    """
+    Event signal called when the bot has fully started
+    """
     memlogging = await grab_members()
     print(f'Global Member Count: {memlogging[0]}')
     print(f'Global Servers: {memlogging[1]}')
@@ -77,12 +86,13 @@ async def update():
 
 async def grab_members():
     """
-    Grabs all the members that the bot can see
+    Grabs all the members and servers that the bot can see
 
-    Must have the config set to True
-    Intents **MUST** Be set
+        Config:
+            show_users (bool): enables the bot to check
 
-    returns [members, servers]
+        Returns:
+            members, servers (list): Members and servers the bot found
     """
     await bot.wait_until_ready()
     if not config['show_users']:
@@ -97,17 +107,23 @@ async def grab_members():
 @bot.event
 async def on_guild_join(guild):
     """
-    Called when the bot joins the guild
+    Event signal called when the bot is added to the guild
+
+        Parameters:
+            guild (discord.Guild): Guild Object
     """
     jsonreader.write_file(guild.id, 'prefix', DEFAULTPREFIX)
 
 @bot.event
 async def on_guild_remove(guild):
     """
-    Called when the bot gets ejected/removed from the guild
+    Event signal called when the bot is removed from the guild
+
+        Parameters:
+            guild (discord.Guild): Guild Object
     """
     jsonreader.remove(guild.id, 'prefix')
 
 # Finally, login the bot
 bot.loop.create_task(update())
-bot.run(config['token'], bot=True, reconnect=True)
+bot.run(config['token'], reconnect=True)

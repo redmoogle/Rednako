@@ -30,7 +30,10 @@ class Image(commands.Cog):
     )
     async def neko(self, ctx):
         """
-        Embeds a neko
+        Sends a catgrill embed
+
+            Parameters:
+                ctx (commands.Context): Context Reference
         """
         embed=helpers.embed(title='Neko', image=nekos.img('neko'))
         await ctx.send(embed=embed)
@@ -41,7 +44,10 @@ class Image(commands.Cog):
     )
     async def kitsune(self, ctx):
         """
-        Embeds a kitsune
+        Sends a foxgrill embed
+
+            Parameters:
+                ctx (commands.Context): Context Reference
         """
         embed=helpers.embed(title='Kitsune', image=nekos.img('fox_girl'))
         await ctx.send(embed=embed)
@@ -51,9 +57,13 @@ class Image(commands.Cog):
         brief='Show user avatar',
         aliases=['avtr']
     )
-    async def avatar(self, ctx: commands.Context, victim: discord.Member = None):
+    async def avatar(self, ctx, victim: discord.Member = None):
         """
-        Shows avatar
+        Sends a persons avatar
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                victim (discord.Member): Person to grab avatar from
         """
         # grabs their avatar and embeds it
         if victim is None:

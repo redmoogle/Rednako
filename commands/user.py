@@ -37,7 +37,11 @@ class User(commands.Cog):
     )
     async def args(self, ctx, *, args):
         """
-        Prints what the user put in
+        Sanitized Output from User Input
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                args (str): What to send back
         """
         sanitized = dts.sanitize_mass_mentions(
             args, run_preprocess=True, users=True
@@ -51,7 +55,10 @@ class User(commands.Cog):
     )
     async def serverinfo(self, ctx):
         """
-        prints guild info
+        Embeds info about the guild it's ran in
+
+            Parameters:
+                ctx (commands.Context): Context Reference
         """
         guild = ctx.guild                           # grab guild
         textchannels = len(guild.text_channels)     # all text channels
@@ -82,7 +89,10 @@ class User(commands.Cog):
     )
     async def info(self, ctx):
         """
-        Prints Bot Info
+        Embeds info about the bot
+
+            Parameters:
+                ctx (commands.Context): Context Reference
         """
         botuser = ctx.bot                       # shortcut for bot. var/bot is taken
         sha = repo.head.object.hexsha           # Hash of commit that the local files are
@@ -116,7 +126,10 @@ class User(commands.Cog):
     )
     async def ping(self, ctx):
         """
-        Ping Discord API
+        Pings discord API and waits for heartbeat
+
+            Parameters:
+                ctx (commands.Context): Context Reference
         """
         embed = discord.Embed(title="Pong!", color=discord.Color.blurple())
         embed.add_field(name='API: ', value=(f'Latency: {round(self.bot.latency*1000)}ms'))

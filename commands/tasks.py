@@ -43,7 +43,10 @@ class Task(commands.Cog):
     @tasks.loop(seconds=5)
     async def mute(self):
         """
-        Handles looping through mute database
+        Fast Iterating Database, removes mutes if under 0 seconds till experation
+
+            Parameters:
+                None
         """
         for data in sql.select('mutes'):
             time = data[1]
@@ -60,7 +63,10 @@ class Task(commands.Cog):
     @tasks.loop(minutes=1)
     async def storage(self):
         """
-        Move long mutes into storage to keep the 5 second task fast
+        Slow iterating database to speed up the faster looping database
+
+            Parameters:
+                None
         """
         for row in sql.select('mutes'): # Move from active to storage
             time = row[1]
