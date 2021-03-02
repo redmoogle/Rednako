@@ -26,7 +26,7 @@ def add(table, values):
     try:
         pointer.execute(f'INSERT INTO {table} VALUES {values}')
         logging.info('SQL-ADD: "INSERT INTO %s VALUES %s"', table, values)
-    except Exception as error:
+    except sqlite3.OperationalError as error:
         logging.error('SQL-ADD Error: %s', error)
         return False
     database.commit()
@@ -70,7 +70,7 @@ def update(table, source, change, where: list = None):
     try:
         pointer.execute(f'UPDATE {table} SET {source} = {change}{_sqlstring}')
         logging.info('SQL-UPDATE: "UPDATE %s SET %s = %s%s"', table, source, change, _sqlstring)
-    except Exception as error:
+    except sqlite3.OperationalError as error:
         logging.error('SQL-UPDATE Error: %s', error)
         return False
     database.commit()
@@ -112,7 +112,7 @@ def remove(table, where: list = None):
     try:
         pointer.execute(f'DELETE FROM {table} {_sqlstring}')
         logging.info('SQL-DELETE: "DELETE FROM %s %s"', table, _sqlstring)
-    except Exception as error:
+    except sqlite3.OperationalError as error:
         logging.error('SQL-REMOVE Error: %s', error)
         return False
     database.commit()
@@ -156,7 +156,7 @@ def create_table(table: str, types: list, check_exist: bool = False):
     try:
         pointer.execute(f'CREATE TABLE {exist} {table} ({_sqlstring})')
         logging.info('SQL-CREATE: "CREATE TABLE %s %s (%s)"', exist, table, _sqlstring)
-    except Exception as error:
+    except sqlite3.OperationalError as error:
         logging.error('SQL-CREATE Error: %s', error)
         return False
     database.commit()
@@ -190,7 +190,7 @@ def remove_table(table, check_exist: bool = False):
     try:
         pointer.execute(f'DROP TABLE {exist} {table}')
         logging.warning('SQL-DROP: "DROP TABLE %s %s"', exist, table)
-    except Exception as error:
+    except sqlite3.OperationalError as error:
         logging.error('SQL-DROP Error: %s', error)
         return False
     database.commit()
@@ -233,7 +233,7 @@ def select(table, where: list = None, toselect: str = '*'):
     try:
         _params = pointer.execute(f'SELECT {toselect} FROM {table}{_sqlstring}')
         logging.info('SQL-SELECT: "SELECT %s FROM %s%s"', toselect, table, _sqlstring)
-    except Exception as error:
+    except sqlite3.OperationalError as error:
         logging.error('SQL-SELECT Error: %s', error)
         return False
 
@@ -262,7 +262,7 @@ def raw_sql(sql):
     try:
         logging.warning('SQL-RAW: "%s"', sql)
         output = pointer.execute(sql)
-    except Exception as error:
+    except sqlite3.OperationalError as error:
         logging.error('SQL-RAW Error: %s', error)
         return False
     fetchpass = output.fetchall() # cant fetch on a closed DB
