@@ -13,7 +13,6 @@ Compatibility with Python 3.5 should be possible if f-strings are removed.
 # Standard Python Modules
 import re
 import math
-import asyncio
 
 # Discord Modules
 import discord
