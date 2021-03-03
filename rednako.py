@@ -10,13 +10,13 @@ in the config make sure to update the .format in here
 """
 
 # Standard Python Modules
-import os
 import asyncio
 
 # Discord Modules
 import discord
 from discord.ext import commands
 from pretty_help import PrettyHelp
+from cogwatch import Watcher
 
 # Config
 import config
@@ -66,9 +66,8 @@ async def on_ready():
     print(f'Global Servers: {memlogging[1]}')
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
-    for cog in os.listdir('./commands'):
-        if cog.endswith('.py'):
-            bot.load_extension(f'commands.{cog[:-3]}')
+    watcher = Watcher(bot, path="commands", preload=True, debug=False)
+    await watcher.start() # I see you :eyes:
 
 async def update():
     """

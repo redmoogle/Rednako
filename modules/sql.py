@@ -57,13 +57,13 @@ def update(table, source, change, where: list = None):
     _sqlstring = ''
     if where:
         for index, args in enumerate(where):
-            if index == 1:
+            if index == 0:
                 _sqlstring += ' WHERE '
-            if index%2 == 0:
+            if index%2 == 1:
                 _sqlstring += f'= {args} '
             else:
                 _sqlstring += f'{args} '
-            if(index != len(where)) and (index%2 == 0):
+            if(index+1 != len(where)) and (index%2 == 1):
                 _sqlstring += 'AND '
 
     # Check if it executed
@@ -99,13 +99,13 @@ def remove(table, where: list = None):
     _sqlstring = ''
     if where:
         for index, args in enumerate(where):
-            if index == 1:
+            if index == 0:
                 _sqlstring += ' WHERE '
-            if index%2 == 0:
+            if index%2 == 1:
                 _sqlstring += f'= {args} '
             else:
                 _sqlstring += f'{args} '
-            if(index != len(where)) and (index%2 == 0):
+            if(index+1 != len(where)) and (index%2 == 1):
                 _sqlstring += 'AND '
 
     # Check if it executed
@@ -142,10 +142,10 @@ def create_table(table: str, types: list, check_exist: bool = False):
     # construct (X: TYPE, B: TYPE)
     _sqlstring = ''
     for index, _type in enumerate(types):
-        if index%2 == 1: # spacing
+        if index%2 == 0: # spacing
             _sqlstring += ' '
         _sqlstring += f'{_type}'
-        if(index != len(types)) and (index%2 == 0): # dont append a comma onto the end
+        if(index+1 != len(types)) and (index%2 == 1): # dont append a comma onto the end
             _sqlstring += ', '
 
     if check_exist:
@@ -220,13 +220,13 @@ def select(table, where: list = None, toselect: str = '*'):
     _sqlstring = ''
     if where:
         for index, args in enumerate(where):
-            if index == 1:
+            if index == 0:
                 _sqlstring += ' WHERE '
-            if index%2 == 0:
+            if index%2 == 1:
                 _sqlstring += f'= {args} '
             else:
                 _sqlstring += f'{args} '
-            if(index != len(where)) and (index%2 == 0):
+            if(index+1 != len(where)) and (index%2 == 1):
                 _sqlstring += 'AND '
 
     # Check if it executed

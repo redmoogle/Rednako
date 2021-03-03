@@ -105,8 +105,7 @@ class Music(commands.Cog):
 
     def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
-        loop = asyncio.get_event_loop()
-        loop.create_task(lavalink.close())
+        self.bot.lavalink._event_hooks.clear()
 
     async def cog_before_invoke(self, ctx):
         """

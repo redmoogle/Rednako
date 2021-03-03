@@ -3,27 +3,15 @@ Various admin commands
 """
 
 # Standard Python Modules
-import sys
 import random
 import datetime
-import subprocess
-from pathlib import Path
 
 # Discord Modules
 import discord
 from discord.ext import commands
 
-# Github Module
-import git
-
-# Config Module
-import config
-
 # ../modules
 from modules import helpers, sql
-
-config = config.Config('./config/bot.cfg')
-repo = git.Repo(search_parent_directories=True)
 
 async def grabmute(ctx, victim: discord.Member = None):
     """
@@ -55,51 +43,6 @@ class Admin(commands.Cog):
 
     async def cog_before_invoke(self, ctx):
         await ctx.message.delete()
-
-    @commands.command(
-        name='update',
-        brief='update bot'
-    )
-    @commands.is_owner()
-    async def update(self, ctx):
-        """
-        Updates the bot from github and restart it
-
-            Parameters:
-                ctx (commands.Context): Context Reference
-        """
-        local = repo.head.object.hexsha
-        remote = repo.remotes.origin.fetch()[0].commit
-        if str(local) != str(remote):
-            info = [
-                    ['Local Commit: ',  f'{local}'],
-                    ['Github Commit: ', f'{remote}']
-                ]
-
-            embed=helpers.embed(title='Github Update: ', fields=info, inline=False, color=discord.Colour.gold())
-            await ctx.send(embed=embed)
-        await self.bot.logout()
-        path = Path(__file__).parent.parent
-        await subprocess.call(f'{path}/restart.sh')
-        sys.exit()
-
-    @commands.command(
-        name='sql',
-        brief='run SQL commands'
-    )
-    @commands.is_owner()
-    async def sql(self, ctx, *, sqlinput):
-        """
-        Executes SQL with no filtering
-
-            Parameters:
-                ctx (commands.Context): Context Reference
-                sqlinput (str): SQL string to run
-
-            Returns:
-                raw_sql (any) Anything that it might return
-        """
-        return await ctx.send(sql.raw_sql(sqlinput), delete_after=10)
 
     @commands.command(
         name='purge',
@@ -236,27 +179,6 @@ class Admin(commands.Cog):
             sql.remove('mutes', ['id', int(victim.id), 'guild', int(victim.guild.id)])
             await victim.remove_roles(muterole)
             await victim.send(embed=embed)
-
-    @commands.command(
-        name='database',
-        brief='Returns name and lenght of db',
-        aliases=['db']
-    )
-    @commands.is_owner()
-    async def database(self, ctx):
-        """
-        Shows the name of all tables and their len()'s
-
-            Parameters:
-                ctx (commands.Context): Context Reference
-        """
-        info = []
-        for table in sql.select('sqlite_master', ['type',"'table'"], 'name'):
-            rows = sql.select(table[0])
-            info += [[f'Table: {table[0]}', f'Rows: {len(rows)}']]
-
-        embed = helpers.embed(title='Databases: ', fields=info, color=discord.Colour.dark_blue())
-        await ctx.send(embed=embed)
 
 def setup(bot):
     """
