@@ -123,6 +123,18 @@ async def on_guild_remove(guild):
     """
     jsonreader.remove(guild.id, 'prefix')
 
+@bot.event
+async def on_command_error(ctx, error):
+    """
+    Event signal called when a command errors out
+
+        Parameters:
+            ctx (commands.Context): Context Reference
+            error (Exception): Error that happened
+    """
+    if isinstance(error, commands.CommandNotFound):
+        return await ctx.send(f"{ctx.author.mention}, command \'{ctx.invoked_with}\' not found!")
+
 # Finally, login the bot
 bot.loop.create_task(update())
 bot.run(config['token'], reconnect=True)

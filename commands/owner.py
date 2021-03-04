@@ -2,6 +2,12 @@
 """
 Owner only commands
 """
+
+# Standard Python Modules
+import sys
+import subprocess
+from pathlib import Path
+
 # Discord Modules
 import discord
 from discord.ext import commands
@@ -112,6 +118,24 @@ class Owner(commands.Cog):
                 await ctx.send(f'**`Cog {cog} has been loaded`**')
         except Exception as error:
             await ctx.send(f'**`FAILURE:`** {type(error).__name__} - {error}')
+
+    @commands.command(
+        name='reboot',
+        brief='restarts bot'
+    )
+    @commands.is_owner()
+    async def reboot(self, ctx):
+        """
+        Reboots the bot, mainly used for updating the core files
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+        """
+        await ctx.send('Starting Reboot')
+        await self.bot.logout
+        path = Path(__file__).parent.parent
+        await subprocess.call(f'{path}/restart.sh')
+        sys.exit()
 
 def setup(bot):
     """
