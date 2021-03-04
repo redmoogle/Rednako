@@ -2,6 +2,10 @@
 Image commands
 """
 
+# Standard Python Modules
+import random
+import requests
+
 # Discord Modules
 import discord
 from discord.ext import commands
@@ -70,6 +74,31 @@ class Image(commands.Cog):
             victim = ctx.author
 
         embed=helpers.embed(title=f'{victim}\'s Avatar', image=victim.avatar_url)
+        await ctx.send(embed=embed)
+
+    @commands.command(
+        name='cat',
+        brief='grabs cat'
+    )
+    async def cat(self, ctx):
+        """
+        Sends a persons avatar
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+        """
+        response = requests.get('https://aws.random.cat/meow')
+        data = (response.json())['file']
+        randomtitles = [
+            "Meow",
+            "Mao",
+            "Mreow",
+            "Chirp",
+            "Purr",
+            "*Cat Noises*"
+        ]
+        random.shuffle(randomtitles)
+        embed = helpers.embed(title=randomtitles[0], image=data)
         await ctx.send(embed=embed)
 
 def setup(bot):
