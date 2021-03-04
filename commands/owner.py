@@ -132,7 +132,7 @@ class Owner(commands.Cog):
                 ctx (commands.Context): Context Reference
         """
         await ctx.send('Starting Reboot')
-        await self.bot.logout
+        await self.bot.logout()
         path = Path(__file__).parent.parent
         await subprocess.call(f'{path}/restart.sh')
         sys.exit()
