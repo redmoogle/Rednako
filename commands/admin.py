@@ -41,6 +41,10 @@ class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    async def cog_before_invoke(self, ctx):
+        if ctx.guild:
+            await ctx.message.delete()
+
     @commands.command(
         name='purge',
         brief='delete messages'

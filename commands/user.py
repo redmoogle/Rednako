@@ -28,7 +28,8 @@ class User(commands.Cog):
         self.bot = bot
 
     async def cog_before_invoke(self, ctx):
-        await ctx.message.delete()
+        if ctx.guild:
+            await ctx.message.delete()
 
     @commands.command(
         name='say',

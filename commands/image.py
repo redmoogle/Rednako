@@ -24,6 +24,10 @@ class Image(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    async def cog_before_invoke(self, ctx):
+        if ctx.guild:
+            await ctx.message.delete()
+
     # Define a new command
     @commands.command(
         name='neko',
