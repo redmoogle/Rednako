@@ -35,6 +35,8 @@ def djconfig(ctx):
         Returns:
             check (bool): Is DJMode disabled(True) or does user have the right role
     """
+    if not ctx.guild:
+        return False
     guildrole = jsonreader.read_file(ctx.guild.id, 'djmode')
     if guildrole is None:
         return True
