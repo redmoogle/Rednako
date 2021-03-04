@@ -17,7 +17,7 @@ tables = [
     ['mutes', ['id', 'INTEGER', 'experation', 'TIME', 'guild', 'INTEGER', 'role', 'INTEGER']],
     ['longmutes', ['id', 'INTEGER', 'experation', 'TIME', 'guild', 'INTEGER', 'role', 'INTEGER']]
 ]
-configs = [["djmode", None], ["prefix", "=="], ["economy", {}]]
+configs = [["djmode", None], ["prefix", "=="], ["economy", {}], ['errors', True]]
 
 class Task(commands.Cog):
     """

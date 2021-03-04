@@ -51,6 +51,24 @@ class Config(commands.Cog):
         jsonreader.write_file(ctx.guild.id, 'djmode', str(djrole.id))
         await ctx.send(f'Enabling DJ-Config for role: {djrole.name}')
 
+    @commands.command(
+        name='showerrors',
+        brief='en/dis-able showing not found errors'
+    )
+    @commands.has_permissions(administrator=True)
+    async def errors(self, ctx):
+        """
+        Shows or unshows commands not found error
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+        """
+        toggle = jsonreader.read_file(ctx.guild.id, 'errors')
+        jsonreader.write_file(ctx.guild.id, 'errors', not toggle)
+        if toggle:
+            return await ctx.send("Disabling showing of command not found")
+        return await ctx.send("Enabling showing of command not found")
+
 def setup(bot):
     """
     Add Config Cog

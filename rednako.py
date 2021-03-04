@@ -133,7 +133,8 @@ async def on_command_error(ctx, error):
             error (Exception): Error that happened
     """
     if isinstance(error, commands.CommandNotFound):
-        return await ctx.send(f"{ctx.author.mention}, command \'{ctx.invoked_with}\' not found!")
+        if jsonreader.read_file(ctx.guild.id, 'errors'):
+            return await ctx.send(f"{ctx.author.mention}, command \'{ctx.invoked_with}\' not found!")
 
 # Finally, login the bot
 bot.loop.create_task(update())
