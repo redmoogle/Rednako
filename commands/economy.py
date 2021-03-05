@@ -21,7 +21,7 @@ class Economy(commands.Cog):
 
     async def cog_command_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
-            await ctx.send(f'Hold on there fellow heister, the cops are still hot on you wait some time({helpers.parse_duration(int(error.retry_after))})')
+            await ctx.send(f'Hold on there fellow heister, the cops are still hot on you wait some time({helpers.parse_duration(int(error.retry_after))[0]})')
 
     @commands.command(
         name='payday',

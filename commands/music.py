@@ -155,7 +155,7 @@ class Music(commands.Cog):
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
-                ['Duration: ', f'{helpers.parse_duration(player.current.duration/1000)}'],
+                ['Duration: ', f'{helpers.parse_duration(player.current.duration/1000)[0]}'],
                 ['By: ', f'{player.current.author}'],
                 ['Requested By: ', f'{requester}']
             ]
@@ -315,8 +315,8 @@ class Music(commands.Cog):
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         requester = player.fetch("requestee")
-        duration = helpers.parse_duration(player.current.duration/1000)
-        current = helpers.parse_duration(round(time.time() - player.fetch("time")), player.current.duration/1000)
+        duration, fill = helpers.parse_duration(player.current.duration/1000)
+        current = helpers.parse_duration(round(time.time() - player.fetch("time")), fill)[0]
 
         if player.current:
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
@@ -366,7 +366,7 @@ class Music(commands.Cog):
             return await ctx.send('Theres nothing on that page')
 
         for index, track in enumerate(playerqueue[start:end], start=start):
-            queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri}) | {helpers.parse_duration(track.duration/1000)}\n'
+            queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri}) | {helpers.parse_duration(track.duration/1000)[0]}\n'
 
         embed = discord.Embed(colour=discord.Color.blurple(),
                             description=f'**{len(playerqueue)} tracks**\n\n{queue_list}')

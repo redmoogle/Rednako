@@ -3,7 +3,6 @@ Common helper functions for bot
 """
 import random
 import discord
-import logging
 
 def embed(title: str = None, description: str = None, thumbnail: str = None, image: str = None, fields: list = None, inline: bool = True, color = discord.Colour.default()):
     """
@@ -76,7 +75,7 @@ def timeconv(time: str = None):
     return timeseconds
 
 
-def parse_duration(duration, timefill = None):
+def parse_duration(duration, timefill: int = 0):
     """
     Parses seconds into DD:HH:MM:SS
 
@@ -85,7 +84,7 @@ def parse_duration(duration, timefill = None):
             timefill (duration): duration to snap too (HH:MM:SS/HH:MM:SS)
 
         Returns:
-            time (str): DD:HH:MM:SS gives a time as a str
+            time, fill (tuple): DD:HH:MM:SS time in a str, how many divisors (:)
     """
 
     try:
@@ -97,19 +96,6 @@ def parse_duration(duration, timefill = None):
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
 
-    # Allows for adding of blank HH/DD:
-    if timefill:
-        minutes, seconds = divmod(timefill, 60)
-        hours, minutes = divmod(minutes, 60)
-        days, hours = divmod(hours, 24)
-        if days > 0:
-            timefill = 3
-        elif hours > 0:
-            timefill = 2
-        else:
-            timefill = 0
-    else:
-        timefill = 0
 
     minutes, seconds = divmod(duration, 60)
     hours, minutes = divmod(minutes, 60)
@@ -117,12 +103,16 @@ def parse_duration(duration, timefill = None):
 
     duration = [] # var reuse
     _ = "" # used for zfill
+    fill = 0
     if days > 0 or timefill >= 3:
         duration.append(f'{round(days)}:')
-    if hours > 0 or timefill >= 2:
+        fill += 1
+    if hours > 0 or timefill >= 1:
         _ = str(round(hours))
-        if days > 0 or timefill >= 3:
+        fill += 1
+        if days > 0 or timefill >= 2 or hours >= 10:
             _ = _.zfill(2)
+            fill += 1
         _ += ":"
         duration.append(_)
     _ = (str(round(minutes))).zfill(2)
@@ -130,5 +120,4 @@ def parse_duration(duration, timefill = None):
     duration.append(_)
     _ = (str(round(seconds))).zfill(2)
     duration.append(_)
-
-    return ''.join(duration)
+    return ''.join(duration), fill
