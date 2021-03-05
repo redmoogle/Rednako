@@ -115,24 +115,26 @@ class Music(commands.Cog):
         if not ctx.author.voice or not ctx.author.voice.channel:
             await ctx.send('Join a voice-channel first!')
             # Raise a fake error to make the command halt
-            raise commands.CommandInvokeError(None)
+            return False
 
         if not player.is_connected:
             if not should_connect:
                 await ctx.send('Player is not connected')
-                raise commands.CommandInvokeError(None)
+                return False
 
             if (not player.is_playing) and (not player.paused):
                 await ctx.guild.change_voice_state(channel=ctx.author.voice.channel)
             else:
                 if player.paused:
                     await ctx.send('Currently playing')
-                    raise commands.CommandInvokeError(None)
+                    return False
         else:
             if not ignored:
                 if int(player.channel_id) != ctx.author.voice.channel.id:
                     await ctx.send('You need to be in my voicechannel.')
-                    raise commands.CommandInvokeError(None)
+                    return False
+
+        return True
 
     async def track_hook(self, event):
         """
@@ -462,7 +464,7 @@ class Music(commands.Cog):
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
-            player.reset_equalizer()
+            await player.reset_equalizer()
             await ctx.send('EQ has been reset')
 
     @commands.command(
