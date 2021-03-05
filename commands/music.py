@@ -13,6 +13,7 @@ Compatibility with Python 3.5 should be possible if f-strings are removed.
 # Standard Python Modules
 import re
 import math
+import time
 
 # Discord Modules
 import discord
@@ -286,6 +287,7 @@ class Music(commands.Cog):
         player.store("channel", ctx.channel.id)
         player.store("guild", ctx.guild.id)
         player.store("requestee", ctx.author.mention)
+        player.store("time", time.time())
 
         if player.is_playing:
             await ctx.send(embed=embed)
@@ -349,11 +351,14 @@ class Music(commands.Cog):
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         requester = player.fetch("requestee")
+        current = parse_duration(round(-(player.fetch("time")-time.time())))
+        duration = parse_duration(player.current.duration/1000)
+
         if player.current:
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
                     ['Song: ', f'[{player.current.title}]({player.current.uri})'],
-                    ['Duration: ', f'{parse_duration(player.current.duration/1000)}'],
+                    ['Duration: ', f'{current}/{duration}'],
                     ['By: ', f'{player.current.author}'],
                     ['Requested By: ', f'{requester}']
                 ]
