@@ -3,6 +3,7 @@ Common helper functions for bot
 """
 import random
 import discord
+import logging
 
 def embed(title: str = None, description: str = None, thumbnail: str = None, image: str = None, fields: list = None, inline: bool = True, color = discord.Colour.default()):
     """
@@ -87,20 +88,32 @@ def parse_duration(duration, timefill = None):
             time (str): DD:HH:MM:SS gives a time as a str
     """
 
-    minutes, seconds = divmod(duration, 60)
-    hours, minutes = divmod(minutes, 60)
-    days, hours = divmod(hours, 24)
-
-    if timefill: # Allows for adding of blank HH/DD:
-        if hours > 0:
-            timefill = 2
-        if days > 0:
-            timefill = 3
-
     try:
         duration = round(int(duration))
     except ValueError:
         return None # invalid format
+
+    minutes, seconds = divmod(duration, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+
+    # Allows for adding of blank HH/DD:
+    if timefill:
+        minutes, seconds = divmod(timefill, 60)
+        hours, minutes = divmod(minutes, 60)
+        days, hours = divmod(hours, 24)
+        if days > 0:
+            timefill = 3
+        elif hours > 0:
+            timefill = 2
+        else:
+            timefill = 0
+    else:
+        timefill = 0
+
+    minutes, seconds = divmod(duration, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
 
     duration = [] # var reuse
     _ = "" # used for zfill
@@ -108,7 +121,7 @@ def parse_duration(duration, timefill = None):
         duration.append(f'{round(days)}:')
     if hours > 0 or timefill >= 2:
         _ = str(round(hours))
-        if days > 0:
+        if days > 0 or timefill >= 3:
             _ = _.zfill(2)
         _ += ":"
         duration.append(_)
