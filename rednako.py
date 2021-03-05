@@ -8,15 +8,11 @@ Also important note. If you change default_activity
 in the config make sure to update the .format in here
 
 """
-
-# Standard Python Modules
-import asyncio
-
 # Discord Modules
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from pretty_help import PrettyHelp
-from cogwatch import Watcher
+from cogwatch import watch
 
 # Config
 import config
@@ -28,114 +24,125 @@ from modules import jsonreader
 config = config.Config('./config/bot.cfg')
 DEFAULTPREFIX = '=='
 
-def get_prefix(botpfx, ctx):
+class Rednako(commands.Bot):
     """
-    Called from commands.Bot to set the prefix for guilds
-
-        Parameters:
-            botpfx (discord.Bot): Bot Reference
-            ctx (commands.Context): Context Reference
-
-        Returns:
-            Prefix (str): Prefix for that guild
+    Bot class for sharding later
     """
-    if not ctx.guild:
-        return commands.when_mentioned_or(DEFAULTPREFIX)(botpfx, ctx)
+    def __init__(self):
+        self.members = 0
+        self.servers = 0
+        self.updatestatus = True
+        super().__init__(
+            command_prefix=self.get_prefix,         # Set the prefix
+            description='Rednako Public Bot',       # Set a description for the bot
+            owner_id=config['owner_id'],            # Your unique User ID
+            case_insensitive=True,                  # Make the commands case insensitive
+            intents=discord.Intents.all(),          # Entirely Optional
+            help_command=PrettyHelp()               # Default help command
+        )
+        self.update.start()
 
-    if not jsonreader.check_exist('prefix'): # File will be created shortly
-        return commands.when_mentioned
+    def grab_servers(self):
+        """
+        Grabs all the servers the bot can see
 
-    return jsonreader.read_file(ctx.guild.id, 'prefix') # Guild Specific Preset
+            Returns:
+                servers (int): Servers the bot found
+        """
+        self.servers = len(self.guilds)
+        return self.servers
 
-bot = commands.Bot(                         # Create a new bot
-    command_prefix=get_prefix,              # Set the prefix
-    description='Rednako Public Bot',       # Set a description for the bot
-    owner_id=config['owner_id'],            # Your unique User ID
-    case_insensitive=True,                  # Make the commands case insensitive
-    intents=discord.Intents.all(),          # Entirely Optional
-    help_command=PrettyHelp()               # Default help command
-)
+    def grab_members(self):
+        """
+        Grabs all the members the bot can see
 
-@bot.event
-async def on_ready():
-    """
-    Event signal called when the bot has fully started
-    """
-    memlogging = await grab_members()
-    print(f'Global Member Count: {memlogging[0]}')
-    print(f'Global Servers: {memlogging[1]}')
-    print(f'Logged in as {bot.user.name} - {bot.user.id}')
+            Returns:
+                members (int): Members the bot found
+        """
+        _members = 0
+        for _ in self.get_all_members():
+            _members += 1
+        self.members = _members
+        return self.members
 
-    watcher = Watcher(bot, path="commands", preload=True, debug=False)
-    await watcher.start() # I see you :eyes:
+    async def get_prefix(self, ctx):
+        #pylint: disable=arguments-differ
+        # the arguments dont actually differ, pylint is just dumb
+        """
+        Called from commands.Bot to set the prefix for guilds
 
-async def update():
-    """
-    Updates the activity status of the bot
-    """
-    while True:
-        await bot.wait_until_ready()
-        memlogging = await grab_members()
-        await bot.change_presence(
-            activity=discord.Game(
-                name=(config['default_activity']).format(memlogging[0], memlogging[1])
+            Parameters:
+                ctx (commands.Context): Context Reference
+
+            Returns:
+                Prefix (str): Prefix for that guild
+        """
+        if not ctx.guild:
+            return commands.when_mentioned_or(DEFAULTPREFIX)(self, ctx)
+
+        if not jsonreader.check_exist('prefix'): # File will be created shortly
+            return commands.when_mentioned
+
+        return jsonreader.read_file(ctx.guild.id, 'prefix') # Guild Specific Preset
+
+    async def on_guild_join(self, guild):
+        """
+        Event signal called when the bot is added to the guild
+
+            Parameters:
+                guild (discord.Guild): Guild Object
+        """
+        jsonreader.write_file(guild.id, 'prefix', DEFAULTPREFIX)
+
+    async def on_guild_remove(self, guild):
+        """
+        Event signal called when the bot is removed from the guild
+
+            Parameters:
+                guild (discord.Guild): Guild Object
+        """
+        jsonreader.remove(guild.id, 'prefix')
+
+    async def on_command_error(self, ctx, error):
+        #pylint: disable=arguments-differ
+        # the arguments dont actually differ, pylint is just dumb
+        """
+        Event signal called when a command errors out
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                error (Exception): Error that happened
+        """
+        if isinstance(error, commands.CommandNotFound):
+            if jsonreader.read_file(ctx.guild.id, 'errors'):
+                return await ctx.send(f"{ctx.author.mention}, command \'{ctx.invoked_with}\' not found!")
+
+    @tasks.loop(seconds=90)
+    async def update(self):
+        """
+        Updates the activity status of the bot
+        """
+        if self.updatestatus:
+            await self.wait_until_ready()
+            members = self.grab_members()
+            servers = self.grab_servers()
+            await self.change_presence(
+                activity=discord.Game(
+                    name=(config['default_activity']).format(members, servers)
+                    )
                 )
-            )
-        await asyncio.sleep(90)
 
-async def grab_members():
-    """
-    Grabs all the members and servers that the bot can see
+    @watch(path='commands', preload=True, debug=False)
+    async def on_ready(self):
+        """
+        Stuff to do when the discord.Bot finishes doing stuff
+        """
+        self.grab_members()
+        self.grab_servers()
+        print("Finished Booting Up")
+        print(f'Members: {self.members}')
+        print(f'Servers: {self.servers}')
+        print(f'Logged in as {self.user.name} - {self.user.id}')
 
-        Config:
-            show_users (bool): enables the bot to check
-
-        Returns:
-            members, servers (list): Members and servers the bot found
-    """
-    await bot.wait_until_ready()
-    if not config['show_users']:
-        return [0, 0] # Return a blank array so it doesnt error out
-
-    servers = len(bot.guilds)
-    members = 0
-    for _ in bot.get_all_members():
-        members += 1
-    return [members, servers]
-
-@bot.event
-async def on_guild_join(guild):
-    """
-    Event signal called when the bot is added to the guild
-
-        Parameters:
-            guild (discord.Guild): Guild Object
-    """
-    jsonreader.write_file(guild.id, 'prefix', DEFAULTPREFIX)
-
-@bot.event
-async def on_guild_remove(guild):
-    """
-    Event signal called when the bot is removed from the guild
-
-        Parameters:
-            guild (discord.Guild): Guild Object
-    """
-    jsonreader.remove(guild.id, 'prefix')
-
-@bot.event
-async def on_command_error(ctx, error):
-    """
-    Event signal called when a command errors out
-
-        Parameters:
-            ctx (commands.Context): Context Reference
-            error (Exception): Error that happened
-    """
-    if isinstance(error, commands.CommandNotFound):
-        if jsonreader.read_file(ctx.guild.id, 'errors'):
-            return await ctx.send(f"{ctx.author.mention}, command \'{ctx.invoked_with}\' not found!")
-
-# Finally, login the bot
-bot.loop.create_task(update())
+bot = Rednako()
 bot.run(config['token'], reconnect=True)
