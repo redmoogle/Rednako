@@ -152,6 +152,7 @@ class Music(commands.Cog):
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
             requester = player.fetch("requestee")
+            player.store("time", time.time())
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
@@ -251,7 +252,6 @@ class Music(commands.Cog):
         player.store("channel", ctx.channel.id)
         player.store("guild", ctx.guild.id)
         player.store("requestee", ctx.author.mention)
-        player.store("time", time.time())
 
         if player.is_playing:
             await ctx.send(embed=embed)
