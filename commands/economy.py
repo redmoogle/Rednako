@@ -10,39 +10,7 @@ import asyncio
 from discord.ext import commands
 
 # ../modules
-from modules import jsonreader
-from modules import helpers
-
-def parse_duration(duration: int):
-    """
-    Parse duration into DD:HH:MM:SS
-    """
-    minutes, seconds = divmod(duration, 60)
-    hours, minutes = divmod(minutes, 60)
-    days, hours = divmod(hours, 24)
-    duration = []
-    _ = "" # used for zfill
-    if days > 0:
-        duration.append(f'{round(days)}:')
-    if hours > 0:
-        _ = str(round(hours))
-        if days > 0:
-            _ = _.zfill(2)
-        _ += ":"
-        duration.append(_)
-    if minutes > 0:
-        _ = str(round(minutes))
-        if hours > 0:
-            _ = _.zfill(2)
-        _ += ":"
-        duration.append(_)
-    if seconds > 0:
-        _ = str(round(seconds))
-        if minutes > 0:
-            _ = _.zfill(2)
-        duration.append(_)
-
-    return ''.join(duration)
+from modules import helpers, jsonreader
 
 class Economy(commands.Cog):
     """
@@ -53,7 +21,7 @@ class Economy(commands.Cog):
 
     async def cog_command_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
-            await ctx.send(f'Hold on there fellow heister, the cops are still hot on you wait some time({parse_duration(int(error.retry_after))})')
+            await ctx.send(f'Hold on there fellow heister, the cops are still hot on you wait some time({helpers.parse_duration(int(error.retry_after))})')
 
     @commands.command(
         name='payday',

@@ -10,8 +10,7 @@ from discord.ext import commands, tasks
 import discord
 
 # ../modules
-from modules import sql
-from modules import jsonreader
+from modules import jsonreader, sql
 
 tables = [
     ['mutes', ['id', 'INTEGER', 'experation', 'TIME', 'guild', 'INTEGER', 'role', 'INTEGER']],
@@ -27,6 +26,7 @@ class Task(commands.Cog):
         self.bot = bot
         self.mute.start()
         self.storage.start()
+        self.check_guilds.start()
         for table in tables:
             sql.create_table(table=table[0], types=table[1], check_exist=True)
 
@@ -81,6 +81,23 @@ class Task(commands.Cog):
             if delta <= 70:
                 sql.add('mutes', row)
                 sql.remove('longmutes', ['id', row[0], 'guild', row[2]])
+
+    @tasks.loop(minutes=30)
+    async def check_guilds(self):
+        """
+        Make sure all guilds have their configs and trims the files
+        """
+        _guilds = []
+        for jsonfile in configs:
+            for guild in self.bot.guilds:
+                _guilds.append(str(guild.id))
+                if not jsonreader.read_file(guild.id, jsonfile[0]):
+                    jsonreader.write_file(guild.id, jsonfile[0], jsonfile[1])
+
+            raw = jsonreader.dump(jsonfile[0])
+            for key in raw.keys():
+                if not key in _guilds:
+                    jsonreader.remove(key, jsonfile[0])
 
 def setup(bot):
     """

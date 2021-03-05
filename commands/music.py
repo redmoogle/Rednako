@@ -23,8 +23,7 @@ from discord.ext import commands
 import lavalink
 
 # ../modules
-from modules import jsonreader
-from modules import helpers
+from modules import helpers, jsonreader
 
 def djconfig(ctx):
     """
@@ -46,37 +45,6 @@ def djconfig(ctx):
     if role in ctx.author.roles:
         return True
     return False
-
-def parse_duration(duration: int):
-    """
-    Parses seconds into DD:HH:MM:SS
-
-        Parameters:
-            duration (int): How long in seconds
-
-        Returns:
-            time (str): DD:HH:MM:SS gives a time as a str
-    """
-    minutes, seconds = divmod(duration, 60)
-    hours, minutes = divmod(minutes, 60)
-    days, hours = divmod(hours, 24)
-    duration = []
-    _ = "" # used for zfill
-    if days > 0:
-        duration.append(f'{round(days)}:')
-    if hours > 0:
-        _ = str(round(hours))
-        if days > 0:
-            _ = _.zfill(2)
-        _ += ":"
-        duration.append(_)
-    _ = (str(round(minutes))).zfill(2)
-    _ += ":"
-    duration.append(_)
-    _ = (str(round(seconds))).zfill(2)
-    duration.append(_)
-
-    return ''.join(duration)
 
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
@@ -187,7 +155,7 @@ class Music(commands.Cog):
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
-                ['Duration: ', f'{parse_duration(player.current.duration/1000)}'],
+                ['Duration: ', f'{helpers.parse_duration(player.current.duration/1000)}'],
                 ['By: ', f'{player.current.author}'],
                 ['Requested By: ', f'{requester}']
             ]
@@ -347,8 +315,8 @@ class Music(commands.Cog):
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         requester = player.fetch("requestee")
-        current = parse_duration(round(-(player.fetch("time")-time.time())))
-        duration = parse_duration(player.current.duration/1000)
+        current = helpers.parse_duration(round(-(player.fetch("time")-time.time())))
+        duration = helpers.parse_duration(player.current.duration/1000)
 
         if player.current:
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
@@ -398,7 +366,7 @@ class Music(commands.Cog):
             return await ctx.send('Theres nothing on that page')
 
         for index, track in enumerate(playerqueue[start:end], start=start):
-            queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri}) | {parse_duration(track.duration/1000)}\n'
+            queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri}) | {helpers.parse_duration(track.duration/1000)}\n'
 
         embed = discord.Embed(colour=discord.Color.blurple(),
                             description=f'**{len(playerqueue)} tracks**\n\n{queue_list}')

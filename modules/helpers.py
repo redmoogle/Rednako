@@ -73,3 +73,40 @@ def timeconv(time: str = None):
         if times[-1] == "w":
             timeseconds += int(times[:-1]) * 604800
     return timeseconds
+
+
+def parse_duration(duration):
+    """
+    Parses seconds into DD:HH:MM:SS
+
+        Parameters:
+            duration (int): How long in seconds
+
+        Returns:
+            time (str): DD:HH:MM:SS gives a time as a str
+    """
+    try:
+        duration = round(int(duration))
+    except ValueError:
+        return None # invalid format
+
+    minutes, seconds = divmod(duration, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+    duration = [] # var reuse
+    _ = "" # used for zfill
+    if days > 0:
+        duration.append(f'{round(days)}:')
+    if hours > 0:
+        _ = str(round(hours))
+        if days > 0:
+            _ = _.zfill(2)
+        _ += ":"
+        duration.append(_)
+    _ = (str(round(minutes))).zfill(2)
+    _ += ":"
+    duration.append(_)
+    _ = (str(round(seconds))).zfill(2)
+    duration.append(_)
+
+    return ''.join(duration)

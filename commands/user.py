@@ -14,8 +14,7 @@ import git
 import config
 
 # ../modules
-from modules import helpers
-from modules import jsonreader
+from modules import helpers, jsonreader
 
 config = config.Config('./config/bot.cfg')
 repo = git.Repo(search_parent_directories=True)
@@ -95,18 +94,18 @@ class User(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        botuser = ctx.bot                       # shortcut for bot. var/bot is taken
+        self.bot = ctx.bot                       # shortcut for bot. var/bot is taken
         sha = repo.head.object.hexsha           # Hash of commit that the local files are
-        totalservers = len(botuser.guilds)      # List of all guilds, is a list so can len() it
+        totalservers = len(self.bot.guilds)      # List of all guilds, is a list so can len() it
         link = config['invitelink']             # Link to invite bot
         githublink = config['github']           # Github link
 
         totalmembers = 0
-        for _ in botuser.get_all_members():
+        for _ in self.bot.get_all_members():
             totalmembers += 1
 
         info = [ # Makes adding easy and pretty
-                ['Bot Owner: ',         f'{botuser.get_user(botuser.owner_id)}'],
+                ['Bot Owner: ',         f'{self.bot.get_user(self.bot.owner_id)}'],
                 ['Global Servers: ',    f'{totalservers}'],
                 ['Global Members: ',    f'{totalmembers}'],
                 ['Invite: ',            f'[Invite Bot]({link})'],
@@ -116,7 +115,7 @@ class User(commands.Cog):
 
         embed=helpers.embed(
             title='Bot Statistics: ',
-            thumbnail=botuser.user.avatar_url,
+            thumbnail=self.bot.user.avatar_url,
             fields=info
         )
         await ctx.send(embed=embed)
