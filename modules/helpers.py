@@ -75,29 +75,38 @@ def timeconv(time: str = None):
     return timeseconds
 
 
-def parse_duration(duration):
+def parse_duration(duration, timefill = None):
     """
     Parses seconds into DD:HH:MM:SS
 
         Parameters:
             duration (int): How long in seconds
+            timefill (duration): duration to snap too (HH:MM:SS/HH:MM:SS)
 
         Returns:
             time (str): DD:HH:MM:SS gives a time as a str
     """
+
+    minutes, seconds = divmod(duration, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+
+    if timefill: # Allows for adding of blank HH/DD:
+        if hours > 0:
+            timefill = 2
+        if days > 0:
+            timefill = 3
+
     try:
         duration = round(int(duration))
     except ValueError:
         return None # invalid format
 
-    minutes, seconds = divmod(duration, 60)
-    hours, minutes = divmod(minutes, 60)
-    days, hours = divmod(hours, 24)
     duration = [] # var reuse
     _ = "" # used for zfill
-    if days > 0:
+    if days > 0 or timefill >= 3:
         duration.append(f'{round(days)}:')
-    if hours > 0:
+    if hours > 0 or timefill >= 2:
         _ = str(round(hours))
         if days > 0:
             _ = _.zfill(2)

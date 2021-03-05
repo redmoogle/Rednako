@@ -315,8 +315,8 @@ class Music(commands.Cog):
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         requester = player.fetch("requestee")
-        current = helpers.parse_duration(round(-(player.fetch("time")-time.time())))
         duration = helpers.parse_duration(player.current.duration/1000)
+        current = helpers.parse_duration(round(time.time() - player.fetch("time")), player.current.duration/1000)
 
         if player.current:
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
