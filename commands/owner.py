@@ -141,41 +141,6 @@ class Owner(commands.Cog):
         await subprocess.call(f'{path}/restart.sh')
         sys.exit()
 
-    @commands.command(
-        name='statuspeed',
-        brief='change the speed of the status'
-    )
-    @commands.is_owner()
-    async def statspeed(self, ctx, value: int):
-        """
-        Changes how fast the status refreshes
-
-            Parameters:
-                ctx (commands.Context): Context Reference
-                value (int): How fast to update
-        """
-        try:
-            self.bot.updatespeed(value)
-        except ValueError as error:
-            await ctx.send(error)
-        await ctx.send(f"Now updating the status every {value} seconds")
-
-    @commands.command(
-        name="status",
-        brief="change status of bot"
-    )
-    @commands.is_owner()
-    async def status(self, ctx, *, newstatus):
-        """
-        Sets the bot status
-
-            Parameters:
-                ctx (commands.Context): Context Reference
-                newstatus (str): Status to set it to
-        """
-        self.bot.status_str = newstatus
-        await ctx.send(f"Set the new status to: {f'{newstatus}'}")
-
 def setup(bot):
     """
     Setup the Owner Cog

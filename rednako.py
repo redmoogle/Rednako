@@ -34,8 +34,6 @@ class Rednako(commands.Bot):
     def __init__(self):
         # Does it update its status
         self.updatestatus = True
-        # How fast to update the status in seconds
-        self.updatespeed = 30
         # Time when the bot started
         self.starttime = time.time()
 
@@ -70,20 +68,6 @@ class Rednako(commands.Bot):
         # Task Section
         self.update.start()
         self.gen_uptime.start()
-
-    @property
-    def updatespeed(self):
-        """
-        How fast the bot updates
-        """
-        return self._updatespeed
-
-    @updatespeed.setter
-    def updatespeed(self, speed: int):
-        if speed <= 0:
-            raise ValueError("Cannot update slower than 1 second")
-        self._updatespeed = speed
-        self.update.change_interval(seconds=speed)
 
     def grab_servers(self):
         """
@@ -160,7 +144,7 @@ class Rednako(commands.Bot):
             if jsonreader.read_file(ctx.guild.id, 'errors'):
                 return await ctx.send(f"{ctx.author.mention}, command \'{ctx.invoked_with}\' not found!")
 
-    @tasks.loop(seconds=30)
+    @tasks.loop(seconds=5)
     async def update(self):
         """
         Updates the activity status of the bot
@@ -171,7 +155,7 @@ class Rednako(commands.Bot):
             servers = self.grab_servers()
             await self.change_presence(
                 activity=discord.Game(
-                    name=(self.status_str)
+                    name=(self.status_str.format(self.uptime_str))
                 )
             )
 
@@ -182,6 +166,7 @@ class Rednako(commands.Bot):
         Generates the uptime of the bot
         """
         self.uptime = time.time() - self.starttime
+        self.uptime = round(self.uptime)
 
         minutes, seconds = divmod(self.uptime, 60)
         hours, minutes = divmod(minutes, 60)
