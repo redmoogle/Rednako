@@ -47,9 +47,9 @@ class Rednako(commands.Bot):
         # Default Prefix
         self.prefix = '=='
         # Name of the bot
-        self.name = self.user.name
+        self.name = None
         # ID of the bot
-        self.idnum = self.user.id
+        self.idnum = None
         # Uptime of the bot
         self.uptime = 0
         # Stringified Version
@@ -206,6 +206,8 @@ class Rednako(commands.Bot):
         """
         Stuff to do when the discord.Bot finishes doing stuff
         """
+        self.name = self.user.name
+        self.idnum = self.user.id
         self.grab_members()
         self.grab_servers()
         print("Finished Booting Up")
