@@ -155,7 +155,7 @@ class Rednako(commands.Bot):
             servers = self.grab_servers()
             await self.change_presence(
                 activity=discord.Game(
-                    name=(self.status_str.format(self.uptime_str))
+                    name=(self.status_str.format(self.members, self.servers, self.uptime_str))
                 )
             )
 
