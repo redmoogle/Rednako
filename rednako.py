@@ -1,3 +1,4 @@
+#pylint: disable=unused-variable
 """
 Rednako Public Discord Bot
 Main Repository: https://github.com/redmoogle/Rednako
@@ -8,6 +9,9 @@ Also important note. If you change default_activity
 in the config make sure to update the .format in here
 
 """
+# Standard Python Modules
+from time import time
+
 # Discord Modules
 import discord
 from discord.ext import commands, tasks
@@ -22,16 +26,38 @@ from modules import jsonreader
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
-DEFAULTPREFIX = '=='
 
 class Rednako(commands.Bot):
     """
     Bot class for sharding later
     """
     def __init__(self):
-        self.members = 0
-        self.servers = 0
+        # Does it update its status
         self.updatestatus = True
+        # How fast to update the status in seconds
+        self.updatespeed = 30
+        # Time when the bot started
+        self.starttime = time.time()
+
+        # Data you can use for stuff
+        # How many members can the bot see
+        self.members = 0
+        # How many servers can the bot see
+        self.servers = 0
+        # Default Prefix
+        self.prefix = '=='
+        # Name of the bot
+        self.name = self.user.name
+        # ID of the bot
+        self.idnum = self.user.id
+        # Uptime of the bot
+        self.uptime = 0
+        # Stringified Version
+        self.uptime_str = ""
+        # Status string
+        self.status_str = f'{config["default_activity"]}'
+
+        # Parameters for bot
         super().__init__(
             command_prefix=self.get_prefix,         # Set the prefix
             description='Rednako Public Bot',       # Set a description for the bot
@@ -40,7 +66,24 @@ class Rednako(commands.Bot):
             intents=discord.Intents.all(),          # Entirely Optional
             help_command=PrettyHelp()               # Default help command
         )
+
+        # Task Section
         self.update.start()
+        self.gen_uptime.start()
+
+    @property
+    def updatespeed(self):
+        """
+        How fast the bot updates
+        """
+        return self._updatespeed
+
+    @updatespeed.setter
+    def updatespeed(self, speed: int):
+        if speed <= 0:
+            raise ValueError("Cannot update slower than 1 second")
+        self._updatespeed = speed
+        self.update.change_interval(seconds=speed)
 
     def grab_servers(self):
         """
@@ -78,7 +121,7 @@ class Rednako(commands.Bot):
                 Prefix (str): Prefix for that guild
         """
         if not ctx.guild:
-            return commands.when_mentioned_or(DEFAULTPREFIX)(self, ctx)
+            return commands.when_mentioned_or(self.prefix)(self, ctx)
 
         if not jsonreader.check_exist('prefix'): # File will be created shortly
             return commands.when_mentioned
@@ -92,7 +135,7 @@ class Rednako(commands.Bot):
             Parameters:
                 guild (discord.Guild): Guild Object
         """
-        jsonreader.write_file(guild.id, 'prefix', DEFAULTPREFIX)
+        jsonreader.write_file(guild.id, 'prefix', self.prefix)
 
     async def on_guild_remove(self, guild):
         """
@@ -117,7 +160,7 @@ class Rednako(commands.Bot):
             if jsonreader.read_file(ctx.guild.id, 'errors'):
                 return await ctx.send(f"{ctx.author.mention}, command \'{ctx.invoked_with}\' not found!")
 
-    @tasks.loop(seconds=90)
+    @tasks.loop(seconds=30)
     async def update(self):
         """
         Updates the activity status of the bot
@@ -128,9 +171,35 @@ class Rednako(commands.Bot):
             servers = self.grab_servers()
             await self.change_presence(
                 activity=discord.Game(
-                    name=(config['default_activity']).format(members, servers)
-                    )
+                    name=(self.status_str)
                 )
+            )
+
+    @tasks.loop(seconds=5)
+    async def gen_uptime(self):
+        #pylint: disable=multiple-statements
+        """
+        Generates the uptime of the bot
+        """
+        self.uptime = time.time() - self.starttime
+
+        minutes, seconds = divmod(self.uptime, 60)
+        hours, minutes = divmod(minutes, 60)
+        days, hours = divmod(hours, 24)
+        months, days = divmod(days, 30) # close enough (it's really 30.416--)
+        years, months = divmod(months, 365)
+
+        _ = ''
+
+        if years: _ += f'{years}Y'
+        if months: _ += f'{months}M'
+        if days: _ += f'{days}D'
+        if hours: _ += f'{hours}H'
+        if minutes: _ += f'{minutes}M'
+        if seconds: _ += f'{seconds}S'
+        self.uptime_str = _
+
+        return self.uptime
 
     @watch(path='commands', preload=True, debug=False)
     async def on_ready(self):
