@@ -10,7 +10,7 @@ in the config make sure to update the .format in here
 
 """
 # Standard Python Modules
-from time import time
+import time
 
 # Discord Modules
 import discord
