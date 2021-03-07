@@ -161,7 +161,7 @@ class Rednako(commands.Bot):
             servers = self.grab_servers()
             await self.change_presence(
                 activity=discord.CustomActivity(
-                    name=(self.status_str.format(self=self))
+                    name=self.status_str.format(self=self)
                 )
             )
 
