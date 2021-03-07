@@ -22,7 +22,7 @@ from cogwatch import watch
 import config
 
 # ./modules
-from modules import jsonreader
+from modules import jsonreader, helpers
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
@@ -33,11 +33,6 @@ class Rednako(commands.Bot):
     Bot class for sharding later
     """
     def __init__(self):
-        # Does it update its status
-        self.updatestatus = True
-        # Time when the bot started
-        self.starttime = time.time()
-
         # Data you can use for stuff
         # How many members can the bot see
         self.members = 0
@@ -53,9 +48,17 @@ class Rednako(commands.Bot):
         self.uptime = 0
         # Stringified Version
         self.uptime_str = ""
-        # Status string
-        self.status_str = f'{config["default_activity"]}'
 
+        # Inheritance Seperator
+        # Do not put settings below this unless you dont want them to show up on vars commands
+        self.vars = set(vars(self))
+
+        # Does it update its status
+        self.updatestatus = True
+        # Time when the bot started
+        self.starttime = time.time()
+        # Current Status
+        self.status_str = f'{config["default_activity"]}'
         # Parameters for bot
         super().__init__(
             command_prefix=self.get_prefix,         # Set the prefix
@@ -144,6 +147,7 @@ class Rednako(commands.Bot):
         if isinstance(error, commands.CommandNotFound):
             if jsonreader.read_file(ctx.guild.id, 'errors'):
                 return await ctx.send(f"{ctx.author.mention}, command \'{ctx.invoked_with}\' not found!")
+            return
         await ctx.send(error)
 
     @tasks.loop(seconds=5)
@@ -163,29 +167,11 @@ class Rednako(commands.Bot):
 
     @tasks.loop(seconds=1)
     async def gen_uptime(self):
-        #pylint: disable=multiple-statements
         """
         Generates the uptime of the bot
         """
-        self.uptime = time.time() - self.starttime
-        self.uptime = round(self.uptime)
-
-        minutes, seconds = divmod(self.uptime, 60)
-        hours, minutes = divmod(minutes, 60)
-        days, hours = divmod(hours, 24)
-        months, days = divmod(days, 30) # close enough (it's really 30.416--)
-        years, months = divmod(months, 365)
-
-        _ = ''
-
-        if years: _ += f'{years}Y'
-        if months: _ += f'{months}M'
-        if days: _ += f'{days}D'
-        if hours: _ += f'{hours}H'
-        if minutes: _ += f'{minutes}M'
-        if seconds: _ += f'{seconds}S'
-        self.uptime_str = _
-
+        self.uptime = round(time.time() - self.starttime)
+        self.uptime_str = helpers.parse_duration(self.uptime)[0]
         return self.uptime
 
     @watch(path='commands', preload=True, debug=False)

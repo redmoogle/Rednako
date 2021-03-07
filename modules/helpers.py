@@ -95,22 +95,25 @@ def parse_duration(duration, timefill: int = 0):
     minutes, seconds = divmod(duration, 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
-
-
-    minutes, seconds = divmod(duration, 60)
-    hours, minutes = divmod(minutes, 60)
-    days, hours = divmod(hours, 24)
+    months, days = divmod(days, 30)
+    years, months = divmod(months, 365)
 
     duration = [] # var reuse
     _ = "" # used for zfill
     fill = 0
-    if days > 0 or timefill >= 3:
+    if years or timefill >= 5:
+        duration.append(f'{round(years)}:')
+        fill += 1
+    if months or timefill >= 4:
+        duration.append(f'{round(months)}:')
+        fill += 1
+    if days or timefill >= 3:
         duration.append(f'{round(days)}:')
         fill += 1
-    if hours > 0 or timefill >= 1:
+    if hours or timefill >= 1:
         _ = str(round(hours))
         fill += 1
-        if days > 0 or timefill >= 2 or hours >= 10:
+        if days or timefill >= 2 or hours >= 10:
             _ = _.zfill(2)
             fill += 1
         _ += ":"

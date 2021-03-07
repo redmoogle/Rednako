@@ -175,6 +175,24 @@ class Owner(commands.Cog):
         self.bot.update.restart()
         await ctx.send(f"Now updating the status every {value} seconds")
 
+    @commands.command(
+        name='vars',
+        brief='Show useable vars'
+    )
+    @commands.is_owner()
+    async def var(self, ctx):
+        """
+        Shows the local variables of the bot (aka super vars excluded)
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+        """
+        info = []
+        for key in self.bot.vars:
+            info.append([f'self.{key}: ', self.bot.__dict__[key]])
+        embed = helpers.embed(title='Useable Vars', fields=info)
+        await ctx.send(embed=embed)
+
 def setup(bot):
     """
     Setup the Owner Cog
