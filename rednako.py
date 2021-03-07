@@ -11,6 +11,7 @@ in the config make sure to update the .format in here
 """
 # Standard Python Modules
 import time
+import logging
 
 # Discord Modules
 import discord
@@ -160,9 +161,7 @@ class Rednako(commands.Bot):
             members = self.grab_members()
             servers = self.grab_servers()
             await self.change_presence(
-                activity=discord.CustomActivity(
-                    name=self.status_str.format(self=self)
-                )
+                activity=discord.Activity(name=self.status_str.format(self=self), type=2)
             )
 
     @tasks.loop(seconds=1)
