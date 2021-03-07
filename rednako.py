@@ -160,7 +160,7 @@ class Rednako(commands.Bot):
             members = self.grab_members()
             servers = self.grab_servers()
             await self.change_presence(
-                activity=discord.Game(
+                activity=discord.CustomActivity(
                     name=(self.status_str.format(self=self))
                 )
             )
