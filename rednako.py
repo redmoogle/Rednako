@@ -11,7 +11,6 @@ in the config make sure to update the .format in here
 """
 # Standard Python Modules
 import time
-import logging
 
 # Discord Modules
 import discord
