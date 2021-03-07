@@ -28,6 +28,7 @@ from modules import jsonreader
 config = config.Config('./config/bot.cfg')
 
 class Rednako(commands.Bot):
+    #pylint: disable=too-many-instance-attributes
     """
     Bot class for sharding later
     """
