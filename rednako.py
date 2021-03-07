@@ -143,6 +143,7 @@ class Rednako(commands.Bot):
         if isinstance(error, commands.CommandNotFound):
             if jsonreader.read_file(ctx.guild.id, 'errors'):
                 return await ctx.send(f"{ctx.author.mention}, command \'{ctx.invoked_with}\' not found!")
+        await ctx.send(error)
 
     @tasks.loop(seconds=5)
     async def update(self):
@@ -155,11 +156,11 @@ class Rednako(commands.Bot):
             servers = self.grab_servers()
             await self.change_presence(
                 activity=discord.Game(
-                    name=(self.status_str.format(self.members, self.servers, self.uptime_str))
+                    name=(self.status_str.format(self=self))
                 )
             )
 
-    @tasks.loop(seconds=5)
+    @tasks.loop(seconds=1)
     async def gen_uptime(self):
         #pylint: disable=multiple-statements
         """
