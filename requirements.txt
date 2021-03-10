@@ -6,7 +6,7 @@ GitPython == 3.1.14
 
 #~\Rednako\rednako.py: 19
 cogwatch == 2.1.0
-discord-pretty-help == 1.1.2
+discord-pretty-help == 1.2.2
 
 #~\Rednako\commands\user.py: 14
 #~\Rednako\rednako.py: 22
