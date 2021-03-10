@@ -2,7 +2,7 @@
 
 #~\Rednako\commands\owner.py: 10
 #~\Rednako\commands\user.py: 11
-GitPython == 3.1.11
+GitPython == 3.1.14
 
 #~\Rednako\rednako.py: 19
 cogwatch == 2.1.0
