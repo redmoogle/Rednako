@@ -22,7 +22,7 @@ config == 0.5.0.post0
 #~\Rednako\commands\user.py: 6,7
 #~\Rednako\modules\helpers.py: 5
 #~\Rednako\rednako.py: 16,17
-discord.py == 1.5.1
+discord.py == 1.6.0
 
 #~\Rednako\commands\user.py: 8
 discord_text_sanitizer == 0.0.10
