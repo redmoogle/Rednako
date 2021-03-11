@@ -153,14 +153,13 @@ class Music(commands.Cog):
             player = event.player
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
-            requester = player.fetch("requestee")
             player.store("time", time.time())
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
                 ['Duration: ', f'{helpers.parse_duration(player.current.duration/1000)[0]}'],
                 ['By: ', f'{player.current.author}'],
-                ['Requested By: ', f'{requester}']
+                ['Requested By: ', f'{player.current.requester}']
             ]
             embed=helpers.embed(
                 title='Now Playing: ',
@@ -253,7 +252,6 @@ class Music(commands.Cog):
 
         player.store("channel", ctx.channel.id)
         player.store("guild", ctx.guild.id)
-        player.store("requestee", ctx.author.mention)
 
         if player.is_playing:
             await ctx.send(embed=embed)
@@ -316,7 +314,6 @@ class Music(commands.Cog):
                 ctx (commands.Context): Context Reference
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
-        requester = player.fetch("requestee")
         duration, fill = helpers.parse_duration(player.current.duration/1000)
         current = helpers.parse_duration(round(time.time() - player.fetch("time")), fill)[0]
 
@@ -326,7 +323,7 @@ class Music(commands.Cog):
                     ['Song: ', f'[{player.current.title}]({player.current.uri})'],
                     ['Duration: ', f'{current}/{duration}'],
                     ['By: ', f'{player.current.author}'],
-                    ['Requested By: ', f'{requester}']
+                    ['Requested By: ', f'{player.current.requester}']
                 ]
             embed=helpers.embed(
                 title='Now Playing: ',
@@ -380,13 +377,13 @@ class Music(commands.Cog):
         brief='*Thump* *Thump* *Thump*'
     )
     @commands.check(djconfig)
-    async def bass(self, ctx, gain: int = 0):
+    async def bass(self, ctx, gain: float = 0):
         """
         Increases the first five bands (0-4) by an unknown amount
 
             Parameters:
                 ctx (commands.Context): Context Reference
-                gain (int): How much to increase the bands
+                gain (float): How much to increase the bands
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
@@ -405,13 +402,13 @@ class Music(commands.Cog):
         brief='Increase Volume through the EQ'
     )
     @commands.check(djconfig)
-    async def mids(self, ctx, gain: int = 0):
+    async def mids(self, ctx, gain: float = 0):
         """
         Increases the middle five bands (5-9) by an unknown amount
 
             Parameters:
                 ctx (commands.Context): Context Reference
-                gain (int): How much to increase the bands
+                gain (float): How much to increase the bands
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
@@ -430,13 +427,13 @@ class Music(commands.Cog):
         brief='Earrape someone'
     )
     @commands.check(djconfig)
-    async def treble(self, ctx, gain: int = 0):
+    async def treble(self, ctx, gain: float = 0):
         """
         Increases the last five bands (10-14) by an unknown amount
 
             Parameters:
                 ctx (commands.Context): Context Reference
-                gain (int): How much to increase the bands
+                gain (float): How much to increase the bands
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
