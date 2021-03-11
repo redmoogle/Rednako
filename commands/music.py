@@ -109,7 +109,7 @@ class Music(commands.Cog):
         # Should_connect is used for commands that start playback ~~aka 1 command~~
         should_connect = ctx.command.name in ('play', 'p')
         # This is to ignore commands that shouldnt require people in the same VC
-        ignored = ctx.command.name in ('queue', 'np', 'current')
+        ignored = ctx.command.name in ('queue', 'np', 'current', 'reset')
 
         # Make sure they're in a voice-chat
         if not ctx.author.voice or not ctx.author.voice.channel:
@@ -385,7 +385,6 @@ class Music(commands.Cog):
                 ctx (commands.Context): Context Reference
                 gain (float): How much to increase the bands
         """
-        gain /= 1000
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
@@ -394,7 +393,7 @@ class Music(commands.Cog):
         gain = max(min(1, gain), -0.25)
         await player.set_gains((0, gain*.75),(1, gain*.75),(2, gain*.75),(3, gain),(4, gain*.75))
         if gain:
-            await ctx.send(f'Bass set to {(10*gain)+100}%')
+            await ctx.send(f'Bass set to {(gain+1)*100}%')
         else:
             await ctx.send('Bass set to 100%')
 
@@ -411,7 +410,6 @@ class Music(commands.Cog):
                 ctx (commands.Context): Context Reference
                 gain (float): How much to increase the bands
         """
-        gain /= 1000
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
@@ -420,7 +418,7 @@ class Music(commands.Cog):
         gain = max(min(1, gain), -0.25)
         await player.set_gains((5, gain*.75),(6, gain*.75),(7, gain*.75),(8, gain),(9, gain*.75))
         if gain:
-            await ctx.send(f'Mids set to {(10*gain)+100}%')
+            await ctx.send(f'Mids set to {(gain+1)*100}%')
         else:
             await ctx.send('Mids set to 100%')
 
@@ -437,7 +435,6 @@ class Music(commands.Cog):
                 ctx (commands.Context): Context Reference
                 gain (float): How much to increase the bands
         """
-        gain /= 1000
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
@@ -446,7 +443,7 @@ class Music(commands.Cog):
         gain = max(-0.25, min(1, gain))
         await player.set_gains((10, gain*.75),(11, gain*.75),(12, gain*.75),(13, gain),(14, gain*.75))
         if gain:
-            await ctx.send(f'Treble set to {(10*gain)+100}%')
+            await ctx.send(f'Treble set to {(gain+1)*100}%')
         else:
             await ctx.send('Treble set to 100%')
 
