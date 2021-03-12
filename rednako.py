@@ -194,7 +194,7 @@ class Rednako(commands.Bot):
 bot = Rednako()
 
 TOKEN = config['token']
-arguments[1] = getopt.getopt(sys.argv, OPTIONS, LONG_OPTIONS)
+arguments = getopt.getopt(sys.argv, OPTIONS, LONG_OPTIONS)[1]
 
 for index, arg in enumerate(arguments):
     if '--token' in arg:
