@@ -10,7 +10,9 @@ in the config make sure to update the .format in here
 
 """
 # Standard Python Modules
+import sys
 import time
+import getopt
 
 # Discord Modules
 import discord
@@ -26,6 +28,9 @@ from modules import jsonreader, helpers
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
+
+OPTIONS = "t:"
+LONG_OPTIONS = ["token"]
 
 class Rednako(commands.Bot):
     #pylint: disable=too-many-instance-attributes
@@ -187,4 +192,12 @@ class Rednako(commands.Bot):
         print(f'Logged in as {self.user.name} - {self.user.id}')
 
 bot = Rednako()
-bot.run(config['token'], reconnect=True)
+
+TOKEN = config['token']
+arguments[1] = getopt.getopt(sys.argv, OPTIONS, LONG_OPTIONS)
+
+for index, arg in enumerate(arguments):
+    if '--token' in arg:
+        TOKEN = arguments[index+1]
+
+bot.run(TOKEN, reconnect=True)
