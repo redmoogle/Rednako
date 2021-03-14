@@ -23,6 +23,7 @@ import config
 
 # ./modules
 from modules import jsonreader, helpers
+from modules import manager
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
@@ -185,6 +186,7 @@ class Rednako(commands.Bot):
         print(f'Members: {self.members}')
         print(f'Servers: {self.servers}')
         print(f'Logged in as {self.user.name} - {self.user.id}')
+        manager.opendash(self)
 
 bot = Rednako()
 bot.run(config['token'], reconnect=True)
