@@ -6,4 +6,4 @@ def opendash(init_bot):
     """
     Opens the webserver
     """
-    app.startApp(init_bot)
+    app.start_ws(init_bot)
