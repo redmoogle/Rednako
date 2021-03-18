@@ -11,6 +11,7 @@ in the config make sure to update the .format in here
 """
 # Standard Python Modules
 import time
+import random
 
 # Discord Modules
 import discord
@@ -133,6 +134,31 @@ class Rednako(commands.Bot):
                 guild (discord.Guild): Guild Object
         """
         jsonreader.remove(guild.id, 'prefix')
+
+    async def on_message(self, ctx):
+        #pylint: disable=arguments-differ
+        await self.process_commands(ctx)
+        data = jsonreader.read_file(ctx.guild.id, 'xp')
+        if data['enabled']:
+            try:
+                idxp = data[str(ctx.author.id)]
+                exp = idxp['xp']     # current xp
+                goal = idxp['goal'] # xp needed to reach new level
+                last_used = idxp['last_used'] # Last invocation
+                if time.time() < last_used + 300:
+                    return
+                exp += random.randint(1, 10)
+                idxp['xp'] = exp
+                if exp >= goal:
+                    idxp['level'] += 1
+                    idxp['goal'] = 20 + idxp['level']*25 # gotta have challenge
+                    idxp['last_used'] = time.time()
+                    await ctx.send(f"Congradulations, {ctx.author.mention}! you have reached level {idxp['level']}")
+
+                data[str(ctx.author.id)] = idxp
+            except KeyError:
+                data[str(ctx.author.id)] = {'xp': 0, 'goal': 20, 'level': 0, 'last_used': time.time()}
+            jsonreader.write_file(ctx.guild.id, 'xp', data)
 
     async def on_command_error(self, ctx, error):
         #pylint: disable=arguments-differ

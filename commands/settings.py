@@ -69,6 +69,25 @@ class Config(commands.Cog):
             return await ctx.send("Disabling showing of command not found")
         return await ctx.send("Enabling showing of command not found")
 
+    @commands.command(
+        name='enablexp',
+        brief='en/dis-able XP system'
+    )
+    @commands.has_permissions(administrator=True)
+    async def xpenable(self, ctx):
+        """
+        enables or disables that guilds xp system
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+        """
+        toggle = jsonreader.read_file(ctx.guild.id, 'xp')
+        toggle['enabled'] = not toggle['enabled']
+        jsonreader.write_file(ctx.guild.id, 'xp', toggle)
+        if toggle['enabled']:
+            return await ctx.send("Enabling EXP tracking")
+        return await ctx.send("Disabling EXP tracking")
+
 def setup(bot):
     """
     Add Config Cog

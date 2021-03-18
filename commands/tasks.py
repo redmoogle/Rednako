@@ -15,8 +15,15 @@ from modules import jsonreader, sql
 tables = [
     ['mutes', ['id', 'INTEGER', 'experation', 'TIME', 'guild', 'INTEGER', 'role', 'INTEGER']],
     ['longmutes', ['id', 'INTEGER', 'experation', 'TIME', 'guild', 'INTEGER', 'role', 'INTEGER']]
+    #['xp', ['id', 'INTEGER', 'guild', 'INTEGER', 'last_ran', 'TIME']]
 ]
-configs = [["djmode", None], ["prefix", "=="], ["economy", {}], ['errors', True]]
+configs = [
+    ["djmode", None],
+    ["prefix", "=="],
+    ["economy", {}],
+    ['errors', True],
+    ['xp', {'enabled': False}]
+]
 
 class Task(commands.Cog):
     """
