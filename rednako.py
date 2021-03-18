@@ -137,6 +137,8 @@ class Rednako(commands.Bot):
 
     async def on_message(self, ctx):
         #pylint: disable=arguments-differ
+        if self.user.id == ctx.author.id:
+            return
         await self.process_commands(ctx)
         data = jsonreader.read_file(ctx.guild.id, 'xp')
         if data['enabled']:
