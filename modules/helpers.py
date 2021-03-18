@@ -74,7 +74,6 @@ def timeconv(time: str = None):
             timeseconds += int(times[:-1]) * 604800
     return timeseconds
 
-
 def parse_duration(duration, timefill: int = 0):
     """
     Parses seconds into DD:HH:MM:SS
@@ -124,3 +123,22 @@ def parse_duration(duration, timefill: int = 0):
     _ = (str(round(seconds))).zfill(2)
     duration.append(_)
     return ''.join(duration), fill
+
+def dividelist(inp, divisor, offset=0):
+    """
+    Slices a list while keeping the index stable
+
+        Parameters:
+            inp (list): list to slice
+            divisor (int): What to divide(modulo) by
+            offset (int): Offset of the index
+
+        Returns:
+            Sliced List (list): the list but sliced
+    """
+    indexoffset = 1
+    for index in range(1, len(inp)+1):
+        if (index+offset)%divisor == 0:
+            inp.pop(index-indexoffset)
+            indexoffset += 1
+    return inp
