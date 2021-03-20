@@ -137,27 +137,22 @@ class Rednako(commands.Bot):
 
     async def on_message(self, ctx):
         #pylint: disable=arguments-differ
-        if self.user.id == ctx.author.id:
+        if self.user.id == ctx.author.id: # Bad idea to not make the bot ignore itself
             return
-        await self.process_commands(ctx)
-        data = jsonreader.read_file(ctx.guild.id, 'xp')
-        if data['enabled']:
-            try:
-                idxp = data[str(ctx.author.id)]
-                exp = idxp['xp']     # current xp
-                goal = idxp['goal'] # xp needed to reach new level
-                last_used = idxp['last_used'] # Last invocation
-                if time.time() < last_used + 300:
+        await self.process_commands(ctx) # otherwise it wont respond
+        data = jsonreader.read_file(ctx.guild.id, 'xp') # Get xp data for the guild
+        if data['enabled']: # this is off by default because other funny exp bots
+            try: # we dont make the data until it is needed. bad idea? Maybe.
+                idxp = data[str(ctx.author.id)] # Authors EXP Data {xp, goal, level, last_used}
+                if time.time() < idxp['last_used'] + 300: # Five minute wait period
                     return
-                exp += random.randint(1, 10)
-                idxp['xp'] = exp
-                if exp >= goal:
-                    idxp['level'] += 1
+                idxp['xp'] += random.randint(1, 10) # Rng for extra funnys
+                idxp['last_used'] = time.time() # Reset clock
+                if idxp['xp'] >= idxp['goal']:
+                    idxp['level'] += 1 # Increment level
                     idxp['goal'] = 20 + idxp['level']*25 # gotta have challenge
-                    idxp['last_used'] = time.time()
-                    await ctx.send(f"Congradulations, {ctx.author.mention}! you have reached level {idxp['level']}")
-
-                data[str(ctx.author.id)] = idxp
+                    await ctx.reply(f"Congratulations, {ctx.author.mention}! you have reached level {idxp['level']}")
+                data[str(ctx.author.id)] = idxp # Rewrite modified data
             except KeyError:
                 data[str(ctx.author.id)] = {'xp': 0, 'goal': 20, 'level': 0, 'last_used': time.time()}
             jsonreader.write_file(ctx.guild.id, 'xp', data)
