@@ -6,4 +6,3 @@ Probably allows for `from modules import helpers` or something like that
 
 from .helpers import *
 from .jsonreader import *
-from .sql import *
