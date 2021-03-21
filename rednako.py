@@ -73,6 +73,16 @@ class Rednako(commands.Bot):
         # Task Section
         self.update.start()
         self.gen_uptime.start()
+        self.configs = [
+            ['xp', {'enabled': False}],
+            ['muted', {}],
+            ["economy", {}],
+            ['settings', {
+                'errors': False,
+                'djmode': None,
+                'prefix': '='
+            }]
+        ]
 
     def grab_servers(self):
         """
@@ -91,10 +101,7 @@ class Rednako(commands.Bot):
             Returns:
                 members (int): Members the bot found
         """
-        _members = 0
-        for _ in self.get_all_members():
-            _members += 1
-        self.members = _members
+        self.members = len(list(self.get_all_members()))
         return self.members
 
     async def get_prefix(self, ctx):
@@ -112,10 +119,10 @@ class Rednako(commands.Bot):
         if not ctx.guild:
             return commands.when_mentioned_or(self.prefix)(self, ctx)
 
-        if not jsonreader.check_exist('prefix'): # File will be created shortly
+        if not jsonreader.check_exist('settings'): # File will be created shortly
             return commands.when_mentioned
 
-        return jsonreader.read_file(ctx.guild.id, 'prefix') # Guild Specific Preset
+        return jsonreader.read_file(ctx.guild.id, 'settings')['prefix'] # Guild Specific Preset
 
     async def on_guild_join(self, guild):
         """
@@ -124,7 +131,9 @@ class Rednako(commands.Bot):
             Parameters:
                 guild (discord.Guild): Guild Object
         """
-        jsonreader.write_file(guild.id, 'prefix', self.prefix)
+        for jsonfile in self.configs:
+            if not jsonreader.read_file(guild.id, jsonfile[0]):
+                jsonreader.write_file(guild.id, jsonfile[0], jsonfile[1])
 
     async def on_guild_remove(self, guild):
         """
@@ -133,7 +142,8 @@ class Rednako(commands.Bot):
             Parameters:
                 guild (discord.Guild): Guild Object
         """
-        jsonreader.remove(guild.id, 'prefix')
+        for jsonfile in self.configs:
+            jsonreader.remove(guild.id, jsonfile[0])
 
     async def on_message(self, ctx):
         #pylint: disable=arguments-differ
@@ -168,7 +178,7 @@ class Rednako(commands.Bot):
                 error (Exception): Error that happened
         """
         if isinstance(error, commands.CommandNotFound):
-            if jsonreader.read_file(ctx.guild.id, 'errors'):
+            if jsonreader.read_file(ctx.guild.id, 'settings')['errors']:
                 return await ctx.send(f"{ctx.author.mention}, command \'{ctx.invoked_with}\' not found!")
             return
         await ctx.send(error)
@@ -202,7 +212,6 @@ class Rednako(commands.Bot):
         """
         self.name = self.user.name
         self.idnum = self.user.id
-        self.grab_members()
         self.grab_servers()
         print("Finished Booting Up")
         print(f'Members: {self.members}')

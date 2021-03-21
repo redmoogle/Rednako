@@ -3,27 +3,14 @@ Handles automated tasks
 """
 
 # Standard Python Modules
-from datetime import datetime
+import time
 
 # Discord Modules
 from discord.ext import commands, tasks
 import discord
 
 # ../modules
-from modules import jsonreader, sql
-
-tables = [
-    ['mutes', ['id', 'INTEGER', 'experation', 'TIME', 'guild', 'INTEGER', 'role', 'INTEGER']],
-    ['longmutes', ['id', 'INTEGER', 'experation', 'TIME', 'guild', 'INTEGER', 'role', 'INTEGER']]
-    #['xp', ['id', 'INTEGER', 'guild', 'INTEGER', 'last_ran', 'TIME']]
-]
-configs = [
-    ["djmode", None],
-    ["prefix", "=="],
-    ["economy", {}],
-    ['errors', True],
-    ['xp', {'enabled': False}]
-]
+from modules import jsonreader
 
 class Task(commands.Cog):
     """
@@ -32,12 +19,8 @@ class Task(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.mute.start()
-        self.storage.start()
         self.check_guilds.start()
-        for table in tables:
-            sql.create_table(table=table[0], types=table[1], check_exist=True)
-
-        for config in configs:
+        for config in self.bot.configs:
             jsonreader.create_file(bot, config[0], config[1])
 
     async def cog_before_invoke(self, ctx):
@@ -50,44 +33,27 @@ class Task(commands.Cog):
     @tasks.loop(seconds=5)
     async def mute(self):
         """
-        Fast Iterating Database, removes mutes if under 0 seconds till experation
+        Fast Iterating JSON, removes mutes if under 0 seconds till experation
 
             Parameters:
                 None
         """
-        for data in sql.select('mutes'):
-            time = data[1]
-            guild = self.bot.get_guild(int(data[2]))
-            role = guild.get_role(data[3])
-            member = guild.get_member(data[0])
-            delta = (datetime.strptime(time, '%Y-%m-%d %H:%M:%S') - datetime.now()).total_seconds()
-            if delta <= 0:
-                sql.remove('mutes', ['id', int(member.id), 'guild', int(guild.id)])
-                embed = discord.Embed(title=f'You have been unmuted from: `{guild.name}`')
-                await member.send(embed=embed)
-                await member.remove_roles(role)
-
-    @tasks.loop(minutes=1)
-    async def storage(self):
-        """
-        Slow iterating database to speed up the faster looping database
-
-            Parameters:
-                None
-        """
-        for row in sql.select('mutes'): # Move from active to storage
-            time = row[1]
-            delta = (datetime.strptime(time, '%Y-%m-%d %H:%M:%S') - datetime.now()).total_seconds()
-            if delta > 70: # Small buffer
-                sql.add('longmutes', row)
-                sql.remove('mutes', ['id', row[0], 'guild', row[2]])
-
-        for row in sql.select('longmutes'): # Move from storage to active
-            time = row[1]
-            delta = (datetime.strptime(time, '%Y-%m-%d %H:%M:%S') - datetime.now()).total_seconds()
-            if delta <= 70:
-                sql.add('mutes', row)
-                sql.remove('longmutes', ['id', row[0], 'guild', row[2]])
+        for guild in self.bot.guilds:
+            data = jsonreader.read_file(guild.id, 'muted')
+            for key in data:
+                mutedata = data[key]
+                if mutedata['expiration'] > time.time(): # this is probably marginally more efficent
+                    continue
+                member = key
+                await member.remove_roles(
+                    self.bot.get_guild(
+                        guild.get_role(mutedata['role'])
+                    )
+                )
+                await member.send(embed=discord.Embed(
+                    title=f'You have been unmuted from: `{guild.name}`'
+                    )
+                )
 
     @tasks.loop(minutes=30)
     async def check_guilds(self):
@@ -95,14 +61,23 @@ class Task(commands.Cog):
         Make sure all guilds have their configs and trims the files
         """
         _guilds = []
-        for jsonfile in configs:
+        for jsonfile in self.bot.configs:
             for guild in self.bot.guilds:
                 _guilds.append(str(guild.id))
                 if not jsonreader.read_file(guild.id, jsonfile[0]):
                     jsonreader.write_file(guild.id, jsonfile[0], jsonfile[1])
 
+                if isinstance(jsonfile[1], dict):
+                    test = jsonreader.read_file(guild.id, jsonfile[0])
+                    for setting in jsonfile[1]:
+                        try:
+                            _ = test[setting]
+                        except KeyError:
+                            test[setting] = jsonfile[1][setting]
+                    jsonreader.write_file(guild.id, jsonfile[0], test)
+
             raw = jsonreader.dump(jsonfile[0])
-            for key in raw.keys():
+            for key in raw:
                 if not key in _guilds:
                     jsonreader.remove(key, jsonfile[0])
 

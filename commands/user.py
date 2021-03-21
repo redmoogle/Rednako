@@ -67,7 +67,7 @@ class User(commands.Cog):
         roles = len(guild.roles)                    # all roles
         members = len(guild.members)                # all members
 
-        prefix = jsonreader.read_file(ctx.guild.id, 'prefix')
+        prefix = jsonreader.read_file(ctx.guild.id, 'settings')['prefix']
 
         info = [ # Makes adding easy and pretty
             ['Server Owner: ',      f'{guild.owner.name}#{guild.owner.discriminator}'],

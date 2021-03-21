@@ -4,35 +4,14 @@ Various admin commands
 
 # Standard Python Modules
 import random
-import datetime
+import time
 
 # Discord Modules
 import discord
 from discord.ext import commands
 
 # ../modules
-from modules import helpers, sql
-
-async def grabmute(ctx, victim: discord.Member = None):
-    """
-    Grabs a mute from the DB
-
-        Parameters:
-            ctx (commands.Context): Context Reference
-            victim (discord.Member): Member Reference
-
-        Returns:
-            mutee (discord.Member.ID): Returns the ID of the muted person, or false
-    """
-    if victim is None:
-        return False
-    mutee = (sql.select('mutes', ['id', int(victim.id), 'guild', int(victim.guild.id)]))[0]
-    if not mutee:
-        mutee = (sql.select('longmutes', ['id', int(victim.id), 'guild', int(victim.guild.id)]))[0]
-    if not mutee:
-        await ctx.send('They were never muted. If this wasnt supposed to be contact a coder', delete_after=3)
-        return False
-    return mutee
+from modules import helpers, jsonreader
 
 class Admin(commands.Cog):
     """
@@ -123,22 +102,19 @@ class Admin(commands.Cog):
         brief='mute a person in s,m,h,d,w'
     )
     @commands.has_permissions(kick_members=True)
-    async def mute(self, ctx, victim: discord.Member = None, *, time: str = None):
+    async def mute(self, ctx, victim: discord.Member = None, *, mutetime: str = None):
         """
         Mutes someone and DM's them the seconds they've been muted for
 
             Parameters:
                 ctx (commands.Context): Context Reference
                 victim (discord.Member): Person to mute
-                time (str): Time in 1w1d1h1m1s to mute for
+                mutetime (str): Time in 1w1d1h1m1s to mute for
         """
-        time = helpers.timeconv(time)
+        mutetime = helpers.timeconv(mutetime)
 
-        if victim is None:
-            return await ctx.send('You need to specify someone to mute', delete_after=3)
-
-        if time is None:
-            return await ctx.send('You need to specify a time', delete_after=3)
+        if victim is None: return await ctx.send('You need to specify someone to mute', delete_after=3)
+        if mutetime is None: return await ctx.send('You need to specify a time', delete_after=3)
 
         muterole = discord.utils.get(ctx.guild.roles, name='Muted')
         if muterole is None:
@@ -150,12 +126,19 @@ class Admin(commands.Cog):
                 overrides.send_messages = False
                 await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
 
-        delta = (datetime.datetime.now() + datetime.timedelta(seconds=time)).strftime('%Y-%m-%d %H:%M:%S')
-        muteparams = (int(victim.id), delta, int(ctx.guild.id), int(muterole.id))
-        if sql.add('mutes', muteparams): # no escape
-            embed = discord.Embed(title=f'You have been muted in: `{ctx.guild.name}` for `{time}s`')
+        guilddata = jsonreader.read_file(ctx.guild.id, 'muted')
+        try:
+            data = guilddata[str(victim.id)]
+            data['expiration'] += mutetime
+            await ctx.send(f'They have been muted for an additional {mutetime}s')
+        except KeyError:
+            data = {}
+            data['expiration'] = time.time() + mutetime
+            data['role'] = muterole.id
             await victim.add_roles(muterole)
-            await victim.send(embed=embed)
+            await victim.send(embed=discord.Embed(title=f'You have been muted in: `{ctx.guild.name}` for `{mutetime}s`'))
+        guilddata[str(victim.id)] = data
+        jsonreader.write_file(ctx.guild.id, 'muted', guilddata)
 
     @commands.command(
         name='unmute',
@@ -164,22 +147,25 @@ class Admin(commands.Cog):
     @commands.has_permissions(kick_members=True)
     async def unmute(self, ctx, victim: discord.Member = None):
         """
-        Mutes someone and DM's them the seconds they've been muted for
+        Mutes someone and DM's them the seconds they've been umuted
 
             Parameters:
                 ctx (commands.Context): Context Reference
                 victim (discord.Member): Person to unmute
         """
-        if victim is None:
-            return await ctx.send('You need to specify someone to unmute', delete_after=3)
-
-        muteparams = await grabmute(ctx, victim)
-        if muteparams:
-            embed = discord.Embed(title=f'You have been unmuted from: `{victim.guild.name}`')
-            muterole = victim.guild.get_role(muteparams[3])
-            sql.remove('mutes', ['id', int(victim.id), 'guild', int(victim.guild.id)])
-            await victim.remove_roles(muterole)
-            await victim.send(embed=embed)
+        if victim is None: return await ctx.send('You need to specify someone to unmute', delete_after=3)
+        guilddata = jsonreader.read_file(ctx.guild.id, 'muted')
+        try:
+            mutedata = guilddata[str(victim.id)]
+            await victim.remove_roles(ctx.guild.get_role(mutedata['role']))
+            await victim.send(embed=discord.Embed(
+                title=f'You have been unmuted from: `{ctx.guild.name}`'
+                )
+            )
+            del guilddata[str(victim.id)]
+            jsonreader.write_file(ctx.guild.id, 'muted', guilddata)
+        except KeyError:
+            await ctx.send('They aren\'t muted', delete_after=3)
 
 def setup(bot):
     """

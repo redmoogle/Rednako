@@ -63,9 +63,10 @@ class Config(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        toggle = jsonreader.read_file(ctx.guild.id, 'errors')
-        jsonreader.write_file(ctx.guild.id, 'errors', not toggle)
-        if toggle:
+        toggle = jsonreader.read_file(ctx.guild.id, 'settings')
+        toggle['errors'] = not toggle['errors']
+        jsonreader.write_file(ctx.guild.id, 'settings', toggle)
+        if not toggle:
             return await ctx.send("Disabling showing of command not found")
         return await ctx.send("Enabling showing of command not found")
 

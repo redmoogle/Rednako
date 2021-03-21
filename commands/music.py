@@ -37,7 +37,7 @@ def djconfig(ctx):
     """
     if not ctx.guild:
         return False
-    guildrole = jsonreader.read_file(ctx.guild.id, 'djmode')
+    guildrole = jsonreader.read_file(ctx.guild.id, 'settings')['djmode']
     if guildrole is None:
         return True
 
