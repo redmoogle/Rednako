@@ -94,9 +94,9 @@ class User(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        self.bot = ctx.bot                       # shortcut for bot. var/bot is taken
+        self.bot = ctx.bot                      # shortcut for bot. var/bot is taken
         sha = repo.head.object.hexsha           # Hash of commit that the local files are
-        totalservers = len(self.bot.guilds)      # List of all guilds, is a list so can len() it
+        totalservers = len(self.bot.guilds)     # List of all guilds, is a list so can len() it
         link = config['invitelink']             # Link to invite bot
         githublink = config['github']           # Github link
 

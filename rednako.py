@@ -1,4 +1,3 @@
-#pylint: disable=unused-variable
 """
 Rednako Public Discord Bot
 Main Repository: https://github.com/redmoogle/Rednako
@@ -104,25 +103,23 @@ class Rednako(commands.Bot):
         self.members = len(list(self.get_all_members()))
         return self.members
 
-    async def get_prefix(self, ctx):
-        #pylint: disable=arguments-differ
-        # the arguments dont actually differ, pylint is just dumb
+    async def get_prefix(self, message):
         """
         Called from commands.Bot to set the prefix for guilds
 
             Parameters:
-                ctx (commands.Context): Context Reference
+                message (discord.Message): Message Reference
 
             Returns:
                 Prefix (str): Prefix for that guild
         """
-        if not ctx.guild:
-            return commands.when_mentioned_or(self.prefix)(self, ctx)
+        if not message.guild:
+            return commands.when_mentioned_or(self.prefix)(self, message)
 
         if not jsonreader.check_exist('settings'): # File will be created shortly
             return commands.when_mentioned
 
-        return jsonreader.read_file(ctx.guild.id, 'settings')['prefix'] # Guild Specific Preset
+        return jsonreader.read_file(message.guild.id, 'settings')['prefix'] # Guild Specific Preset
 
     async def on_guild_join(self, guild):
         """
@@ -145,15 +142,20 @@ class Rednako(commands.Bot):
         for jsonfile in self.configs:
             jsonreader.remove(guild.id, jsonfile[0])
 
-    async def on_message(self, ctx):
-        #pylint: disable=arguments-differ
-        if self.user.id == ctx.author.id: # Bad idea to not make the bot ignore itself
+    async def on_message(self, message):
+        """
+        Event signal called when the bot sees a message
+
+            Parameters:
+                message (discord.Message): Message Reference
+        """
+        if self.user.id == message.author.id: # Bad idea to not make the bot ignore itself
             return
-        await self.process_commands(ctx) # otherwise it wont respond
-        data = jsonreader.read_file(ctx.guild.id, 'xp') # Get xp data for the guild
+        await self.process_commands(message) # otherwise it wont respond
+        data = jsonreader.read_file(message.guild.id, 'xp') # Get xp data for the guild
         if data['enabled']: # this is off by default because other funny exp bots
             try: # we dont make the data until it is needed. bad idea? Maybe.
-                idxp = data[str(ctx.author.id)] # Authors EXP Data {xp, goal, level, last_used}
+                idxp = data[str(message.author.id)] # Authors EXP Data {xp, goal, level, last_used}
                 if time.time() < idxp['last_used'] + 300: # Five minute wait period
                     return
                 idxp['xp'] += random.randint(1, 10) # Rng for extra funnys
@@ -161,27 +163,25 @@ class Rednako(commands.Bot):
                 if idxp['xp'] >= idxp['goal']:
                     idxp['level'] += 1 # Increment level
                     idxp['goal'] = 20 + idxp['level']*25 # gotta have challenge
-                    await ctx.reply(f"Congratulations, {ctx.author.mention}! you have reached level {idxp['level']}")
-                data[str(ctx.author.id)] = idxp # Rewrite modified data
+                    await message.reply(f"Congratulations, {message.author.mention}! you have reached level {idxp['level']}")
+                data[str(message.author.id)] = idxp # Rewrite modified data
             except KeyError:
-                data[str(ctx.author.id)] = {'xp': 0, 'goal': 20, 'level': 0, 'last_used': time.time()}
-            jsonreader.write_file(ctx.guild.id, 'xp', data)
+                data[str(message.author.id)] = {'xp': 0, 'goal': 20, 'level': 0, 'last_used': time.time()}
+            jsonreader.write_file(message.guild.id, 'xp', data)
 
-    async def on_command_error(self, ctx, error):
-        #pylint: disable=arguments-differ
-        # the arguments dont actually differ, pylint is just dumb
+    async def on_command_error(self, context, exception):
         """
         Event signal called when a command errors out
 
             Parameters:
-                ctx (commands.Context): Context Reference
-                error (Exception): Error that happened
+                context (commands.Context): Context Reference
+                exception (Exception): Error that happened
         """
-        if isinstance(error, commands.CommandNotFound):
-            if jsonreader.read_file(ctx.guild.id, 'settings')['errors']:
-                return await ctx.send(f"{ctx.author.mention}, command \'{ctx.invoked_with}\' not found!")
+        if isinstance(exception, commands.CommandNotFound):
+            if jsonreader.read_file(context.guild.id, 'settings')['errors']:
+                return await context.send(f"{context.author.mention}, command \'{context.invoked_with}\' not found!")
             return
-        await ctx.send(error)
+        await context.send(exception)
 
     @tasks.loop(seconds=5)
     async def update(self):
@@ -190,8 +190,8 @@ class Rednako(commands.Bot):
         """
         if self.updatestatus:
             await self.wait_until_ready()
-            members = self.grab_members()
-            servers = self.grab_servers()
+            self.grab_members()
+            self.grab_servers()
             await self.change_presence(
                 activity=discord.Activity(name=self.status_str.format(self=self), type=2)
             )
