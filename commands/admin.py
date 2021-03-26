@@ -2,16 +2,12 @@
 Various admin commands
 """
 
-# Standard Python Modules
 import random
 import time
-
-# Discord Modules
 import discord
 from discord.ext import commands
-
-# ../modules
 from modules import helpers, jsonreader
+
 
 class Admin(commands.Cog):
     """
@@ -31,7 +27,7 @@ class Admin(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def purge(self, ctx, purge: int):
         """
-        Purges upto 250 messages from a given channel
+        Purges up-to 250 messages from a given channel
 
             Parameters:
                 ctx (commands.Context): Context Reference
@@ -104,7 +100,7 @@ class Admin(commands.Cog):
     @commands.has_permissions(kick_members=True)
     async def mute(self, ctx, victim: discord.Member = None, *, mutetime: str = None):
         """
-        Mutes someone and DM's them the seconds they've been muted for
+        Mutes someone and DMs them the seconds they've been muted for
 
             Parameters:
                 ctx (commands.Context): Context Reference
@@ -132,9 +128,7 @@ class Admin(commands.Cog):
             data['expiration'] += mutetime
             await ctx.send(f'They have been muted for an additional {mutetime}s')
         except KeyError:
-            data = {}
-            data['expiration'] = time.time() + mutetime
-            data['role'] = muterole.id
+            data = {'expiration': time.time() + mutetime, 'role': muterole.id}
             await victim.add_roles(muterole)
             await victim.send(embed=discord.Embed(title=f'You have been muted in: `{ctx.guild.name}` for `{mutetime}s`'))
         guilddata[str(victim.id)] = data
@@ -147,13 +141,14 @@ class Admin(commands.Cog):
     @commands.has_permissions(kick_members=True)
     async def unmute(self, ctx, victim: discord.Member = None):
         """
-        Mutes someone and DM's them the seconds they've been umuted
+        Mutes someone and DMs them the seconds they've been unmuted
 
             Parameters:
                 ctx (commands.Context): Context Reference
                 victim (discord.Member): Person to unmute
         """
-        if victim is None: return await ctx.send('You need to specify someone to unmute', delete_after=3)
+        if victim is None:
+            return await ctx.send('You need to specify someone to unmute', delete_after=3)
         guilddata = jsonreader.read_file(ctx.guild.id, 'muted')
         try:
             mutedata = guilddata[str(victim.id)]
@@ -165,7 +160,8 @@ class Admin(commands.Cog):
             del guilddata[str(victim.id)]
             jsonreader.write_file(ctx.guild.id, 'muted', guilddata)
         except KeyError:
-            await ctx.send('They aren\'t muted', delete_after=3)
+            await ctx.send("They aren't muted", delete_after=3)
+
 
 def setup(bot):
     """

@@ -1,12 +1,9 @@
 """
 Handles various EXP things
 """
-
-# Discord Modules
 from discord.ext import commands
-
-# ../modules
 from modules import helpers, jsonreader
+
 
 class XP(commands.Cog):
     """
@@ -56,7 +53,7 @@ class XP(commands.Cog):
         data = jsonreader.read_file(ctx.guild.id, 'xp')
         info = []
         pages = []
-        rank_limit = 20 # maximum per page
+        rank_limit = 20  # maximum per page
         for index, member in enumerate(ctx.guild.members):
             if member.id == self.bot.user.id:
                 continue
@@ -67,11 +64,12 @@ class XP(commands.Cog):
                 else:
                     pages.append(info)
             except KeyError:
-                continue # we dont care
+                continue  # we don't care
         if not pages:
             pages.append(info)
         page = min(len(pages), page)
         await ctx.send(embed=helpers.embed(title='Server Rankings', fields=pages[1-page]))
+
 
 def setup(bot):
     """does cog setup"""

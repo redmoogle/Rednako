@@ -38,6 +38,7 @@ def embed(title: str = None, description: str = None, thumbnail: str = None, ima
 
     return embedhelper
 
+
 def timeconv(time: str = None):
     """
     Convert time from a 1w1d1h1m1s format to a int format
@@ -74,6 +75,7 @@ def timeconv(time: str = None):
             timeseconds += int(times[:-1]) * 604800
     return timeseconds
 
+
 def parse_duration(duration, timefill: int = 0):
     """
     Parses seconds into DD:HH:MM:SS
@@ -97,8 +99,8 @@ def parse_duration(duration, timefill: int = 0):
     months, days = divmod(days, 30)
     years, months = divmod(months, 365)
 
-    duration = [] # var reuse
-    _ = "" # used for zfill
+    duration = []  # var reuse
+    _ = ""  # used for zfill
     fill = 0
     if years or timefill >= 5:
         duration.append(f'{round(years)}:')
@@ -124,6 +126,7 @@ def parse_duration(duration, timefill: int = 0):
     duration.append(_)
     return ''.join(duration), fill
 
+
 def dividelist(inp, divisor, offset=0):
     """
     Slices a list while keeping the index stable
@@ -138,7 +141,7 @@ def dividelist(inp, divisor, offset=0):
     """
     indexoffset = 1
     for index in range(1, len(inp)+1):
-        if (index+offset)%divisor == 0:
+        if (index+offset) % divisor == 0:
             inp.pop(index-indexoffset)
             indexoffset += 1
     return inp

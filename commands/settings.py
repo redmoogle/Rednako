@@ -6,6 +6,7 @@ from discord.ext import commands
 import discord
 from modules import jsonreader
 
+
 class Config(commands.Cog):
     """
     Guild-Specific Config
@@ -28,8 +29,7 @@ class Config(commands.Cog):
         """
         jsonreader.write_file(ctx.guild.id, 'prefix', prefix)
         await ctx.send(f'Prefix changed to: {prefix}')
-        botname = ctx.me.name
-        await ctx.me.edit(nick=f'{prefix} | {botname}')
+        await ctx.me.edit(nick=f'{prefix} | {ctx.me.name}')
 
     @commands.command(
         name='djmode',
@@ -88,6 +88,7 @@ class Config(commands.Cog):
         if toggle['enabled']:
             return await ctx.send("Enabling EXP tracking")
         return await ctx.send("Disabling EXP tracking")
+
 
 def setup(bot):
     """

@@ -1,23 +1,16 @@
 """
 Owner only commands
 """
-
-# Standard Python Modules
 import sys
 import subprocess
 from pathlib import Path
-
-# Discord Modules
 import discord
 from discord.ext import commands
-
-# Github Module
 import git
-
-# ../modules
 from modules import helpers
 
 repo = git.Repo(search_parent_directories=True)
+
 
 class Owner(commands.Cog):
     """
@@ -109,7 +102,7 @@ class Owner(commands.Cog):
 
     @commands.command(
         name='vars',
-        brief='Show useable vars'
+        brief='Show usable vars'
     )
     @commands.is_owner()
     async def var(self, ctx):
@@ -122,8 +115,9 @@ class Owner(commands.Cog):
         info = []
         for key in self.bot.vars:
             info.append([f'self.{key}: ', self.bot.__dict__[key]])
-        embed = helpers.embed(title='Useable Vars', fields=info)
+        embed = helpers.embed(title='Usable Vars', fields=info)
         await ctx.send(embed=embed)
+
 
 def setup(bot):
     """

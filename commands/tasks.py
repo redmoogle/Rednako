@@ -1,16 +1,11 @@
 """
 Handles automated tasks
 """
-
-# Standard Python Modules
 import time
-
-# Discord Modules
 from discord.ext import commands, tasks
 import discord
-
-# ../modules
 from modules import jsonreader
+
 
 class Task(commands.Cog):
     """
@@ -33,16 +28,13 @@ class Task(commands.Cog):
     @tasks.loop(seconds=5)
     async def mute(self):
         """
-        Fast Iterating JSON, removes mutes if under 0 seconds till experation
-
-            Parameters:
-                None
+        Fast Iterating JSON, removes mutes if under 0 seconds till expiration
         """
         for guild in self.bot.guilds:
             data = jsonreader.read_file(guild.id, 'muted')
             for key in data:
                 mutedata = data[key]
-                if mutedata['expiration'] > time.time(): # this is probably marginally more efficent
+                if mutedata['expiration'] > time.time(): # this is probably marginally more efficient
                     continue
                 member = key
                 await member.remove_roles(
@@ -78,8 +70,10 @@ class Task(commands.Cog):
 
             raw = jsonreader.dump(jsonfile[0])
             for key in raw:
-                if not key in _guilds:
-                    jsonreader.remove(key, jsonfile[0])
+                if key in _guilds:
+                    continue
+                jsonreader.remove(key, jsonfile[0])
+
 
 def setup(bot):
     """
