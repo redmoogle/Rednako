@@ -43,7 +43,7 @@ class Owner(commands.Cog):
                     ['Github Commit: ', f'{remote}']
                 ]
 
-            embed=helpers.embed(title='Github Update: ', fields=info, inline=False, color=discord.Colour.gold())
+            embed = helpers.embed(title='Github Update: ', fields=info, inline=False, color=discord.Colour.gold())
             await ctx.send(embed=embed)
         gitcmd = git.cmd.Git(repo)
         gitcmd.pull()
@@ -63,7 +63,7 @@ class Owner(commands.Cog):
         await ctx.send('Starting Reboot')
         await self.bot.logout()
         path = Path(__file__).parent.parent
-        await subprocess.call(f'{path}/restart.sh')
+        subprocess.call(f'{path}/restart.sh')
         sys.exit()
 
     @commands.command(

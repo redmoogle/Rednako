@@ -5,12 +5,33 @@ from discord.ext import commands
 from modules import helpers, jsonreader
 
 
+def xpcheck(ctx):
+    """
+    Checks if EXP is turned on.
+
+        Parameters:
+            ctx (commands.Context): Context Reference
+
+        Returns:
+            xpenable (bool): is EXP tracking enabled
+    """
+    check = jsonreader.read_file(ctx.guild.id, 'xp')
+    if check['enabled']:
+        return True
+    return False
+
+
 class XP(commands.Cog):
     """
     XP Cog
     """
     def __init__(self, bot):
         self.bot = bot
+
+    async def cog_before_invoke(self, ctx):
+        if xpcheck(ctx):
+            return True
+        return False
 
     @commands.command(
         name='exp',
@@ -35,8 +56,11 @@ class XP(commands.Cog):
         info = [
             [f'Level: {level} ', f'EXP: {exp}/{goal}']
         ]
-        embed=helpers.embed(title=f'{ctx.author.name}\'s XP', image=ctx.author.avatar_url, fields=info)
-        return await ctx.send(embed=embed)
+        return await ctx.send(embed=helpers.embed(
+            title=f'{ctx.author.name}\'s XP',
+            image=ctx.author.avatar_url,
+            fields=info)
+        )
 
     @commands.command(
         name='rankings',
@@ -89,32 +113,34 @@ class XP(commands.Cog):
             for member in guild.members:
                 try:
                     idxp = guilddata[str(member.id)]
-                    gdata = {}
-                    if not str(member.id) in globdata:
-                        globdata[str(member.id)] = {
-                            'in': 0,
-                            'levels': 0,
-                            'txp': 0,
-                            'avglev': 0,
-                            'usr': member.name
-                        }
-                    gdata = globdata[str(member.id)]
-                    gdata['in'] += 1
-                    gdata['levels'] += idxp['level']
-                    gdata['txp'] += idxp['xp']
-                    gdata['avglev'] = (gdata['levels']/gdata['in'])
-                    globdata[str(member.id)] = gdata
                 except KeyError:
                     continue
+                if not str(member.id) in globdata:
+                    globdata[str(member.id)] = {
+                        'in': 0,
+                        'levels': 0,
+                        'txp': 0,
+                        'avglev': 0,
+                        'usr': member.name
+                    }
+                gdata = globdata[str(member.id)]
+                gdata['in'] += 1
+                gdata['levels'] += idxp['level']
+                gdata['txp'] += idxp['xp']
+                gdata['avglev'] = (gdata['levels']/gdata['in'])
+                globdata[str(member.id)] = gdata
 
-        for key in globdata.keys():
+        for index, key in enumerate(sorted(globdata.keys(), key=lambda _key: globdata[_key]['txp'], reverse=True)):
             gdxp = globdata[key]
             if _index > rank_limit:
                 pages.append(info)
                 _index = 0  # Reset Index
                 info = []  # Blank it back out
             _index += 1
-            info.append([f'{gdxp["usr"]} ~{gdxp["avglev"]}({gdxp["levels"]}/{gdxp["in"]}): ', f'Total EXP: {gdxp["txp"]}'])
+            info.append([
+                f'{index}: {gdxp["usr"]} ~{gdxp["avglev"]}({gdxp["levels"]}/{gdxp["in"]}): ',
+                f'Total EXP: {gdxp["txp"]}']
+            )
 
         if not pages:
             pages.append(info)

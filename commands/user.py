@@ -65,7 +65,7 @@ class User(commands.Cog):
         info = [  # Makes adding easy and pretty
             ['Server Owner: ',      f'{guild.owner.name}#{guild.owner.discriminator}'],
             ['Server ID: ',         f'{guild.id}'],
-            ['Categories: ',         f'{categories}'],
+            ['Categories: ',        f'{categories}'],
             ['Channels: ',          f'T: {textchannels} V: {voicechannels}'],
             ['Prefix: ',            f'{prefix}'],
             ['Roles: ',             f'{roles}'],
@@ -86,23 +86,16 @@ class User(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        self.bot = ctx.bot                      # shortcut for bot. var/bot is taken
-        sha = repo.head.object.hexsha           # Hash of commit that the local files are
-        totalservers = len(self.bot.guilds)     # List of all guilds, is a list so can len() it
         link = config['invitelink']             # Link to invite bot
         githublink = config['github']           # Github link
 
-        totalmembers = 0
-        for _ in self.bot.get_all_members():
-            totalmembers += 1
-
         info = [  # Makes adding easy and pretty
                 ['Bot Owner: ',         f'{self.bot.get_user(self.bot.owner_id)}'],
-                ['Global Servers: ',    f'{totalservers}'],
-                ['Global Members: ',    f'{totalmembers}'],
+                ['Global Servers: ',    f'{self.bot.servers}'],
+                ['Global Members: ',    f'{self.bot.members}'],
                 ['Invite: ',            f'[Invite Bot]({link})'],
                 ['Repository: ',        f'[Github]({githublink})'],
-                ['Commit: ',            f'{sha}']
+                ['Commit: ',            f'{repo.head.object.hexsh}']
             ]
 
         embed = helpers.embed(

@@ -73,7 +73,7 @@ class Image(commands.Cog):
     )
     async def cat(self, ctx):
         """
-        Sends a persons avatar
+        Grabs a cat... *yoink*
 
             Parameters:
                 ctx (commands.Context): Context Reference
