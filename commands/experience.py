@@ -138,7 +138,7 @@ class XP(commands.Cog):
                 info = []  # Blank it back out
             _index += 1
             info.append([
-                f'{index}: {gdxp["usr"]} ~{gdxp["avglev"]}({gdxp["levels"]}/{gdxp["in"]}): ',
+                f'{index+1}: {gdxp["usr"]} ~{gdxp["avglev"]}({gdxp["levels"]}/{gdxp["in"]}): ',
                 f'Total EXP: {gdxp["txp"]}']
             )
 
