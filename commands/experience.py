@@ -54,21 +54,72 @@ class XP(commands.Cog):
         info = []
         pages = []
         rank_limit = 20  # maximum per page
-        for index, member in enumerate(ctx.guild.members):
+        _index = 0  # Enumerate cant be used because we DO modify this
+        for member in ctx.guild.members:
             if member.id == self.bot.user.id:
                 continue
             try:
                 idxp = data[str(member.id)]
-                if index < rank_limit:
-                    info.append([f'{member.name} ({idxp["level"]}): ', f'EXP: {idxp["xp"]}/{idxp["goal"]}'])
-                else:
+                if _index > rank_limit:
                     pages.append(info)
+                    _index = 0  # Reset Index
+                    info = []  # Blank it back out
+                _index += 1
+                info.append([f'{member.name} ({idxp["level"]}): ', f'EXP: {idxp["xp"]}/{idxp["goal"]}'])
             except KeyError:
                 continue  # we don't care
         if not pages:
             pages.append(info)
         page = min(len(pages), page)
-        await ctx.send(embed=helpers.embed(title='Server Rankings', fields=pages[1-page]))
+        await ctx.send(embed=helpers.embed(title='Server Rankings', fields=pages[page-1]))
+
+    @commands.command(
+        name='grankings',
+        brief='Check how bad you are against everyone',
+        aliases=['grank']
+    )
+    async def grank(self, ctx, page: int = 1):
+        info = []
+        pages = []
+        rank_limit = 20  # maximum per page
+        _index = 0  # Enumerate cant be used because we DO modify this
+        globdata = {}
+        for guild in self.bot.guilds:
+            guilddata = jsonreader.read_file(guild.id, 'xp')
+            for member in guild.members:
+                try:
+                    idxp = guilddata[str(member.id)]
+                    gdata = {}
+                    if not str(member.id) in globdata:
+                        globdata[str(member.id)] = {
+                            'in': 0,
+                            'levels': 0,
+                            'txp': 0,
+                            'avglev': 0,
+                            'usr': member.name
+                        }
+                    gdata = globdata[str(member.id)]
+                    gdata['in'] += 1
+                    gdata['levels'] += idxp['level']
+                    gdata['txp'] += idxp['xp']
+                    gdata['avglev'] = (gdata['levels']/gdata['in'])
+                    globdata[str(member.id)] = gdata
+                except KeyError:
+                    continue
+
+        for key in globdata.keys():
+            gdxp = globdata[key]
+            if _index > rank_limit:
+                pages.append(info)
+                _index = 0  # Reset Index
+                info = []  # Blank it back out
+            _index += 1
+            info.append([f'{gdxp["usr"]} ~{gdxp["avglev"]}({gdxp["levels"]}/{gdxp["in"]}): ', f'Total EXP: {gdxp["txp"]}'])
+
+        if not pages:
+            pages.append(info)
+        page = min(len(pages), page)
+        await ctx.send(embed=helpers.embed(title='Global Rankings', fields=pages[page-1]))
 
 
 def setup(bot):
