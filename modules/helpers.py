@@ -4,7 +4,9 @@ Common helper functions for bot
 import random
 import discord
 
-def embed(title: str = None, description: str = None, thumbnail: str = None, image: str = None, fields: list = None, inline: bool = True, color = discord.Colour.default()):
+
+def embed(title: str = None, description: str = None, thumbnail: str = None, image: str = None, fields: list = None,
+          inline: bool = True, color=discord.Colour.default()):
     """
     Creates a embed with various arguments.
 
@@ -60,7 +62,7 @@ def timeconv(time: str = None):
             temp = times[:-1]
             int(temp)
         except ValueError:
-            return None # Unknown Format was provided
+            return None  # Unknown Format was provided
 
         # This converts if the above passes to actual seconds
         if times[-1] == "s":
@@ -91,7 +93,7 @@ def parse_duration(duration, timefill: int = 0):
     try:
         duration = round(int(duration))
     except ValueError:
-        return None # invalid format
+        return None  # invalid format
 
     minutes, seconds = divmod(duration, 60)
     hours, minutes = divmod(minutes, 60)
@@ -140,8 +142,8 @@ def dividelist(inp, divisor, offset=0):
             Sliced List (list): the list but sliced
     """
     indexoffset = 1
-    for index in range(1, len(inp)+1):
-        if (index+offset) % divisor == 0:
-            inp.pop(index-indexoffset)
+    for index in range(1, len(inp) + 1):
+        if (index + offset) % divisor == 0:
+            inp.pop(index - indexoffset)
             indexoffset += 1
     return inp

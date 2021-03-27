@@ -53,7 +53,7 @@ class Rednako(commands.Bot):
         # Time when the bot started
         self.starttime = time.time()
         # Current Status
-        self.status_str = f'{config["default_activity"]}'
+        self.status_str = config["default_activity"]
         # Parameters for bot
         super().__init__(
             command_prefix=self.get_prefix,  # Set the prefix
@@ -68,7 +68,9 @@ class Rednako(commands.Bot):
         self.update.start()
         self.gen_uptime.start()
         self.configs = [
-            ['xp', {'enabled': False}],
+            ['xp', {
+                'enabled': False
+            }],
             ['muted', {}],
             ["economy", {}],
             ['settings', {
@@ -162,7 +164,12 @@ class Rednako(commands.Bot):
                         f"Congratulations, {message.author.mention}! you have reached level {idxp['level']}")
                 data[str(message.author.id)] = idxp  # Rewrite modified data
             except KeyError:
-                data[str(message.author.id)] = {'xp': 0, 'goal': 20, 'level': 0, 'last_used': time.time()}
+                data[str(message.author.id)] = {
+                    'xp': 0,
+                    'goal': 20,
+                    'level': 0,
+                    'last_used': time.time()
+                }
             jsonreader.write_file(message.guild.id, 'xp', data)
 
     async def on_command_error(self, context, exception):
@@ -173,10 +180,10 @@ class Rednako(commands.Bot):
                 context (commands.Context): Context Reference
                 exception (Exception): Error that happened
         """
-        if isinstance(exception, commands.CommandNotFound):
-            if jsonreader.read_file(context.guild.id, 'settings')['errors']:
-                return await context.send(f"{context.author.mention}, command \'{context.invoked_with}\' not found!")
+        if not jsonreader.read_file(context.guild.id, 'settings')['errors']:
             return
+        if isinstance(exception, commands.CommandNotFound):
+            return await context.send(f"{context.author.mention}, command \'{context.invoked_with}\' not found!")
         if isinstance(exception, commands.CheckFailure):
             return  # Very annoying error, it just says the check failed
         await context.send(f'{type(exception)}: {exception}')
