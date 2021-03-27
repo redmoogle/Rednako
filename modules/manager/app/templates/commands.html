@@ -7,8 +7,6 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/category.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/commands.css') }}">
         <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-        
-        <!-- Highlight Code (HLJS) -->
         <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.2/styles/default.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.2/highlight.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.2/languages/python.min.js"></script>
@@ -24,10 +22,13 @@
             <p>Shard Count: {{ bot.shard_count }}</p>
         </div>
 
-        <div id="commandCode">
-            <h1>Command Code</h1>
+        <div id="commandCode", class="info">
+            <h1>Bot Info</h1>
             <!--Same line to prevent unnecessary whitespace -->
-            <pre><code id="commandCodeBlock"></code></pre>
+            Uptime: {{ bot.uptime_str }}<br>
+            Servers: {{ bot.servers }}<br>
+            Members: {{ bot.members }}<br>
+            Status: {{ bot.status }}<br>
         </div>
 
         <ul id="botCategories">
@@ -50,25 +51,20 @@
                     {% for cmd in enabled_commands[key] %}
                         <div class="catArea">
                             <h2 id={{ cmd }}>{{ cmd }}
-                            <input checked type="checkbox" name={{ cmd }}>
                             </h2>
-                            <p><strong>Docstring:</strong> {{ cmd._callback.__doc__ }}</p>
+                            <strong>{{ cmd.brief }}</strong>
                         </div>
                     {% endfor %}
                 {% endfor %}
 
                 {% for cmd in disabled_commands %}
                     <div class="catArea">
-                        <h2 id={{ cmd }}>{{ cmd }}</h2>
-                        <input type="checkbox" name={{ cmd }}>
-                        <label for={{ cmd }}>Toggle</label>
-                        <p><strong>Docstring:</strong> {{ cmd._callback.__doc__ }}</p>
+                        <h2>{{ cmd }}</h2>
+                        <strong></strong> {{ cmd._callback.brief }}
                         {% set code_str = getsource(cmd._callback).replace("`", "\`") %}
                         <input type="button" onclick="showCode(`{{ code_str }}`);" value="Code">
                     </div>
                 {% endfor %}
-                <br>
-                <input class="greenButton" type="submit" value="Update"/>
             </form>
         </div>
     </body>

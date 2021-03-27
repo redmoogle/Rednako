@@ -14,7 +14,21 @@ body{
     font-family: Montserrat, Tahoma, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     font-size: 3em;
     background: #222222;
-    
+}
+
+.info{
+    text-align: center;
+    font-family: Montserrat, Tahoma, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-size: 1.2em;
+    background: #222222;
+    color: white;
+    border-style: solid;
+    border-color: gray;
+    padding-bottom: 25px;
+}
+
+.smallbr{
+    line-height: 2px;
 }
 
 #botInfo{
