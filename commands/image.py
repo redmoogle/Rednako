@@ -1,22 +1,14 @@
 """
 Image commands
 """
-
-# Standard Python Modules
 import random
 import requests
-
-# Discord Modules
 import discord
 from discord.ext import commands
-
-# Misc Modules
 import nekos
-
-# ../modules
 from modules import helpers
 
-# Dont worry I can feel the disappointment from my computer
+
 class Image(commands.Cog):
     """
     Commands that send images
@@ -54,8 +46,7 @@ class Image(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        embed=helpers.embed(title='Kitsune', image=nekos.img('fox_girl'))
-        await ctx.send(embed=embed)
+        await ctx.send(embed=helpers.embed(title='Kitsune', image=nekos.img('fox_girl')))
 
     @commands.command(
         name='avatar',
@@ -74,8 +65,7 @@ class Image(commands.Cog):
         if victim is None:
             victim = ctx.author
 
-        embed=helpers.embed(title=f'{victim}\'s Avatar', image=victim.avatar_url)
-        await ctx.send(embed=embed)
+        await ctx.send(embed=helpers.embed(title=f'{victim}\'s Avatar', image=victim.avatar_url))
 
     @commands.command(
         name='cat',
@@ -83,7 +73,7 @@ class Image(commands.Cog):
     )
     async def cat(self, ctx):
         """
-        Sends a persons avatar
+        Grabs a cat... *yoink*
 
             Parameters:
                 ctx (commands.Context): Context Reference
@@ -99,8 +89,8 @@ class Image(commands.Cog):
             "*Cat Noises*"
         ]
         random.shuffle(randomtitles)
-        embed = helpers.embed(title=randomtitles[0], image=data)
-        await ctx.send(embed=embed)
+        await ctx.send(embed=helpers.embed(title=randomtitles[0], image=data))
+
 
 def setup(bot):
     """

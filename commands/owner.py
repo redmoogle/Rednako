@@ -1,24 +1,16 @@
-#pylint: disable=broad-except
 """
 Owner only commands
 """
-
-# Standard Python Modules
 import sys
 import subprocess
 from pathlib import Path
-
-# Discord Modules
 import discord
 from discord.ext import commands
-
-# Github Module
 import git
-
-# ../modules
-from modules import helpers, sql
+from modules import helpers
 
 repo = git.Repo(search_parent_directories=True)
+
 
 class Owner(commands.Cog):
     """
@@ -51,77 +43,10 @@ class Owner(commands.Cog):
                     ['Github Commit: ', f'{remote}']
                 ]
 
-            embed=helpers.embed(title='Github Update: ', fields=info, inline=False, color=discord.Colour.gold())
+            embed = helpers.embed(title='Github Update: ', fields=info, inline=False, color=discord.Colour.gold())
             await ctx.send(embed=embed)
         gitcmd = git.cmd.Git(repo)
         gitcmd.pull()
-
-    @commands.command(
-        name='sql',
-        brief='run SQL commands'
-    )
-    @commands.is_owner()
-    async def sql(self, ctx, *, sqlinput):
-        """
-        Executes SQL with no filtering
-
-            Parameters:
-                ctx (commands.Context): Context Reference
-                sqlinput (str): SQL string to run
-
-            Returns:
-                raw_sql (any) Anything that it might return
-        """
-        return await ctx.send(sql.raw_sql(sqlinput), delete_after=10)
-
-    @commands.command(
-        name='database',
-        brief='Returns name and lenght of db',
-        aliases=['db']
-    )
-    @commands.is_owner()
-    async def database(self, ctx):
-        """
-        Shows the name of all tables and their len()'s
-
-            Parameters:
-                ctx (commands.Context): Context Reference
-        """
-        info = []
-        for table in sql.select('sqlite_master', ['type',"'table'"], 'name'):
-            rows = sql.select(table[0])
-            info += [[f'Table: {table[0]}', f'Rows: {len(rows)}']]
-
-        embed = helpers.embed(title='Databases: ', fields=info, color=discord.Colour.dark_blue())
-        await ctx.send(embed=embed)
-
-    @commands.command(
-        name='cog',
-        brief='adjust cogs, r-eload, u-nload, l-oad',
-        aliases=['hotreload']
-    )
-    @commands.is_owner()
-    async def reload_cog(self, ctx, adjustment: str, *, cog: str):
-        """
-        Messes with the cogs, reload, disable, or enable
-
-            Parameters:
-                ctx (commands.Context): Context Reference
-                adjustment (str): Tells what the cog to do
-                cog (str): which cog to poke
-        """
-        adjustment = adjustment.lower()
-        _cog = f'commands.{cog}'
-
-        try:
-            if(adjustment in ['r', 'u']):
-                self.bot.unload_extension(_cog)
-                await ctx.send(f'**`Cog {cog} has been unloaded`**')
-            if(adjustment in ['r', 'l']):
-                self.bot.load_extension(_cog)
-                await ctx.send(f'**`Cog {cog} has been loaded`**')
-        except Exception as error:
-            await ctx.send(f'**`FAILURE:`** {type(error).__name__} - {error}')
 
     @commands.command(
         name='reboot',
@@ -138,7 +63,7 @@ class Owner(commands.Cog):
         await ctx.send('Starting Reboot')
         await self.bot.logout()
         path = Path(__file__).parent.parent
-        await subprocess.call(f'{path}/restart.sh')
+        subprocess.call(f'{path}/restart.sh')
         sys.exit()
 
     @commands.command(
@@ -177,7 +102,7 @@ class Owner(commands.Cog):
 
     @commands.command(
         name='vars',
-        brief='Show useable vars'
+        brief='Show usable vars'
     )
     @commands.is_owner()
     async def var(self, ctx):
@@ -190,8 +115,9 @@ class Owner(commands.Cog):
         info = []
         for key in self.bot.vars:
             info.append([f'self.{key}: ', self.bot.__dict__[key]])
-        embed = helpers.embed(title='Useable Vars', fields=info)
+        embed = helpers.embed(title='Usable Vars', fields=info)
         await ctx.send(embed=embed)
+
 
 def setup(bot):
     """

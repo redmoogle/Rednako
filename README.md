@@ -18,11 +18,9 @@ use pip3 instead
  - [music.py](https://raw.githubusercontent.com/Devoxin/Lavalink.py/master/examples/music.py)
   
   
-## Current Changelog 3.0
- - Major Bot System Rework
- - Put Custom Modules in ./modules
- - Standardized/Commented Imports
- - Put SQL into a custom module and did the implementation much better
- - Put config into a config folder
- - Data folder for stuff the bot I/Os
- - Set pylint up correctly
+## Current Changelog 3.6.0
+ - XP Tracking System
+ - Code Refactors
+ - Economy
+ - Removed SQL
+ - Some cool owner-only stuff

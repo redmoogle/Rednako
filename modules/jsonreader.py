@@ -5,6 +5,7 @@ handles json files
 import json
 from pathlib import Path
 
+
 def create_file(bot, key: str, default, wipe: bool = False):
     """
     Creates a JSON config file for all guilds it can see with a default
@@ -16,7 +17,7 @@ def create_file(bot, key: str, default, wipe: bool = False):
             wipe (bool): Wipe the files forcefully
 
         Returns:
-            Success (bool): Did it succede
+            Success (bool): Did it succeed
     """
     if Path(f'./data/guild_{key}.json').is_file() and not wipe: # allows for wiping of the config
         return False
@@ -30,6 +31,7 @@ def create_file(bot, key: str, default, wipe: bool = False):
     with open(f'./data/guild_{key}.json', 'w') as fileout:
         json.dump(data, fileout, indent=4)
     return True
+
 
 def read_file(guild, key: str):
     """
@@ -53,6 +55,7 @@ def read_file(guild, key: str):
 
     return data[guild]
 
+
 def write_file(guild, key: str, value):
     """
     Writes data to a guild JSON given a key
@@ -63,7 +66,7 @@ def write_file(guild, key: str, value):
             value (any): The value to write for that guild and key
 
         Returns:
-            Success (bool): Did it succede
+            Success (bool): Did it succeed
     """
     data = {}
     guild = str(guild)
@@ -80,6 +83,7 @@ def write_file(guild, key: str, value):
         json.dump(data, fileout, indent=4)
     return True
 
+
 def remove(guild, key: str):
     """
     Removes a guild from a given key
@@ -89,7 +93,7 @@ def remove(guild, key: str):
             key (str): The key to modify
 
         Returns:
-            Success (bool): Did it succede
+            Success (bool): Did it succeed
     """
     data = {}
     guild = str(guild)
@@ -107,6 +111,7 @@ def remove(guild, key: str):
 
     return True
 
+
 def check_exist(key: str):
     """
     Checks if a JSON key has been generated yet
@@ -118,6 +123,7 @@ def check_exist(key: str):
             Exist (bool): Does it exist
     """
     return Path(f'./data/guild_{key}.json').is_file()
+
 
 def dump(key: str):
     """

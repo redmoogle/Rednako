@@ -1,23 +1,16 @@
 """
 Random commands for the user
 """
-
-# Discord Modules
-import discord
-from discord.ext import commands
-import discordtextsanitizer as dts
-
-# Github Module
-import git
-
-# Config Module
 import config
-
-# ../modules
+import discord
+import discordtextsanitizer as dts
+import git
+from discord.ext import commands
 from modules import helpers, jsonreader
 
 config = config.Config('./config/bot.cfg')
 repo = git.Repo(search_parent_directories=True)
+
 
 class User(commands.Cog):
     """
@@ -63,24 +56,23 @@ class User(commands.Cog):
         guild = ctx.guild                           # grab guild
         textchannels = len(guild.text_channels)     # all text channels
         voicechannels = len(guild.voice_channels)   # all voice channels
-        categorys = len(guild.categories)           # all categorys
+        categories = len(guild.categories)          # all categories
         roles = len(guild.roles)                    # all roles
         members = len(guild.members)                # all members
 
-        prefix = jsonreader.read_file(ctx.guild.id, 'prefix')
+        prefix = jsonreader.read_file(ctx.guild.id, 'settings')['prefix']
 
-        info = [ # Makes adding easy and pretty
+        info = [  # Makes adding easy and pretty
             ['Server Owner: ',      f'{guild.owner.name}#{guild.owner.discriminator}'],
             ['Server ID: ',         f'{guild.id}'],
-            ['Categorys: ',         f'{categorys}'],
+            ['Categories: ',        f'{categories}'],
             ['Channels: ',          f'T: {textchannels} V: {voicechannels}'],
             ['Prefix: ',            f'{prefix}'],
             ['Roles: ',             f'{roles}'],
             ['Members: ',           f'{members}']
         ]
 
-        embed=helpers.embed(title=guild.name, thumbnail=guild.icon_url, fields=info)
-        await ctx.send(embed=embed)
+        await ctx.send(embed=helpers.embed(title=guild.name, thumbnail=guild.icon_url, fields=info))
 
     @commands.command(
         name='info',
@@ -94,26 +86,19 @@ class User(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        self.bot = ctx.bot                       # shortcut for bot. var/bot is taken
-        sha = repo.head.object.hexsha           # Hash of commit that the local files are
-        totalservers = len(self.bot.guilds)      # List of all guilds, is a list so can len() it
         link = config['invitelink']             # Link to invite bot
         githublink = config['github']           # Github link
 
-        totalmembers = 0
-        for _ in self.bot.get_all_members():
-            totalmembers += 1
-
-        info = [ # Makes adding easy and pretty
+        info = [  # Makes adding easy and pretty
                 ['Bot Owner: ',         f'{self.bot.get_user(self.bot.owner_id)}'],
-                ['Global Servers: ',    f'{totalservers}'],
-                ['Global Members: ',    f'{totalmembers}'],
+                ['Global Servers: ',    f'{self.bot.servers}'],
+                ['Global Members: ',    f'{self.bot.members}'],
                 ['Invite: ',            f'[Invite Bot]({link})'],
                 ['Repository: ',        f'[Github]({githublink})'],
-                ['Commit: ',            f'{sha}']
+                ['Commit: ',            f'{repo.head.object.hexsh}']
             ]
 
-        embed=helpers.embed(
+        embed = helpers.embed(
             title='Bot Statistics: ',
             thumbnail=self.bot.user.avatar_url,
             fields=info
@@ -132,8 +117,9 @@ class User(commands.Cog):
                 ctx (commands.Context): Context Reference
         """
         embed = discord.Embed(title="Pong!", color=discord.Color.blurple())
-        embed.add_field(name='API: ', value=(f'Latency: {round(self.bot.latency*1000)}ms'))
+        embed.add_field(name='API: ', value=f'Latency: {round(self.bot.latency*1000)}ms')
         await ctx.send(embed=embed)
+
 
 def setup(bot):
     """

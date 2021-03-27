@@ -1,16 +1,11 @@
 """
 Handles various money things
 """
-
-# Standard Python Modules
 import random
 import asyncio
-
-# Discord Modules
 from discord.ext import commands
-
-# ../modules
 from modules import helpers, jsonreader
+
 
 class Economy(commands.Cog):
     """
@@ -74,6 +69,7 @@ class Economy(commands.Cog):
         ]
         embed=helpers.embed(title=f'{ctx.author.name}\'s offshore account', image=ctx.author.avatar_url, fields=info)
         return await ctx.send(embed=embed)
+
 
 def setup(bot):
     """does cog setup"""

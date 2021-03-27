@@ -6,6 +6,7 @@ from discord.ext import commands
 import discord
 from modules import jsonreader
 
+
 class Config(commands.Cog):
     """
     Guild-Specific Config
@@ -28,8 +29,7 @@ class Config(commands.Cog):
         """
         jsonreader.write_file(ctx.guild.id, 'prefix', prefix)
         await ctx.send(f'Prefix changed to: {prefix}')
-        botname = ctx.me.name
-        await ctx.me.edit(nick=f'{prefix} | {botname}')
+        await ctx.me.edit(nick=f'{prefix} | {ctx.me.name}')
 
     @commands.command(
         name='djmode',
@@ -63,11 +63,32 @@ class Config(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        toggle = jsonreader.read_file(ctx.guild.id, 'errors')
-        jsonreader.write_file(ctx.guild.id, 'errors', not toggle)
-        if toggle:
+        toggle = jsonreader.read_file(ctx.guild.id, 'settings')
+        toggle['errors'] = not toggle['errors']
+        jsonreader.write_file(ctx.guild.id, 'settings', toggle)
+        if not toggle:
             return await ctx.send("Disabling showing of command not found")
         return await ctx.send("Enabling showing of command not found")
+
+    @commands.command(
+        name='enablexp',
+        brief='en/dis-able XP system'
+    )
+    @commands.has_permissions(administrator=True)
+    async def xpenable(self, ctx):
+        """
+        enables or disables that guilds xp system
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+        """
+        toggle = jsonreader.read_file(ctx.guild.id, 'xp')
+        toggle['enabled'] = not toggle['enabled']
+        jsonreader.write_file(ctx.guild.id, 'xp', toggle)
+        if toggle['enabled']:
+            return await ctx.send("Enabling EXP tracking")
+        return await ctx.send("Disabling EXP tracking")
+
 
 def setup(bot):
     """

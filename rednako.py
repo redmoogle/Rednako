@@ -1,4 +1,3 @@
-#pylint: disable=unused-variable
 """
 Rednako Public Discord Bot
 Main Repository: https://github.com/redmoogle/Rednako
@@ -9,30 +8,26 @@ Also important note. If you change default_activity
 in the config make sure to update the .format in here
 
 """
-# Standard Python Modules
+import random
 import time
-
-# Discord Modules
 import discord
+from cogwatch import watch
 from discord.ext import commands, tasks
 from pretty_help import PrettyHelp
-from cogwatch import watch
-
-# Config
 import config
-
-# ./modules
 from modules import jsonreader, helpers
 from modules import manager
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
 
+
 class Rednako(commands.Bot):
-    #pylint: disable=too-many-instance-attributes
+    # pylint: disable=too-many-instance-attributes
     """
     Bot class for sharding later
     """
+
     def __init__(self):
         # Data you can use for stuff
         # How many members can the bot see
@@ -47,11 +42,11 @@ class Rednako(commands.Bot):
         self.idnum = None
         # Uptime of the bot
         self.uptime = 0
-        # Stringified Version
+        # String Version
         self.uptime_str = ""
 
-        # Inheritance Seperator
-        # Do not put settings below this unless you dont want them to show up on vars commands
+        # Inheritance Separator
+        # Do not put settings below this unless you don't want them to show up on vars commands
         self.vars = set(vars(self))
 
         # Does it update its status
@@ -59,20 +54,32 @@ class Rednako(commands.Bot):
         # Time when the bot started
         self.starttime = time.time()
         # Current Status
-        self.status_str = f'{config["default_activity"]}'
+        self.status_str = config["default_activity"]
         # Parameters for bot
         super().__init__(
-            command_prefix=self.get_prefix,         # Set the prefix
-            description='Rednako Public Bot',       # Set a description for the bot
-            owner_id=config['owner_id'],            # Your unique User ID
-            case_insensitive=True,                  # Make the commands case insensitive
-            intents=discord.Intents.all(),          # Entirely Optional
-            help_command=PrettyHelp()               # Default help command
+            command_prefix=self.get_prefix,  # Set the prefix
+            description='Rednako Public Bot',  # Set a description for the bot
+            owner_id=config['owner_id'],  # Your unique User ID
+            case_insensitive=True,  # Make the commands case insensitive
+            intents=discord.Intents.all(),  # Entirely Optional
+            help_command=PrettyHelp()  # Default help command
         )
 
         # Task Section
         self.update.start()
         self.gen_uptime.start()
+        self.configs = [
+            ['xp', {
+                'enabled': False
+            }],
+            ['muted', {}],
+            ["economy", {}],
+            ['settings', {
+                'errors': False,
+                'djmode': None,
+                'prefix': '='
+            }]
+        ]
 
     def grab_servers(self):
         """
@@ -91,31 +98,26 @@ class Rednako(commands.Bot):
             Returns:
                 members (int): Members the bot found
         """
-        _members = 0
-        for _ in self.get_all_members():
-            _members += 1
-        self.members = _members
+        self.members = len(list(self.get_all_members()))
         return self.members
 
-    async def get_prefix(self, ctx):
-        #pylint: disable=arguments-differ
-        # the arguments dont actually differ, pylint is just dumb
+    async def get_prefix(self, message):
         """
         Called from commands.Bot to set the prefix for guilds
 
             Parameters:
-                ctx (commands.Context): Context Reference
+                message (discord.Message): Message Reference
 
             Returns:
                 Prefix (str): Prefix for that guild
         """
-        if not ctx.guild:
-            return commands.when_mentioned_or(self.prefix)(self, ctx)
+        if not message.guild:
+            return commands.when_mentioned_or(self.prefix)(self, message)
 
-        if not jsonreader.check_exist('prefix'): # File will be created shortly
+        if not jsonreader.check_exist('settings'):  # File will be created shortly
             return commands.when_mentioned
 
-        return jsonreader.read_file(ctx.guild.id, 'prefix') # Guild Specific Preset
+        return jsonreader.read_file(message.guild.id, 'settings')['prefix']  # Guild Specific Preset
 
     async def on_guild_join(self, guild):
         """
@@ -124,7 +126,9 @@ class Rednako(commands.Bot):
             Parameters:
                 guild (discord.Guild): Guild Object
         """
-        jsonreader.write_file(guild.id, 'prefix', self.prefix)
+        for jsonfile in self.configs:
+            if not jsonreader.read_file(guild.id, jsonfile[0]):
+                jsonreader.write_file(guild.id, jsonfile[0], jsonfile[1])
 
     async def on_guild_remove(self, guild):
         """
@@ -133,23 +137,57 @@ class Rednako(commands.Bot):
             Parameters:
                 guild (discord.Guild): Guild Object
         """
-        jsonreader.remove(guild.id, 'prefix')
+        for jsonfile in self.configs:
+            jsonreader.remove(guild.id, jsonfile[0])
 
-    async def on_command_error(self, ctx, error):
-        #pylint: disable=arguments-differ
-        # the arguments dont actually differ, pylint is just dumb
+    async def on_message(self, message):
+        """
+        Event signal called when the bot sees a message
+
+            Parameters:
+                message (discord.Message): Message Reference
+        """
+        if self.user.id == message.author.id:  # Bad idea to not make the bot ignore itself
+            return
+        await self.process_commands(message)  # otherwise it wont respond
+        data = jsonreader.read_file(message.guild.id, 'xp')  # Get xp data for the guild
+        if data['enabled']:  # this is off by default because other funny exp bots
+            try:  # we don't make the data until it is needed. bad idea? Maybe.
+                idxp = data[str(message.author.id)]  # Authors EXP Data {xp, goal, level, last_used}
+                if time.time() < idxp['last_used'] + 300:  # Five minute wait period
+                    return
+                idxp['xp'] += random.randint(1, 10)  # RNG for the fun of it
+                idxp['last_used'] = time.time()  # Reset clock
+                if idxp['xp'] >= idxp['goal']:
+                    idxp['level'] += 1  # Increment level
+                    idxp['goal'] = 20 + idxp['level'] * 25  # gotta have challenge
+                    await message.reply(
+                        f"Congratulations, {message.author.mention}! you have reached level {idxp['level']}")
+                data[str(message.author.id)] = idxp  # Rewrite modified data
+            except KeyError:
+                data[str(message.author.id)] = {
+                    'xp': 0,
+                    'goal': 20,
+                    'level': 0,
+                    'last_used': time.time()
+                }
+            jsonreader.write_file(message.guild.id, 'xp', data)
+
+    async def on_command_error(self, context, exception):
         """
         Event signal called when a command errors out
 
             Parameters:
-                ctx (commands.Context): Context Reference
-                error (Exception): Error that happened
+                context (commands.Context): Context Reference
+                exception (Exception): Error that happened
         """
-        if isinstance(error, commands.CommandNotFound):
-            if jsonreader.read_file(ctx.guild.id, 'errors'):
-                return await ctx.send(f"{ctx.author.mention}, command \'{ctx.invoked_with}\' not found!")
+        if not jsonreader.read_file(context.guild.id, 'settings')['errors']:
             return
-        await ctx.send(error)
+        if isinstance(exception, commands.CommandNotFound):
+            return await context.send(f"{context.author.mention}, command \'{context.invoked_with}\' not found!")
+        if isinstance(exception, commands.CheckFailure):
+            return  # Very annoying error, it just says the check failed
+        await context.send(f'{type(exception)}: {exception}')
 
     @tasks.loop(seconds=5)
     async def update(self):
@@ -158,8 +196,8 @@ class Rednako(commands.Bot):
         """
         if self.updatestatus:
             await self.wait_until_ready()
-            members = self.grab_members()
-            servers = self.grab_servers()
+            self.grab_members()
+            self.grab_servers()
             await self.change_presence(
                 activity=discord.Activity(name=self.status_str.format(self=self), type=2)
             )
@@ -180,13 +218,13 @@ class Rednako(commands.Bot):
         """
         self.name = self.user.name
         self.idnum = self.user.id
-        self.grab_members()
         self.grab_servers()
         print("Finished Booting Up")
         print(f'Members: {self.members}')
         print(f'Servers: {self.servers}')
         print(f'Logged in as {self.user.name} - {self.user.id}')
         manager.opendash(self)
+
 
 bot = Rednako()
 bot.run(config['token'], reconnect=True)

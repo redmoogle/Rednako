@@ -10,20 +10,14 @@ Usage of this cog requires Python 3.6 or higher due to the use of f-strings.
 Compatibility with Python 3.5 should be possible if f-strings are removed.
 """
 
-# Standard Python Modules
 import re
 import math
 import time
-
-# Discord Modules
 import discord
 from discord.ext import commands
-
-# RED lavalink module
 import lavalink
-
-# ../modules
 from modules import helpers, jsonreader
+
 
 def djconfig(ctx):
     """
@@ -37,7 +31,7 @@ def djconfig(ctx):
     """
     if not ctx.guild:
         return False
-    guildrole = jsonreader.read_file(ctx.guild.id, 'djmode')
+    guildrole = jsonreader.read_file(ctx.guild.id, 'settings')['djmode']
     if guildrole is None:
         return True
 
@@ -46,18 +40,21 @@ def djconfig(ctx):
         return True
     return False
 
+
 url_rx = re.compile(r'https?://(?:www\.)?.+')
+
 
 class Music(commands.Cog):
     """
     Play your weeb songs
     """
+
     def __init__(self, bot):
         self.bot = bot
 
         if not hasattr(bot, 'lavalink'):  # This ensures the client isn't overwritten during cog reloads.
             self.bot.lavalink = lavalink.Client(self.bot.user.id)
-            self.bot.lavalink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')  # Host, Port, Password, Region, Name
+            self.bot.lavalink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')
             self.bot.add_listener(bot.lavalink.voice_update_handler, 'on_socket_response')
 
         lavalink.add_event_hook(self.track_hook)
@@ -94,7 +91,7 @@ class Music(commands.Cog):
 
     async def ensure_voice(self, ctx):
         """
-        Additonal checks that prevents the lavalink code from breaking
+        Additional checks that prevents the lavalink code from breaking
 
             Parameters:
                 ctx (commands.Context): Context Reference
@@ -108,7 +105,7 @@ class Music(commands.Cog):
 
         # Should_connect is used for commands that start playback ~~aka 1 command~~
         should_connect = ctx.command.name in ('play', 'p')
-        # This is to ignore commands that shouldnt require people in the same VC
+        # This is to ignore commands that shouldn't require people in the same VC
         ignored = ctx.command.name in ('queue', 'np', 'current', 'reset')
 
         # Make sure they're in a voice-chat
@@ -157,16 +154,16 @@ class Music(commands.Cog):
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
-                ['Duration: ', f'{helpers.parse_duration(player.current.duration/1000)[0]}'],
+                ['Duration: ', f'{helpers.parse_duration(player.current.duration / 1000)[0]}'],
                 ['By: ', f'{player.current.author}'],
                 ['Requested By: ', f'<@{player.current.requester}>']
             ]
-            embed=helpers.embed(
-                title='Now Playing: ',
+            embed = helpers.embed(
                 description=f'```css\n{player.current.title}\n```',
+                title='Now Playing: ',
                 thumbnail=vidthumbnail,
                 fields=info
-                )
+            )
             await notify_channel.send(embed=embed)
 
     async def connect_to(self, guild_id: int, channel_id: str):
@@ -216,7 +213,7 @@ class Music(commands.Cog):
         results = await player.node.get_tracks(query)
 
         # Results could be None if Lavalink returns an invalid response (non-JSON/non-200 (OK)).
-        # ALternatively, resullts['tracks'] could be an empty array if the query yielded no tracks.
+        # Alternatively, results['tracks'] could be an empty array if the query yielded no tracks.
         if not results or not results['tracks']:
             return await ctx.send('Nothing found!')
 
@@ -314,18 +311,18 @@ class Music(commands.Cog):
                 ctx (commands.Context): Context Reference
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
-        duration, fill = helpers.parse_duration(player.current.duration/1000)
+        duration, fill = helpers.parse_duration(player.current.duration / 1000)
         current = helpers.parse_duration(round(time.time() - player.fetch("time")), fill)[0]
 
         if player.current:
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
-                    ['Song: ', f'[{player.current.title}]({player.current.uri})'],
-                    ['Duration: ', f'{current}/{duration}'],
-                    ['By: ', f'{player.current.author}'],
-                    ['Requested By: ', f'<@{player.current.requester}>']
-                ]
-            embed=helpers.embed(
+                ['Song: ', f'[{player.current.title}]({player.current.uri})'],
+                ['Duration: ', f'{current}/{duration}'],
+                ['By: ', f'{player.current.author}'],
+                ['Requested By: ', f'<@{player.current.requester}>']
+            ]
+            embed = helpers.embed(
                 title='Now Playing: ',
                 description=f'```css\n{player.current.title}\n```',
                 thumbnail=vidthumbnail,
@@ -360,15 +357,15 @@ class Music(commands.Cog):
         # End of that page
         end = start + items_per_page
 
-        # Make sure they dont pull up a 'invalid' page
+        # Make sure they don't pull up a 'invalid' page
         if page > pages:
             return await ctx.send('Theres nothing on that page')
 
         for index, track in enumerate(playerqueue[start:end], start=start):
-            queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri}) | {helpers.parse_duration(track.duration/1000)[0]}\n'
+            queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri}) | {helpers.parse_duration(track.duration / 1000)[0]}\n'
 
         embed = discord.Embed(colour=discord.Color.blurple(),
-                            description=f'**{len(playerqueue)} tracks**\n\n{queue_list}')
+                              description=f'**{len(playerqueue)} tracks**\n\n{queue_list}')
         embed.set_footer(text=f'Viewing page {page}/{pages}')
         await ctx.send(embed=embed)
 
@@ -390,10 +387,10 @@ class Music(commands.Cog):
             if player.current is None:
                 await ctx.send(':asterisk: | Bot is not playing any music.')
 
-        gain = max(min(1, gain), -0.25)
-        await player.set_gains((0, gain*.75),(1, gain*.75),(2, gain*.75),(3, gain),(4, gain*.75))
+        gain = max(min(1.0, gain), -0.25)
+        await player.set_gains((0, gain * .75), (1, gain * .75), (2, gain * .75), (3, gain), (4, gain * .75))
         if gain:
-            await ctx.send(f'Bass set to {(gain+1)*100}%')
+            await ctx.send(f'Bass set to {(gain + 1) * 100}%')
         else:
             await ctx.send('Bass set to 100%')
 
@@ -415,10 +412,10 @@ class Music(commands.Cog):
             if player.current is None:
                 await ctx.send(':asterisk: | Bot is not playing any music.')
 
-        gain = max(min(1, gain), -0.25)
-        await player.set_gains((5, gain*.75),(6, gain*.75),(7, gain*.75),(8, gain),(9, gain*.75))
+        gain = max(min(1.0, gain), -0.25)
+        await player.set_gains((5, gain * .75), (6, gain * .75), (7, gain * .75), (8, gain), (9, gain * .75))
         if gain:
-            await ctx.send(f'Mids set to {(gain+1)*100}%')
+            await ctx.send(f'Mids set to {(gain + 1) * 100}%')
         else:
             await ctx.send('Mids set to 100%')
 
@@ -440,10 +437,10 @@ class Music(commands.Cog):
             if player.current is None:
                 await ctx.send(':asterisk: | Bot is not playing any music.')
 
-        gain = max(-0.25, min(1, gain))
-        await player.set_gains((10, gain*.75),(11, gain*.75),(12, gain*.75),(13, gain),(14, gain*.75))
+        gain = max(min(1.0, gain), -0.25)
+        await player.set_gains((10, gain * .75), (11, gain * .75), (12, gain * .75), (13, gain), (14, gain * .75))
         if gain:
-            await ctx.send(f'Treble set to {(gain+1)*100}%')
+            await ctx.send(f'Treble set to {(gain + 1) * 100}%')
         else:
             await ctx.send('Treble set to 100%')
 
