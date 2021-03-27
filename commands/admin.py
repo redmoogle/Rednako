@@ -20,6 +20,10 @@ class Admin(commands.Cog):
         if ctx.guild:
             await ctx.message.delete()
 
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error, discord.NotFound):
+            return
+
     @commands.command(
         name='purge',
         brief='delete messages'

@@ -111,10 +111,10 @@ class Rednako(commands.Bot):
         if not message.guild:
             return commands.when_mentioned_or(self.prefix)(self, message)
 
-        if not jsonreader.check_exist('settings'): # File will be created shortly
+        if not jsonreader.check_exist('settings'):  # File will be created shortly
             return commands.when_mentioned
 
-        return jsonreader.read_file(message.guild.id, 'settings')['prefix'] # Guild Specific Preset
+        return jsonreader.read_file(message.guild.id, 'settings')['prefix']  # Guild Specific Preset
 
     async def on_guild_join(self, guild):
         """
@@ -177,7 +177,9 @@ class Rednako(commands.Bot):
             if jsonreader.read_file(context.guild.id, 'settings')['errors']:
                 return await context.send(f"{context.author.mention}, command \'{context.invoked_with}\' not found!")
             return
-        await context.send(exception)
+        if isinstance(exception, commands.CheckFailure):
+            return  # Very annoying error, it just says the check failed
+        await context.send(f'{type(exception)}: {exception}')
 
     @tasks.loop(seconds=5)
     async def update(self):

@@ -5,20 +5,22 @@ from discord.ext import commands
 from modules import helpers, jsonreader
 
 
-def xpcheck(ctx):
+def enabled():
     """
-    Checks if EXP is turned on.
+    commands.check for if XP tracking is enabled
+    """
+    def predicate(ctx):
+        """
+        Check to see if Xp tracking is enabled
 
         Parameters:
             ctx (commands.Context): Context Reference
 
         Returns:
-            xpenable (bool): is EXP tracking enabled
-    """
-    check = jsonreader.read_file(ctx.guild.id, 'xp')
-    if check['enabled']:
-        return True
-    return False
+            Check (bool): is XP tracking enabled
+        """
+        return jsonreader.read_file(ctx.guild.id, 'xp')['enabled']
+    return commands.check(predicate)
 
 
 class XP(commands.Cog):
@@ -28,11 +30,7 @@ class XP(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def cog_before_invoke(self, ctx):
-        if xpcheck(ctx):
-            return True
-        return False
-
+    @enabled()
     @commands.command(
         name='exp',
         brief='check EXP'
@@ -62,6 +60,7 @@ class XP(commands.Cog):
             fields=info)
         )
 
+    @enabled()
     @commands.command(
         name='rankings',
         brief='check your failings'
@@ -97,6 +96,7 @@ class XP(commands.Cog):
         page = min(len(pages), page)
         await ctx.send(embed=helpers.embed(title='Server Rankings', fields=pages[page-1]))
 
+    @enabled()
     @commands.command(
         name='grankings',
         brief='Check how bad you are against everyone',
