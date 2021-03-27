@@ -28,7 +28,7 @@ class Admin(commands.Cog):
         name='purge',
         brief='delete messages'
     )
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_permissions(manage_channels=True)
     async def purge(self, ctx, purge: int):
         """
         Purges up-to 250 messages from a given channel
