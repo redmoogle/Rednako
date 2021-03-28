@@ -113,7 +113,7 @@ class Owner(commands.Cog):
                 ctx (commands.Context): Context Reference
         """
         info = []
-        for key in self.bot.var:
+        for key in self.bot.vars:
             info.append([f'self.{key}: ', self.bot.__dict__[key]])
         embed = helpers.embed(title='Usable Vars', fields=info)
         await ctx.send(embed=embed)

@@ -21,15 +21,20 @@ from modules import jsonreader, helpers, manager
 config = config.Config('./config/bot.cfg')
 
 
-class Data:
+class Rednako(commands.Bot):
+    # pylint: disable=too-many-instance-attributes
     """
-    Variables that are well pretty safe to use in the bot, shown in command
+    Bot class for sharding later
     """
+
     def __init__(self):
+        # Data you can use for stuff
         # How many members can the bot see
         self.members = 0
         # How many servers can the bot see
         self.servers = 0
+        # Default Prefix
+        self.prefix = '=='
         # Name of the bot
         self.name = None
         # ID of the bot
@@ -39,16 +44,9 @@ class Data:
         # String Version
         self.uptime_str = ""
 
-        self.var = set(vars(self))
-
-
-class Rednako(commands.Bot, Data):
-    """
-    Bot class for sharding later
-    """
-    def __init__(self):
-        # Initialize Data First
-        Data.__init__(self)
+        # Inheritance Separator
+        # Do not put settings below this unless you don't want them to show up on vars commands
+        self.vars = set(vars(self))
 
         # Does it update its status
         self.updatestatus = True
@@ -60,12 +58,12 @@ class Rednako(commands.Bot, Data):
         self.status = None
         # Parameters for bot
         super().__init__(
-            command_prefix=self.get_prefix,     # Set the prefix
-            description='Rednako Public Bot',   # Set a description for the bot
-            owner_id=config['owner_id'],        # Your unique User ID
-            case_insensitive=True,              # Make the commands case insensitive
-            intents=discord.Intents.all(),      # Make sure to set intents in the dev portal
-            help_command=PrettyHelp()           # Default help command
+            command_prefix=self.get_prefix,  # Set the prefix
+            description='Rednako Public Bot',  # Set a description for the bot
+            owner_id=config['owner_id'],  # Your unique User ID
+            case_insensitive=True,  # Make the commands case insensitive
+            intents=discord.Intents.all(),  # Entirely Optional
+            help_command=PrettyHelp()  # Default help command
         )
 
         # Task Section
@@ -114,7 +112,10 @@ class Rednako(commands.Bot, Data):
             Returns:
                 Prefix (str): Prefix for that guild
         """
-        if not jsonreader.check_exist('settings') or not message.guild:  # File will be created shortly
+        if not message.guild:
+            return commands.when_mentioned_or(self.prefix)(self, message)
+
+        if not jsonreader.check_exist('settings'):  # File will be created shortly
             return commands.when_mentioned
 
         return jsonreader.read_file(message.guild.id, 'settings')['prefix']  # Guild Specific Preset
@@ -220,7 +221,6 @@ class Rednako(commands.Bot, Data):
         self.name = self.user.name
         self.idnum = self.user.id
         self.grab_servers()
-        self.grab_members()
         print("Finished Booting Up")
         print(f'Members: {self.members}')
         print(f'Servers: {self.servers}')
