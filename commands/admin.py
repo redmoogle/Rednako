@@ -112,11 +112,12 @@ class Admin(commands.Cog):
                 mutetime (str): Time in 1w1d1h1m1s to mute for
         """
         mutetime = helpers.timeconv(mutetime)
+        guilddata = jsonreader.read_file(ctx.guild.id, 'muted')
 
         if victim is None: return await ctx.send('You need to specify someone to mute', delete_after=3)
         if mutetime is None: return await ctx.send('You need to specify a time', delete_after=3)
 
-        muterole = discord.utils.get(ctx.guild.roles, name='Muted')
+        muterole = discord.utils.get(ctx.guild.roles, id=guilddata['role'])
         if muterole is None:
             muterole = await ctx.guild.create_role(name='Muted', colour=discord.Colour.dark_gray(), reason='Mute setup')
             for channel in ctx.guild.channels:
@@ -125,14 +126,14 @@ class Admin(commands.Cog):
                 overrides = channel.overwrites_for(muterole)
                 overrides.send_messages = False
                 await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
+            guilddata['role'] = muterole.id
 
-        guilddata = jsonreader.read_file(ctx.guild.id, 'muted')
-        try:
+        if str(victim.id) in guilddata:  # Extend Mute
             data = guilddata[str(victim.id)]
             data['expiration'] += mutetime
             await ctx.send(f'They have been muted for an additional {mutetime}s')
-        except KeyError:
-            data = {'expiration': time.time() + mutetime, 'role': muterole.id}
+        else:
+            data = {'expiration': time.time() + mutetime}
             await victim.add_roles(muterole)
             await victim.send(embed=discord.Embed(title=f'You have been muted in: `{ctx.guild.name}` for `{mutetime}s`'))
         guilddata[str(victim.id)] = data

@@ -1,0 +1,69 @@
+.catArea{
+    background: #616161;
+    color: #d1d1d1;
+}
+
+.catArea > h2{
+    font-family: Montserrat, Tahoma, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-size: 1.2em;
+}
+
+.catArea > p{
+    margin-left: 25px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    word-wrap: break-word;
+}
+
+.catArea input{
+    padding: 5px;
+}
+
+.catArea > label{
+    margin-left: 5px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.catArea > ul{
+    list-style-type: none;
+}
+
+.catArea > ul > li{
+    margin-left: 25px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    word-wrap: break-word;
+}
+
+#botCategories{
+    margin-top: 25px;
+    margin-left: 25%;
+    text-align: left;
+    list-style-type: none;
+    background-color: #1d1d1d;
+    font-size: 2em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#botCategories > li{
+    display: inline;
+    margin: 15px;
+    cursor: pointer;
+}
+
+#botCategories > li > a{
+    text-decoration: none;
+    color: #d1d1d1;
+}
+
+#commandSection{
+    text-align: center;
+    font-weight: 400;
+    font-size: 3em;
+    color: white;
+    display: inline;
+}
+
+.category{
+    margin-left: 25%;
+    border: 3px solid rgb(43, 43, 43);
+    display: block;
+}

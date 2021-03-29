@@ -15,7 +15,7 @@ from cogwatch import watch
 from discord.ext import commands, tasks
 from pretty_help import PrettyHelp
 import config
-from modules import jsonreader, helpers
+from modules import jsonreader, helpers, manager
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
@@ -54,6 +54,8 @@ class Rednako(commands.Bot):
         self.starttime = time.time()
         # Current Status
         self.status_str = config["default_activity"]
+        # Last Status
+        self.status = None
         # Parameters for bot
         super().__init__(
             command_prefix=self.get_prefix,  # Set the prefix
@@ -71,7 +73,9 @@ class Rednako(commands.Bot):
             ['xp', {
                 'enabled': False
             }],
-            ['muted', {}],
+            ['muted', {
+                'role': None
+            }],
             ["economy", {}],
             ['settings', {
                 'errors': False,
@@ -197,6 +201,7 @@ class Rednako(commands.Bot):
             await self.wait_until_ready()
             self.grab_members()
             self.grab_servers()
+            self.status = self.status_str.format(self=self)
             await self.change_presence(
                 activity=discord.Activity(name=self.status_str.format(self=self), type=2)
             )
@@ -222,6 +227,7 @@ class Rednako(commands.Bot):
         print(f'Members: {self.members}')
         print(f'Servers: {self.servers}')
         print(f'Logged in as {self.user.name} - {self.user.id}')
+        manager.opendash(self)
 
 
 bot = Rednako()
