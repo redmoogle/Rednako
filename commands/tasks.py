@@ -23,7 +23,7 @@ class Task(commands.Cog):
 
     def cog_unload(self):
         self.mute.cancel()
-        self.storage.cancel()
+        self.check_guilds.cancel()
 
     @tasks.loop(seconds=5)
     async def mute(self):
@@ -32,20 +32,23 @@ class Task(commands.Cog):
         """
         for guild in self.bot.guilds:
             data = jsonreader.read_file(guild.id, 'muted')
-            for key in data:
-                mutedata = data[key]
-                if mutedata['expiration'] > time.time(): # this is probably marginally more efficient
+            guildrole = data['role']
+            for key in list(data):
+                if key == 'role':
                     continue
-                member = key
+                mutedata = data[key]
+                if mutedata['expiration'] > time.time():  # this is probably marginally more efficient
+                    continue
+                member = await guild.fetch_member(key)
                 await member.remove_roles(
-                    self.bot.get_guild(
-                        guild.get_role(mutedata['role'])
-                    )
+                        guild.get_role(guildrole)
                 )
                 await member.send(embed=discord.Embed(
                     title=f'You have been unmuted from: `{guild.name}`'
                     )
                 )
+                del data[key]
+                jsonreader.write_file(guild.id, 'muted', data)
 
     @tasks.loop(minutes=30)
     async def check_guilds(self):

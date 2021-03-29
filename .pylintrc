@@ -171,7 +171,7 @@ evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / stateme
 output-format=text
 
 # Tells whether to display a full report or only the messages.
-reports=no
+reports=true
 
 # Activate the evaluation score.
 score=yes
@@ -333,7 +333,7 @@ single-line-class-stmt=no
 
 # Allow the body of an if to be on the same line as the test if there is no
 # else.
-single-line-if-stmt=no
+single-line-if-stmt=yes
 
 
 [LOGGING]

@@ -5,6 +5,14 @@ Handles all thing config
 from discord.ext import commands
 import discord
 from modules import jsonreader
+import logging
+
+
+def isauthor(author):
+    """Makes sure they're the command invoker"""
+    def check(message):
+        return message.author == author
+    return check
 
 
 class Config(commands.Cog):
@@ -88,6 +96,36 @@ class Config(commands.Cog):
         if toggle['enabled']:
             return await ctx.send("Enabling EXP tracking")
         return await ctx.send("Disabling EXP tracking")
+
+    @commands.command(
+        name='muterole',
+        brief='set the role for the mute'
+    )
+    @commands.has_permissions(kick_members=True)
+    async def muterole(self, ctx, role: discord.Role = None):
+        data = jsonreader.read_file(ctx.guild.id, 'muted')
+        if role is None:
+            await ctx.send('No mute role found... Reset? y/n')
+            response = await self.bot.wait_for('message', check=isauthor(ctx.author), timeout=15)
+            logging.error(response.content)
+            if response.content in ['y', 'yes']:
+                muterole = await ctx.guild.create_role(name='Muted', colour=discord.Colour.dark_gray(),
+                                                       reason='Mute setup')
+                for channel in ctx.guild.channels:
+                    if channel.permissions_synced:
+                        continue
+                    overrides = channel.overwrites_for(muterole)
+                    overrides.send_messages = False
+                    await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
+                    data['role'] = muterole.id
+                    jsonreader.write_file(ctx.guild.id, 'muted', data)
+
+                await ctx.send('Mute role reset')
+            return
+
+        await ctx.send(f'Mute role set for {role.name}')
+        data['role'] = role.id
+        jsonreader.write_file(ctx.guild.id, 'muted', data)
 
 
 def setup(bot):

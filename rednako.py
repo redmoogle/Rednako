@@ -73,7 +73,9 @@ class Rednako(commands.Bot):
             ['xp', {
                 'enabled': False
             }],
-            ['muted', {}],
+            ['muted', {
+                'role': None
+            }],
             ["economy", {}],
             ['settings', {
                 'errors': False,
