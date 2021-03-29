@@ -6,5 +6,5 @@ discord.py == 1.6.0
 discord_text_sanitizer == 0.0.10
 lavalink == 3.1.4
 nekos.py == 1.0.3
-requests~=2.24.0
+requests~=2.25.1
 asyncio~=3.4.3
