@@ -23,12 +23,11 @@
         </div>
 
         <div id="commandCode", class="info">
-            <h1>Bot Info</h1>
+            <h1>Format Variables:</h1>
             <!--Same line to prevent unnecessary whitespace -->
-            Uptime: {{ bot.uptime_str }}<br>
-            Servers: {{ bot.servers }}<br>
-            Members: {{ bot.members }}<br>
-            Status: {{ bot.status }}<br>
+            {% for key in bot.vars %}
+                <strong>self.{{ key }}</strong>: {{ bot.__dict__[key] }}<br/>
+            {% endfor %}
         </div>
 
         <ul id="botCategories">
@@ -49,29 +48,34 @@
             </li>
         </ul>
 
-        <div class="category">
-            <form id="commandForm" method="POST">
-                <input type="hidden" name="formName" value="commands">
-                {% for key in keys %}
-                    <h1 id="commandSection">{{ key }}</h1>
-                    {% for cmd in enabled_commands[key] %}
-                        <div class="catArea">
-                            <h2 id={{ cmd }}>{{ cmd }}
-                            </h2>
-                            <strong>{{ cmd.brief }}</strong>
-                        </div>
-                    {% endfor %}
-                {% endfor %}
+        <div class="category" method="POST">
+            <div class="catArea">
+                <h1>Status:</h1>
+                <br>
+                <h3>String:</h3>
+                <form method="POST">
+                    <input type="text" name="status" value="{{ bot.status_str }}" size="80"/>
+                </form>
+                <br>
+                <form method="POST">
+                    <input type="number" name="speed" value="{{ bot.loopspeed }}" min="2"/>
+                </form>
 
-                {% for cmd in disabled_commands %}
-                    <div class="catArea">
-                        <h2>{{ cmd }}</h2>
-                        <strong></strong> {{ cmd._callback.brief }}
-                        {% set code_str = getsource(cmd._callback).replace("`", "\`") %}
-                        <input type="button" onclick="showCode(`{{ code_str }}`);" value="Code">
-                    </div>
-                {% endfor %}
-            </form>
+                <br>
+                <h3>Local: {{ local }}</h3>
+                <h3>Remote: {{ remote }}</h3>
+                <br>
+                <h2>Use Reboot is rednako.py is modified</h2>
+                <br>
+                <form method="POST">
+                    <input class="greenButton" name="reboot" type="submit" value="Reboot"/>
+                </form>
+                <br>
+                <form method="POST">
+                    <input class="greenButton" name="update" type="submit" value="Pull"/>
+                </form>
+                <br>
+            </div>
         </div>
     </body>
 </html>

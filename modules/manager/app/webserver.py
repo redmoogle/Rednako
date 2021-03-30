@@ -1,11 +1,17 @@
 """
 Discord bot flask webserver
 """
+import asyncio
+import sys
+import subprocess
 import inspect
 import threading
 from flask import Flask, request, url_for, redirect, render_template
+import git
+import logging
 
-
+loop = asyncio.get_event_loop()
+repo = git.Repo(search_parent_directories=True)
 app = Flask(__name__)
 
 disabled_cogs = {}
@@ -49,6 +55,28 @@ def render_static():
     Homepage
     """
     return redirect(url_for("commands"))
+
+
+@app.route("/manage", methods=["GET", "POST"])
+def manage():
+    if request.method == "POST":
+        for item in request.form.items():
+            if item[0] == 'reboot':
+                loop.create_task(bot.logout())
+                subprocess.call(f'{bot.path}/restart.sh')
+                sys.exit()
+            if item[0] == 'update':
+                gitcmd = git.cmd.Git(repo)
+                gitcmd.pull()
+            if item[0] == 'status':
+                bot.status_str = item[1]
+            if item[0] == 'speed':
+                bot.loopspeed = int(item[1])
+                bot.update.change_interval(seconds=int(item[1]))
+                bot.update.restart()
+
+    return render_template("manager.html", bot=bot, command_prefix=get_prefix(), getfile=inspect.getfile,
+                           remote=str(repo.remotes.origin.fetch()[0].commit), local=repo.head.object.hexsha)
 
 
 @app.route("/cogs", methods=["GET", "POST"])
@@ -145,7 +173,7 @@ def shards():
     if request.method == "POST":
         return redirect(url_for("shards"))
 
-    # get bot latencies if it is sharded, else get the bot's only latency
+    # get bot latencies if it is sharded, else get the bots only latency
     latencies = None
     if hasattr(bot, "latencies"):
         latencies = bot.latencies

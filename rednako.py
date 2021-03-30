@@ -9,6 +9,7 @@ in the config make sure to update the .format in here
 
 """
 import random
+from pathlib import Path
 import time
 import discord
 from cogwatch import watch
@@ -33,8 +34,6 @@ class Rednako(commands.Bot):
         self.members = 0
         # How many servers can the bot see
         self.servers = 0
-        # Default Prefix
-        self.prefix = '=='
         # Name of the bot
         self.name = None
         # ID of the bot
@@ -48,6 +47,8 @@ class Rednako(commands.Bot):
         # Do not put settings below this unless you don't want them to show up on vars commands
         self.vars = set(vars(self))
 
+        # Looping Speed
+        self.loopspeed = 5
         # Does it update its status
         self.updatestatus = True
         # Time when the bot started
@@ -56,6 +57,8 @@ class Rednako(commands.Bot):
         self.status_str = config["default_activity"]
         # Last Status
         self.status = None
+        # Path of the parent dir
+        self.path = Path(__file__).parent
         # Parameters for bot
         super().__init__(
             command_prefix=self.get_prefix,  # Set the prefix
@@ -115,7 +118,7 @@ class Rednako(commands.Bot):
                 Prefix (str): Prefix for that guild
         """
         if not message.guild:
-            return commands.when_mentioned_or(self.prefix)(self, message)
+            return commands.when_mentioned
 
         if not jsonreader.check_exist('settings'):  # File will be created shortly
             return commands.when_mentioned
