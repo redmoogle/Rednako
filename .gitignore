@@ -1,0 +1,8 @@
+/.vscode/**/*
+/.idea/**/*
+__pycache__/
+.py[cod]
+.log
+.cfg
+.json
+.db

@@ -1,0 +1,10 @@
+Flask >= 1.1.2
+GitPython >= 3.1.14
+cogwatch >= 2.1.0
+config >= 0.5.0.post0
+discord.py >= 1.6.0
+discord_better_help >= 1.0.1
+discord_text_sanitizer >= 0.0.10
+lavalink >= 3.1.4
+nekos.py >= 1.0.3
+requests >= 2.25.1

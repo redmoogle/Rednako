@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Discord Bot Management</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css.css') }}">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.2/styles/default.min.css">
+    </head>
+
+    <body>
+        <h1 class="mainHeader">Discord Bot Management</h1>
+
+        <div id="botInfo">
+            <h2>{{ bot.user }}</h2>
+            <p>ID: {{ bot.user.id }}</p>
+            <p>Command Prefix: {{ command_prefix }}</p>
+            <p>Shard Count: {{ bot.shard_count }}</p>
+        </div>
+
+        <div id="commandCode" class="info">
+            <h1>Bot Info</h1>
+            <!--Same line to prevent unnecessary whitespace -->
+            Uptime: {{ bot.uptime_str }}<br>
+            Servers: {{ bot.servers }}<br>
+            Members: {{ bot.members }}<br>
+            Status: {{ bot.status }}<br>
+        </div>
+
+        <ul id="botCategories">
+            <li>
+                <a href="{{ url_for('cogs') }}">Cogs</a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('commands') }}">Commands</a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('shards') }}">Shards</a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('manage') }}">Manage</a>
+            </li>
+        </ul>
+
+        <div class="category" id="bg">
+            {% for key in keys %}
+                <h1 id="commandSection">{{ key }}</h1>
+                {% for cmd in enabled_commands[key] %}
+                    <div class="catArea">
+                        <h2 id={{ cmd }}>{{ cmd }}
+                        </h2>
+                        <strong>{{ cmd.brief }}</strong>
+                    </div>
+                    <br>
+                {% endfor %}
+            {% endfor %}
+
+            {% for cmd in disabled_commands %}
+                <div class="catArea">
+                    <h2>{{ cmd }}</h2>
+                    <strong></strong> {{ cmd._callback.brief }}
+                    <br>
+                </div>
+            {% endfor %}
+            <br>
+        </div>
+    </body>
+</html>
