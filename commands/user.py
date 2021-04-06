@@ -3,6 +3,7 @@ Random commands for the user
 """
 import config
 import discord
+import requests
 import discordtextsanitizer as dts
 import git
 from discord.ext import commands
@@ -111,7 +112,7 @@ class User(commands.Cog):
     )
     async def ping(self, ctx):
         """
-        Pings discord API and waits for heartbeat
+        Pangs discord API and waits for heartbeat
 
             Parameters:
                 ctx (commands.Context): Context Reference
@@ -119,6 +120,24 @@ class User(commands.Cog):
         embed = discord.Embed(title="Pong!", color=discord.Color.blurple())
         embed.add_field(name='API: ', value=f'Latency: {round(self.bot.latency*1000)}ms')
         await ctx.send(embed=embed)
+
+    @commands.command(
+        name='catfact',
+        brief='get slapped by the cat'
+    )
+    async def catfact(self, ctx):
+        """
+        Gets a random probably depressing cat fact
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+        """
+        response = requests.get('https://meowfacts.herokuapp.com/')
+        data = response.json()['data'][0]
+        info = [
+            [data, f'Requested By: {ctx.author}']
+        ]
+        await ctx.send(embed=helpers.embed(title='Cat Fact', fields=info))
 
 
 def setup(bot):
