@@ -6,7 +6,27 @@ import requests
 import discord
 from discord.ext import commands
 import nekos
-from modules import helpers
+from modules import helpers, animal
+
+
+def grab_animal(_animal: str = None):
+    """
+    Validates that the animal is correct then grabs image
+
+        Parameters:
+            _animal: Name of a animal to grab
+
+        Returns:
+            url: Image URL
+    """
+    if _animal is None:
+        return animal.Animals(None).image()
+    if _animal == "bird":
+        _animal = "birb"  # who shitposts in their module?
+    if _animal not in ["cat", "dog", "koala", "fox", "birb", "red_panda", "panda", "racoon", "kangaroo"]:
+        return None
+
+    return animal.Animals(_animal).image()  # Grabs image
 
 
 class Image(commands.Cog):
@@ -90,6 +110,24 @@ class Image(commands.Cog):
         ]
         random.shuffle(randomtitles)
         await ctx.send(embed=helpers.embed(title=randomtitles[0], image=data))
+
+    @commands.command(
+        name='animal',
+        brief='gets image | Valid'
+              '`cat`, `dog`, `koala`, `fox`, `bird`, `red_panda`, `panda`, `racoon`, `kangaroo`'
+    )
+    async def animal(self, ctx, _animal: str = None):
+        url = grab_animal(_animal)
+        if not url:
+            await ctx.send(f'{_animal} does not exist')
+            return
+
+        if not _animal:
+            _name = 'Random Animal Image'
+        else:
+            _name = f'Random {_animal.capitalize()} Image'
+
+        await ctx.send(embed=helpers.embed(title=_name, image=url))
 
 
 def setup(bot):
