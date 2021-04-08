@@ -7,10 +7,28 @@ import requests
 import discordtextsanitizer as dts
 import git
 from discord.ext import commands
-from modules import helpers, jsonreader
+from modules import helpers, jsonreader, animal
 
 config = config.Config('./config/bot.cfg')
 repo = git.Repo(search_parent_directories=True)
+
+
+def grab_animal(_animal: str = None):
+    """
+    Validates that the animal is correct then grabs image
+
+        Parameters:
+            _animal: Name of a animal to grab
+
+        Returns:
+            url: Image URL
+    """
+    if _animal is None:
+        return animal.Animals(None).fact()
+    if _animal not in ["cat", "dog", "koala", "fox", "bird", "red_panda", "panda", "racoon", "kangaroo"]:
+        return None
+
+    return animal.Animals(_animal).fact()  # Grabs image
 
 
 class User(commands.Cog):
@@ -132,12 +150,31 @@ class User(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        response = requests.get('https://meowfacts.herokuapp.com/')
-        data = response.json()['data'][0]
+        fact = grab_animal('cat')
         info = [
-            [data, f'Requested By: {ctx.author}']
+            [fact, f'Requested By: {ctx.author}']
         ]
         await ctx.send(embed=helpers.embed(title='Cat Fact', fields=info))
+
+    @commands.command(
+        name='animalfact'
+    )
+    async def animalfact(self, ctx, _animal: str = None):
+        """`cat`, `dog`, `koala`, `fox`, `bird`, `red_panda`, `panda`, `racoon`, `kangaroo`"""
+        fact = grab_animal(_animal)
+        if not fact:
+            return await ctx.send(f'{_animal} does not exist')
+
+        if not _animal:
+            _name = 'Random Animal Fact'
+        else:
+            _name = f'Random {_animal.capitalize()} Fact'
+
+        info = [
+            [fact, f'Requested By: {ctx.author}']
+        ]
+
+        await ctx.send(embed=helpers.embed(title=_name, fields=info))
 
 
 def setup(bot):

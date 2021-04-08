@@ -47,15 +47,10 @@ class Animals:
     def image(self):
         """Returns the image url of the animal"""
         options = ("cat", "dog", "koala", "fox", "birb", "red_panda", "panda", "racoon", "kangaroo")
-
         if self.animal is None:
             self.animal = random.choice(options)
-
         if self.animal not in options:
-            raise RequestError(
-                self.animal + "is not a valid options\n"
-                              "Valid Options are cat, dog, koala, fox, birb, red_panda, panda, racoon, kangaroo")
-
+            return False
         r = requests.get("https://some-random-api.ml/img/" + self.animal)
         r = r.json()
         return r["link"]
@@ -63,15 +58,10 @@ class Animals:
     def fact(self):
         """Returns the fact of the animal"""
         options = ("cat", "dog", "panda", "koala", "fox", "bird", "racoon", "kangaroo", "elephant", "giraffe", "whale")
-        if not self.animal in options:
-            raise RequestError(
-                self.animal + "is Not a valid option\nValid Options are cat, dog, panda, koala, fox, bird, racoon, kangaroo, elephant, giraffe, whale")
-        if self.animal == None:
-            choice = random.choice(options)
-            r = requests.get("https://some-random-api.ml/facts/" + choice)
-            r = r.json()
-            return r["fact"]
-        else:
-            r = requests.get("https://some-random-api.ml/facts/" + self.animal)
-            r = r.json()
-            return r["fact"]
+        if not self.animal:
+            self.animal = random.choice(options)
+        if self.animal not in options:
+            return False
+        r = requests.get("https://some-random-api.ml/facts/" + self.animal)
+        r = r.json()
+        return r["fact"]

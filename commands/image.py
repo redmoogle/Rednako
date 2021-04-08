@@ -98,8 +98,7 @@ class Image(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        response = requests.get('https://aws.random.cat/meow')
-        data = (response.json())['file']
+        url = grab_animal('cat')
         randomtitles = [
             "Meow",
             "Mao",
@@ -109,18 +108,16 @@ class Image(commands.Cog):
             "*Cat Noises*"
         ]
         random.shuffle(randomtitles)
-        await ctx.send(embed=helpers.embed(title=randomtitles[0], image=data))
+        await ctx.send(embed=helpers.embed(title=randomtitles[0], image=url))
 
     @commands.command(
-        name='animal',
-        brief='gets image | Valid'
-              '`cat`, `dog`, `koala`, `fox`, `bird`, `red_panda`, `panda`, `racoon`, `kangaroo`'
+        name='animal'
     )
     async def animal(self, ctx, _animal: str = None):
+        """`cat`, `dog`, `koala`, `fox`, `bird`, `red_panda`, `panda`, `racoon`, `kangaroo`"""
         url = grab_animal(_animal)
         if not url:
-            await ctx.send(f'{_animal} does not exist')
-            return
+            return await ctx.send(f'{_animal} does not exist')
 
         if not _animal:
             _name = 'Random Animal Image'
