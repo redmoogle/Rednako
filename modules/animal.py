@@ -8,11 +8,6 @@ Did it because it needs bugfixes
 """
 
 
-class RequestError(Exception):
-    """Base Exception"""
-    pass
-
-
 class Animals:
     """
     Base Class for the module. This module uses https://some-random-api.ml/.

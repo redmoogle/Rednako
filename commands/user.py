@@ -3,7 +3,6 @@ Random commands for the user
 """
 import config
 import discord
-import requests
 import discordtextsanitizer as dts
 import git
 from discord.ext import commands

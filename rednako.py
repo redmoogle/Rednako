@@ -11,6 +11,7 @@ in the config make sure to update the .format in here
 import sys
 import subprocess
 import random
+import logging
 from pathlib import Path
 import time
 import discord
@@ -22,6 +23,13 @@ from modules import jsonreader, helpers, manager
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
+
+# Logging
+logger = logging.getLogger('discord')
+logger.setLevel(logging.WARN)
+handler = logging.FileHandler(filename='logs/discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
 
 
 class Rednako(commands.Bot):
