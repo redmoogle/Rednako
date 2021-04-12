@@ -18,9 +18,9 @@ import discord
 from cogwatch import watch
 from discord.ext import commands, tasks
 from better_help import Help
+import guildreader
 import config
 from modules import helpers, manager
-import guildreader
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
