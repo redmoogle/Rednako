@@ -4,7 +4,7 @@ Handles automated tasks
 import time
 from discord.ext import commands, tasks
 import discord
-from modules import jsonreader
+import guildreader
 
 
 class Task(commands.Cog):
@@ -16,7 +16,7 @@ class Task(commands.Cog):
         self.mute.start()
         self.check_guilds.start()
         for config in self.bot.configs:
-            jsonreader.create_file(bot, config[0], config[1])
+            guildreader.create_file(bot, config[0], config[1])
 
     async def cog_before_invoke(self, ctx):
         await self.bot.wait_until_ready()
@@ -31,7 +31,7 @@ class Task(commands.Cog):
         Fast Iterating JSON, removes mutes if under 0 seconds till expiration
         """
         for guild in self.bot.guilds:
-            data = jsonreader.read_file(guild.id, 'muted')
+            data = guildreader.read_file(guild.id, 'muted')
             guildrole = data['role']
             for key in list(data):
                 if key == 'role':
@@ -48,7 +48,7 @@ class Task(commands.Cog):
                     )
                 )
                 del data[key]
-                jsonreader.write_file(guild.id, 'muted', data)
+                guildreader.write_file(guild.id, 'muted', data)
 
     @tasks.loop(minutes=30)
     async def check_guilds(self):
@@ -59,23 +59,23 @@ class Task(commands.Cog):
         for jsonfile in self.bot.configs:
             for guild in self.bot.guilds:
                 _guilds.append(str(guild.id))
-                if not jsonreader.read_file(guild.id, jsonfile[0]):
-                    jsonreader.write_file(guild.id, jsonfile[0], jsonfile[1])
+                if not guildreader.read_file(guild.id, jsonfile[0]):
+                    guildreader.write_file(guild.id, jsonfile[0], jsonfile[1])
 
                 if isinstance(jsonfile[1], dict):
-                    test = jsonreader.read_file(guild.id, jsonfile[0])
+                    test = guildreader.read_file(guild.id, jsonfile[0])
                     for setting in jsonfile[1]:
                         try:
                             _ = test[setting]
                         except KeyError:
                             test[setting] = jsonfile[1][setting]
-                    jsonreader.write_file(guild.id, jsonfile[0], test)
+                    guildreader.write_file(guild.id, jsonfile[0], test)
 
-            raw = jsonreader.dump(jsonfile[0])
+            raw = guildreader.dump(jsonfile[0])
             for key in raw:
                 if key in _guilds:
                     continue
-                jsonreader.remove(key, jsonfile[0])
+                guildreader.remove(key, jsonfile[0])
 
 
 def setup(bot):

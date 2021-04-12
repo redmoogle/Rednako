@@ -4,8 +4,7 @@ Handles all thing config
 
 from discord.ext import commands
 import discord
-from modules import jsonreader
-import logging
+import guildreader
 
 
 def isauthor(author):
@@ -35,7 +34,7 @@ class Config(commands.Cog):
                 ctx (commands.Context): Context Reference
                 prefix (str): what to change the prefix to
         """
-        jsonreader.write_file(ctx.guild.id, 'prefix', prefix)
+        guildreader.write_file(ctx.guild.id, 'prefix', prefix)
         await ctx.send(f'Prefix changed to: {prefix}')
         await ctx.me.edit(nick=f'{prefix} | {ctx.me.name}')
 
@@ -53,10 +52,10 @@ class Config(commands.Cog):
                 djrole (discord.Role): Role to enable for
         """
         if djrole is None:
-            jsonreader.write_file(ctx.guild.id, 'djmode', djrole)
+            guildreader.write_file(ctx.guild.id, 'djmode', djrole)
             return await ctx.send('Disabling DJ-Mode')
 
-        jsonreader.write_file(ctx.guild.id, 'djmode', str(djrole.id))
+        guildreader.write_file(ctx.guild.id, 'djmode', str(djrole.id))
         await ctx.send(f'Enabling DJ-Config for role: {djrole.name}')
 
     @commands.command(
@@ -71,9 +70,9 @@ class Config(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        toggle = jsonreader.read_file(ctx.guild.id, 'settings')
+        toggle = guildreader.read_file(ctx.guild.id, 'settings')
         toggle['errors'] = not toggle['errors']
-        jsonreader.write_file(ctx.guild.id, 'settings', toggle)
+        guildreader.write_file(ctx.guild.id, 'settings', toggle)
         if not toggle:
             return await ctx.send("Disabling showing of command not found")
         return await ctx.send("Enabling showing of command not found")
@@ -90,9 +89,9 @@ class Config(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        toggle = jsonreader.read_file(ctx.guild.id, 'xp')
+        toggle = guildreader.read_file(ctx.guild.id, 'xp')
         toggle['enabled'] = not toggle['enabled']
-        jsonreader.write_file(ctx.guild.id, 'xp', toggle)
+        guildreader.write_file(ctx.guild.id, 'xp', toggle)
         if toggle['enabled']:
             return await ctx.send("Enabling EXP tracking")
         return await ctx.send("Disabling EXP tracking")
@@ -103,11 +102,10 @@ class Config(commands.Cog):
     )
     @commands.has_permissions(kick_members=True)
     async def muterole(self, ctx, role: discord.Role = None):
-        data = jsonreader.read_file(ctx.guild.id, 'muted')
+        data = guildreader.read_file(ctx.guild.id, 'muted')
         if role is None:
             await ctx.send('No mute role found... Reset? y/n')
             response = await self.bot.wait_for('message', check=isauthor(ctx.author), timeout=15)
-            logging.error(response.content)
             if response.content in ['y', 'yes']:
                 muterole = await ctx.guild.create_role(name='Muted', colour=discord.Colour.dark_gray(),
                                                        reason='Mute setup')
@@ -118,14 +116,14 @@ class Config(commands.Cog):
                     overrides.send_messages = False
                     await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
                     data['role'] = muterole.id
-                    jsonreader.write_file(ctx.guild.id, 'muted', data)
+                    guildreader.write_file(ctx.guild.id, 'muted', data)
 
                 await ctx.send('Mute role reset')
             return
 
         await ctx.send(f'Mute role set for {role.name}')
         data['role'] = role.id
-        jsonreader.write_file(ctx.guild.id, 'muted', data)
+        guildreader.write_file(ctx.guild.id, 'muted', data)
 
 
 def setup(bot):

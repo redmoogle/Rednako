@@ -6,7 +6,8 @@ import random
 import time
 import discord
 from discord.ext import commands
-from modules import helpers, jsonreader
+from modules import helpers
+import guildreader
 
 
 class Admin(commands.Cog):
@@ -112,10 +113,12 @@ class Admin(commands.Cog):
                 mutetime (str): Time in 1w1d1h1m1s to mute for
         """
         mutetime = helpers.timeconv(mutetime)
-        guilddata = jsonreader.read_file(ctx.guild.id, 'muted')
+        guilddata = guildreader.read_file(ctx.guild.id, 'muted')
 
-        if victim is None: return await ctx.send('You need to specify someone to mute', delete_after=3)
-        if mutetime is None: return await ctx.send('You need to specify a time', delete_after=3)
+        if victim is None:
+            return await ctx.send('You need to specify someone to mute', delete_after=3)
+        if mutetime is None:
+            return await ctx.send('You need to specify a time', delete_after=3)
 
         muterole = discord.utils.get(ctx.guild.roles, id=guilddata['role'])
         if muterole is None:
@@ -137,7 +140,7 @@ class Admin(commands.Cog):
             await victim.add_roles(muterole)
             await victim.send(embed=discord.Embed(title=f'You have been muted in: `{ctx.guild.name}` for `{mutetime}s`'))
         guilddata[str(victim.id)] = data
-        jsonreader.write_file(ctx.guild.id, 'muted', guilddata)
+        guildreader.write_file(ctx.guild.id, 'muted', guilddata)
 
     @commands.command(
         name='unmute',
@@ -154,7 +157,7 @@ class Admin(commands.Cog):
         """
         if victim is None:
             return await ctx.send('You need to specify someone to unmute', delete_after=3)
-        guilddata = jsonreader.read_file(ctx.guild.id, 'muted')
+        guilddata = guildreader.read_file(ctx.guild.id, 'muted')
         try:
             mutedata = guilddata[str(victim.id)]
             await victim.remove_roles(ctx.guild.get_role(mutedata['role']))
@@ -163,7 +166,7 @@ class Admin(commands.Cog):
                 )
             )
             del guilddata[str(victim.id)]
-            jsonreader.write_file(ctx.guild.id, 'muted', guilddata)
+            guildreader.write_file(ctx.guild.id, 'muted', guilddata)
         except KeyError:
             await ctx.send("They aren't muted", delete_after=3)
 

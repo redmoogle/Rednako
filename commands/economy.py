@@ -4,7 +4,8 @@ Handles various money things
 import random
 import asyncio
 from discord.ext import commands
-from modules import helpers, jsonreader
+from modules import helpers
+import guildreader
 
 
 class Economy(commands.Cog):
@@ -30,11 +31,11 @@ class Economy(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        guild_economy = jsonreader.read_file(ctx.guild.id, 'economy')
+        guild_economy = guildreader.read_file(ctx.guild.id, 'economy')
         try:
             money = guild_economy[str(ctx.author.id)]
         except KeyError:
-            jsonreader.write_file(ctx.guild.id, 'economy', {str(ctx.author.id): 0})
+            guildreader.write_file(ctx.guild.id, 'economy', {str(ctx.author.id): 0})
             await ctx.send('Lets set you up a bank account!')
             await asyncio.sleep(5)
             await ctx.send('Done! You now have a OffSafe:tm: Account!')
@@ -44,7 +45,7 @@ class Economy(commands.Cog):
         heisted = random.randint(5, 30)
         money += heisted
         guild_economy[str(ctx.author.id)] = money
-        jsonreader.write_file(ctx.guild.id, 'economy', guild_economy)
+        guildreader.write_file(ctx.guild.id, 'economy', guild_economy)
         return await ctx.send(f'You just stole ${heisted}!')
 
     @commands.command(
@@ -58,7 +59,7 @@ class Economy(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        guild_economy = jsonreader.read_file(ctx.guild.id, 'economy')
+        guild_economy = guildreader.read_file(ctx.guild.id, 'economy')
         try:
             money = guild_economy[str(ctx.author.id)]
         except KeyError:

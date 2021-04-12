@@ -6,7 +6,8 @@ import discord
 import discordtextsanitizer as dts
 import git
 from discord.ext import commands
-from modules import helpers, jsonreader, animal
+from modules import helpers, animal
+import guildreader
 
 config = config.Config('./config/bot.cfg')
 repo = git.Repo(search_parent_directories=True)
@@ -78,7 +79,7 @@ class User(commands.Cog):
         roles = len(guild.roles)                    # all roles
         members = len(guild.members)                # all members
 
-        prefix = jsonreader.read_file(ctx.guild.id, 'settings')['prefix']
+        prefix = guildreader.read_file(ctx.guild.id, 'settings')['prefix']
 
         info = [  # Makes adding easy and pretty
             ['Server Owner: ',      f'{guild.owner.name}#{guild.owner.discriminator}'],

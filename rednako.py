@@ -19,7 +19,8 @@ from cogwatch import watch
 from discord.ext import commands, tasks
 from better_help import Help
 import config
-from modules import jsonreader, helpers, manager
+from modules import helpers, manager
+import guildreader
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
@@ -136,10 +137,10 @@ class Rednako(commands.Bot):
         if not message.guild:
             return commands.when_mentioned
 
-        if not jsonreader.check_exist('settings'):  # File will be created shortly
+        if not guildreader.check_exist('settings'):  # File will be created shortly
             return commands.when_mentioned
 
-        return jsonreader.read_file(message.guild.id, 'settings')['prefix']  # Guild Specific Preset
+        return guildreader.read_file(message.guild.id, 'settings')['prefix']  # Guild Specific Preset
 
     async def on_guild_join(self, guild):
         """
@@ -149,8 +150,8 @@ class Rednako(commands.Bot):
                 guild (discord.Guild): Guild Object
         """
         for jsonfile in self.configs:
-            if not jsonreader.read_file(guild.id, jsonfile[0]):
-                jsonreader.write_file(guild.id, jsonfile[0], jsonfile[1])
+            if not guildreader.read_file(guild.id, jsonfile[0]):
+                guildreader.write_file(guild.id, jsonfile[0], jsonfile[1])
 
     async def on_guild_remove(self, guild):
         """
@@ -160,7 +161,7 @@ class Rednako(commands.Bot):
                 guild (discord.Guild): Guild Object
         """
         for jsonfile in self.configs:
-            jsonreader.remove(guild.id, jsonfile[0])
+            guildreader.remove(guild.id, jsonfile[0])
 
     async def on_message(self, message):
         """
@@ -182,7 +183,7 @@ class Rednako(commands.Bot):
 
         # Dictonary is set up like this per guild: {enabled: false, userid:{xp:0,goal:20,level:0,last_used:0}}
 
-        data = jsonreader.read_file(message.guild.id, 'xp')
+        data = guildreader.read_file(message.guild.id, 'xp')
         if data['enabled']:
             try:
                 # Load XP Data
@@ -207,7 +208,7 @@ class Rednako(commands.Bot):
                     'level': 0,
                     'last_used': time.time()
                 }
-            jsonreader.write_file(message.guild.id, 'xp', data)
+            guildreader.write_file(message.guild.id, 'xp', data)
 
     async def on_command_error(self, context, exception):
         """
@@ -217,7 +218,7 @@ class Rednako(commands.Bot):
                 context (commands.Context): Context Reference
                 exception (Exception): Error that happened
         """
-        if not jsonreader.read_file(context.guild.id, 'settings')['errors']:
+        if not guildreader.read_file(context.guild.id, 'settings')['errors']:
             return
         if isinstance(exception, commands.CommandNotFound):
             return await context.send(f"{context.author.mention}, command \'{context.invoked_with}\' not found!")

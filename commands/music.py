@@ -16,7 +16,8 @@ import time
 import discord
 from discord.ext import commands
 import lavalink
-from modules import helpers, jsonreader
+from modules import helpers
+import guildreader
 
 
 def djconfig(ctx):
@@ -31,7 +32,7 @@ def djconfig(ctx):
     """
     if not ctx.guild:
         return False
-    guildrole = jsonreader.read_file(ctx.guild.id, 'settings')['djmode']
+    guildrole = guildreader.read_file(ctx.guild.id, 'settings')['djmode']
     if guildrole is None:
         return True
 

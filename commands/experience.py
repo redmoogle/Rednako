@@ -2,8 +2,8 @@
 Handles various EXP things
 """
 from discord.ext import commands
-from modules import helpers, jsonreader
-
+from modules import helpers
+import guildreader
 
 def enabled():
     """
@@ -19,7 +19,7 @@ def enabled():
         Returns:
             Check (bool): is XP tracking enabled
         """
-        return jsonreader.read_file(ctx.guild.id, 'xp')['enabled']
+        return guildreader.read_file(ctx.guild.id, 'xp')['enabled']
     return commands.check(predicate)
 
 
@@ -42,7 +42,7 @@ class XP(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        data = jsonreader.read_file(ctx.guild.id, 'xp')
+        data = guildreader.read_file(ctx.guild.id, 'xp')
         try:
             idxp = data[str(ctx.author.id)]
             exp = idxp['xp']
@@ -73,7 +73,7 @@ class XP(commands.Cog):
                 ctx (commands.Context): Context Reference
                 page (int): Page to view
         """
-        data = jsonreader.read_file(ctx.guild.id, 'xp')
+        data = guildreader.read_file(ctx.guild.id, 'xp')
         info = []
         pages = []
         rank_limit = 20  # maximum per page
@@ -109,7 +109,7 @@ class XP(commands.Cog):
         _index = 0  # Enumerate cant be used because we DO modify this
         globdata = {}
         for guild in self.bot.guilds:
-            guilddata = jsonreader.read_file(guild.id, 'xp')
+            guilddata = guildreader.read_file(guild.id, 'xp')
             for member in guild.members:
                 try:
                     idxp = guilddata[str(member.id)]
