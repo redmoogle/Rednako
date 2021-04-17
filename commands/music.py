@@ -18,6 +18,7 @@ from discord.ext import commands
 import lavalink
 from modules import helpers
 import guildreader
+import logging
 
 
 def djconfig(ctx):
@@ -393,9 +394,10 @@ class Music(commands.Cog):
 
         start, finish = eqtype.split('-')
 
-        for band in range(int(start), int(finish)):
+        for band in range(int(start), int(finish)+1):
+            logging.error((band, gain,))
             await player.set_gain(band, max(min(1.0, gain*0.01), -0.25))
-        await ctx.send(f'Bands {eqtype} set to {max(min(1000, gain*10), -25)}%')
+        await ctx.send(f'Bands {eqtype} set to {max(min(1000, gain*10.0), -25)}%')
 
     @commands.command(
         name='reset',
