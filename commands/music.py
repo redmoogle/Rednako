@@ -144,7 +144,7 @@ class Music(commands.Cog):
         # When it gets to the end of the Queue, automatically disconnect to save resources
         if isinstance(event, lavalink.events.QueueEndEvent):
             guild_id = int(event.player.guild_id)
-            await self.connect_to(guild_id, None)
+            await self.connect_to(guild_id, "")
 
         # When a new track(song) starts it will send a message to the original channel
         if isinstance(event, lavalink.events.TrackStartEvent):
@@ -242,7 +242,7 @@ class Music(commands.Cog):
 
             # You can attach additional information to audiotracks through kwargs, however this involves
             # constructing the AudioTrack class yourself.
-            track = lavalink.models.AudioTrack(track, ctx.author.id, recommended=True)
+            track = lavalink.models.AudioTrack(track, ctx.author.id)
             player.add(requester=ctx.author.id, track=track)
 
         # We don't want to call .play() if the player is playing as that will effectively skip
@@ -250,6 +250,7 @@ class Music(commands.Cog):
 
         player.store("channel", ctx.channel.id)
         player.store("guild", ctx.guild.id)
+        player.store("bands", {band: 0 for band in range(15)})
 
         if player.is_playing:
             await ctx.send(embed=embed)
@@ -272,7 +273,7 @@ class Music(commands.Cog):
         player.queue.clear()
         # Stop the current track so Lavalink consumes less resources.
         await player.stop()
-        await self.connect_to(ctx.guild.id, None)
+        await self.connect_to(ctx.guild.id, "")
         await ctx.send(':asterisk: | Disconnected.')
 
     @commands.command(
@@ -363,7 +364,8 @@ class Music(commands.Cog):
             return await ctx.send('Theres nothing on that page')
 
         for index, track in enumerate(playerqueue[start:end], start=start):
-            queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri}) | {helpers.parse_duration(track.duration / 1000)[0]}\n'
+            queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri}) |' \
+                          f' {helpers.parse_duration(track.duration / 1000)[0]}\n'
 
         embed = discord.Embed(colour=discord.Color.blurple(),
                               description=f'**{len(playerqueue)} tracks**\n\n{queue_list}')
@@ -371,16 +373,17 @@ class Music(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(
-        name='bass',
+        name='eq',
         brief='*Thump* *Thump* *Thump*'
     )
     @commands.check(djconfig)
-    async def bass(self, ctx, gain: float = 0):
+    async def eq(self, ctx, eqtype: str, gain: float = 0):
         """
         Increases the first five bands (0-4) by an unknown amount
 
             Parameters:
                 ctx (commands.Context): Context Reference
+                eqtype (str): Which band to modify 0-2, 5-7
                 gain (float): How much to increase the bands
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
@@ -388,62 +391,11 @@ class Music(commands.Cog):
             if player.current is None:
                 await ctx.send(':asterisk: | Bot is not playing any music.')
 
-        gain = max(min(1.0, gain), -0.25)
-        await player.set_gains((0, gain * .75), (1, gain * .75), (2, gain * .75), (3, gain), (4, gain * .75))
-        if gain:
-            await ctx.send(f'Bass set to {(gain + 1) * 100}%')
-        else:
-            await ctx.send('Bass set to 100%')
+        start, finish = eqtype.split('-')
 
-    @commands.command(
-        name='mid',
-        brief='Increase Volume through the EQ'
-    )
-    @commands.check(djconfig)
-    async def mids(self, ctx, gain: float = 0):
-        """
-        Increases the middle five bands (5-9) by an unknown amount
-
-            Parameters:
-                ctx (commands.Context): Context Reference
-                gain (float): How much to increase the bands
-        """
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
-        if player:
-            if player.current is None:
-                await ctx.send(':asterisk: | Bot is not playing any music.')
-
-        gain = max(min(1.0, gain), -0.25)
-        await player.set_gains((5, gain * .75), (6, gain * .75), (7, gain * .75), (8, gain), (9, gain * .75))
-        if gain:
-            await ctx.send(f'Mids set to {(gain + 1) * 100}%')
-        else:
-            await ctx.send('Mids set to 100%')
-
-    @commands.command(
-        name='treble',
-        brief='Earrape someone'
-    )
-    @commands.check(djconfig)
-    async def treble(self, ctx, gain: float = 0):
-        """
-        Increases the last five bands (10-14) by an unknown amount
-
-            Parameters:
-                ctx (commands.Context): Context Reference
-                gain (float): How much to increase the bands
-        """
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
-        if player:
-            if player.current is None:
-                await ctx.send(':asterisk: | Bot is not playing any music.')
-
-        gain = max(min(1.0, gain), -0.25)
-        await player.set_gains((10, gain * .75), (11, gain * .75), (12, gain * .75), (13, gain), (14, gain * .75))
-        if gain:
-            await ctx.send(f'Treble set to {(gain + 1) * 100}%')
-        else:
-            await ctx.send('Treble set to 100%')
+        for band in range(int(start), int(finish)):
+            await player.set_gain(band, max(min(1.0, gain*0.01), -0.25))
+        await ctx.send(f'Bands {eqtype} set to {max(min(1000, gain*10), -25)}%')
 
     @commands.command(
         name='reset',
