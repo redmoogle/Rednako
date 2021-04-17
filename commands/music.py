@@ -145,7 +145,7 @@ class Music(commands.Cog):
         # When it gets to the end of the Queue, automatically disconnect to save resources
         if isinstance(event, lavalink.events.QueueEndEvent):
             guild_id = int(event.player.guild_id)
-            await self.connect_to(guild_id, "")
+            await self.connect_to(guild_id, None)
 
         # When a new track(song) starts it will send a message to the original channel
         if isinstance(event, lavalink.events.TrackStartEvent):
@@ -274,7 +274,7 @@ class Music(commands.Cog):
         player.queue.clear()
         # Stop the current track so Lavalink consumes less resources.
         await player.stop()
-        await self.connect_to(ctx.guild.id, "")
+        await self.connect_to(ctx.guild.id, None)
         await ctx.send(':asterisk: | Disconnected.')
 
     @commands.command(
