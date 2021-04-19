@@ -39,20 +39,16 @@
                 <input type="hidden" name="formName" value="cog">
                 {% for cog_name, cog in enabled_cogs %}
                     <div class="catArea">
-                        <h2>{{ cog_name }}</h2>
+                        <h2 style="display:inline;">
+                            {{ cog_name }}
+                        </h2>
                         <input checked type="checkbox" name={{ cog_name }}>
                         <label for={{ cog_name }}>Toggle</label>
                         <ul>
                         {% for cmd in cog.__cog_commands__ %}
                             <li><a href="{{ url_for('commands') }}#{{ cmd }}" class="href">{{ cmd }}</a></li>
                         {% endfor %}
-                        <!-- Get location based off first command's callback function -->
                         </ul>
-                        {% set location = "Unknown" %}
-                        {% if cog.__cog_commands__|length >= 1 %}
-                            {% set location = getfile(cog.__cog_commands__[0].__dict__._callback) %}
-                        {% endif %}
-                        <p><strong>Location:</strong> {{ location }}</p>
                         <br>
                     </div>
                 {% endfor %}

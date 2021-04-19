@@ -68,12 +68,12 @@ body{
 }
 
 #botInfo > p{
-    margin-left: 25px;
+    margin-left: 10px;
 }
 
 .catArea{
     color: #d1d1d1;
-    padding-left: 5px;
+    padding-left: 2px;
 }
 
 #bg{
@@ -93,7 +93,7 @@ body{
 }
 
 .catArea > p{
-    margin-left: 25px;
+    margin-left: 10px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     word-wrap: break-word;
 }
@@ -109,10 +109,11 @@ body{
 
 .catArea > ul{
     list-style-type: none;
+    padding-left: 5px;
 }
 
 .catArea > ul > li{
-    margin-left: 25px;
+    margin-left: 10px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     word-wrap: break-word;
 }
@@ -130,7 +131,7 @@ body{
 
 #botCategories > li{
     display: inline;
-    margin: 15px;
+    margin: 8px;
     cursor: pointer;
 }
 

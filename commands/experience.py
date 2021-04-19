@@ -5,6 +5,7 @@ from discord.ext import commands
 from modules import helpers
 import guildreader
 
+
 def enabled():
     """
     commands.check for if XP tracking is enabled

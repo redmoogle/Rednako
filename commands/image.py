@@ -51,8 +51,7 @@ class Image(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        embed=helpers.embed(title='Neko', image=nekos.img('neko'))
-        await ctx.send(embed=embed)
+        await ctx.send(embed=helpers.embed(title='Neko', image=nekos.img('neko')))
 
     @commands.command(
         name='kitsune',

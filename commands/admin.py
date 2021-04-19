@@ -138,7 +138,8 @@ class Admin(commands.Cog):
         else:
             data = {'expiration': time.time() + mutetime}
             await victim.add_roles(muterole)
-            await victim.send(embed=discord.Embed(title=f'You have been muted in: `{ctx.guild.name}` for `{mutetime}s`'))
+            await victim.send(embed=discord.Embed(title=f'You have been muted in: `{ctx.guild.name}`'
+                                                        f' for `{mutetime}s`'))
         guilddata[str(victim.id)] = data
         guildreader.write_file(ctx.guild.id, 'muted', guilddata)
 

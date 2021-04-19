@@ -18,7 +18,6 @@
 
         <div id="commandCode" class="info">
             <h1>Bot Info</h1>
-            <!--Same line to prevent unnecessary whitespace -->
             Uptime: {{ bot.uptime_str }}<br>
             Servers: {{ bot.servers }}<br>
             Members: {{ bot.members }}<br>
@@ -54,14 +53,6 @@
                     </div>
                     <br>
                 {% endfor %}
-            {% endfor %}
-
-            {% for cmd in disabled_commands %}
-                <div class="catArea">
-                    <h2>{{ cmd }}</h2>
-                    <strong></strong> {{ cmd._callback.brief }}
-                    <br>
-                </div>
             {% endfor %}
             <br>
         </div>

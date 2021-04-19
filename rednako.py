@@ -80,10 +80,6 @@ class Rednako(commands.Bot):
             help_command=Help()                # Default help command
         )
 
-        # Task Section
-        self.update.start()
-        self.gen_uptime.start()
-
         # List of configs setup like
         # list(
         #   list(name, value),
@@ -103,6 +99,12 @@ class Rednako(commands.Bot):
                 'prefix': '='
             }]
         ]
+
+        # Task Section
+        self.update.start()
+        self.gen_uptime.start()
+        self.mute.start()
+        self.check_guilds.start()
 
     def grab_servers(self):
         """
@@ -249,6 +251,62 @@ class Rednako(commands.Bot):
         self.uptime_str = helpers.parse_duration(self.uptime)[0]
         return self.uptime
 
+    @tasks.loop(seconds=5)
+    async def mute(self):
+        """
+        Fast Iterating JSON, removes mutes if under 0 seconds till expiration
+        """
+        await self.wait_until_ready()
+        for guild in self.guilds:
+            data = guildreader.read_file(guild.id, 'muted')
+            guildrole = data['role']
+            for key in list(data):
+                if key == 'role':
+                    continue
+                mutedata = data[key]
+                if mutedata['expiration'] > time.time():  # this is probably marginally more efficient
+                    continue
+                member = await guild.fetch_member(key)
+                await member.remove_roles(
+                    guild.get_role(guildrole)
+                )
+                await member.send(embed=discord.Embed(
+                    title=f'You have been unmuted from: `{guild.name}`'
+                )
+                )
+                del data[key]
+                guildreader.write_file(guild.id, 'muted', data)
+
+    @tasks.loop(minutes=30)
+    async def check_guilds(self):
+        """
+        Make sure all guilds have their configs and trims the files
+        """
+        _guilds = []
+        await self.wait_until_ready()
+        for jsonfile in self.configs:
+            for guild in self.guilds:
+                _guilds.append(str(guild.id))
+                if not guildreader.read_file(guild.id, jsonfile[0]):
+                    guildreader.write_file(guild.id, jsonfile[0], jsonfile[1])
+
+                if isinstance(jsonfile[1], dict):
+                    test = guildreader.read_file(guild.id, jsonfile[0])
+                    if not test:
+                        continue
+                    for setting in jsonfile[1]:
+                        try:
+                            _ = test[setting]
+                        except KeyError:
+                            test[setting] = jsonfile[1][setting]
+                    guildreader.write_file(guild.id, jsonfile[0], test)
+
+            raw = guildreader.dump(jsonfile[0])
+            for key in raw:
+                if key in _guilds:
+                    continue
+                guildreader.remove(key, jsonfile[0])
+
     @watch(path='commands', preload=True, debug=False)
     async def on_ready(self):
         """
@@ -262,6 +320,10 @@ class Rednako(commands.Bot):
         print(f'Members: {self.members}')
         print(f'Servers: {self.servers}')
         print(f'Logged in as {self.user.name} - {self.user.id}')
+
+        for _config in self.configs:
+            guildreader.create_file(self, _config[0], _config[1])
+
         manager.opendash(self)
 
     def close_bot(self):

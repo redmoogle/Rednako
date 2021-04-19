@@ -125,41 +125,17 @@ def commands():
     """
     Commands webpage
     """
-    if request.method == "POST":
-        # commands form
-        if request.form["formName"] == "commands":
-
-            checkbox_cmds = [item[0] for item in request.form.items()]
-
-            # disable command
-            for cmd in bot.commands:
-                if cmd.name not in checkbox_cmds:
-                    # remove command and add to disabled
-                    bot.remove_command(cmd.name)
-                    disabled_commands.append(cmd)
-
-            # enable command
-            for cmd in checkbox_cmds:
-                # search for command and add if ticked on
-                for disabled_cmd in disabled_commands:
-                    if cmd == disabled_cmd.name:
-                        # add command back and remove from disabled
-                        bot.add_command(disabled_cmd)
-                        disabled_commands.remove(disabled_cmd)
-
-        return redirect(url_for("commands"))
 
     cmddata = {}
     keys = []
+
     for cmd in bot.commands:
         if cmd.cog_name not in keys:
             keys.append(cmd.cog_name)
             cmddata[cmd.cog_name] = list()
-
-    for cmd in bot.commands:
         cmddata[cmd.cog_name].append(cmd)
 
-    return render_template("commands.html", getsource=inspect.getsource, bot=bot, command_prefix=get_prefix(), enabled_commands=cmddata, disabled_commands=disabled_commands, keys=keys)
+    return render_template("commands.html", getsource=inspect.getsource, bot=bot, command_prefix=get_prefix(), enabled_commands=cmddata, keys=keys)
 
 
 @app.route("/shards", methods=["GET", "POST"])

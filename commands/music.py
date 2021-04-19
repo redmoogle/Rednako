@@ -168,7 +168,7 @@ class Music(commands.Cog):
             )
             await notify_channel.send(embed=embed)
 
-    async def connect_to(self, guild_id: int, channel_id: str):
+    async def connect_to(self, guild_id: int, channel_id):
         """
         Connects to a voicechannel via websocket
 
