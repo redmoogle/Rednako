@@ -28,13 +28,14 @@
 }
 
 *{
-    margin: 0;
-    padding 0;
+    margin: 0px;
+    padding 10px;
 }
 
 body{
     margin-bottom: 20px;
-    background: #363434;
+    background: linear-gradient(-45deg, #4b4b4b, #595959, #373737);
+    background-size: 400% 400%;
 }
 
 .mainHeader{
@@ -56,12 +57,9 @@ body{
     padding-bottom: 25px;
 }
 
-.smallbr{
-    line-height: 2px;
-}
-
 #botInfo{
     padding: 10px;
+    margin-bottom: 25px;
     font-family: Montserrat, Tahoma, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     background: #363434;
     color: #d1d1d1;
@@ -73,18 +71,19 @@ body{
 
 .catArea{
     color: #d1d1d1;
-    padding-left: 2px;
+    padding-left: 15px;
 }
 
 #bg{
-    background: rgb(110,110,110);
-    background: linear-gradient(270deg, rgba(110,110,110,1) 0%, rgba(89,89,89,1) 31%, rgba(55,55,55,1) 90%);
-    padding-left: 0.5%;
+    background: linear-gradient(-45deg, #4b4b4b, #595959, #373737);
+    background-size: 400% 400%;
+    animation: gradient 240s ease infinite;
     margin-right: 15px;
 }
 
 .href{
-    color: #6b75ed;
+    color: #ff960f;
+    text-decoration: none;
 }
 
 .catArea > h2{
@@ -118,53 +117,95 @@ body{
     word-wrap: break-word;
 }
 
-#botCategories{
-    margin-top: 25px;
-    margin-left: 25%;
-    margin-right: 15px;
+.leftfloat {
+    float: left;
+}
+
+.botCategories{
+    padding-top: 5px;
+    padding-bottom: 5px;
     text-align: left;
     list-style-type: none;
     background-color: #1d1d1d;
-    font-size: 2em;
+    font-size: 1.8em;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-#botCategories > li{
-    display: inline;
-    margin: 8px;
-    cursor: pointer;
-}
-
-#botCategories > li > a{
+.adecorate > a{
     text-decoration: none;
     color: #d1d1d1;
+    padding: 7px;
 }
 
-#commandSection{
+.adecorate > a:hover{
+    background-color: #121111;
+}
+
+.commandSection{
     text-align: center;
     font-weight: 400;
     font-size: 3em;
     color: white;
-    display: inline;
+    background: var(--bs-gray-dark);
+    padding-bottom: 5px;
+    padding-top: 5px;
 }
 
 .category{
-    margin-left: 25%;
-    border: 3px solid rgb(43, 43, 43);
+    margin-left: 26%;
+    border-style: solid;
+    border-color: #1d1d1d;
+    border-width: 0px 6px 6px 6px;
     display: block;
 }
 
+.bigtxt{
+    font-size: 1.5em;
+}
+
+li{
+    margin-left: 1%;
+    list-style-type: none;
+    font-size: 1.25em;
+}
+
+li > form{
+    margin-left: 20px;
+    line-break: 20px;
+}
+
+.catArea > li {
+    line-height: 30px;
+}
+
 #commandCode{
-    margin-top: 25px;
+    margin-left: 7px;
     float: left;
     width: 24%;
     display: block;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bs-gray-dark);
+    color: var(--bs-white);
+    padding-bottom: 10px;
 }
 
 #commandCode > h1{
+    margin-left: 0px;
+    margin-right: 0px;
     text-align: center;
     font-weight: 400;
     font-size: 1.2em;
     background-color: rgb(85, 85, 85);
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }

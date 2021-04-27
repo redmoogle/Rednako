@@ -53,21 +53,21 @@ class Rednako(commands.Bot):
         self.uptime = 0
         # String Version
         self.uptime_str = ""
+        # Looping Speed
+        self.loopspeed = 5
+        # Last Status
+        self.status = None
 
         # Inheritance Separator
         # Do not put settings below this unless you don't want them to show up on vars commands
         self.vars = set(vars(self))
 
-        # Looping Speed
-        self.loopspeed = 5
         # Does it update its status
         self.updatestatus = True
         # Time when the bot started
         self.starttime = time.time()
         # Current Status
         self.status_str = config["default_activity"]
-        # Last Status
-        self.status = None
         # Path of the parent dir
         self.path = Path(__file__).parent
         # Parameters for bot
