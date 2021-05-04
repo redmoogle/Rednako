@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <!--
+            Coding Standards:
+
+                BootStrap Order (first to last):
+                    container
+                    background
+                    navbar
+                    text properties
+                    border
+                    padding
+                    margin
+        -->
         <title>Discord Bot Management</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='css.css') }}">
         <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.2/styles/default.min.css">
@@ -10,17 +22,16 @@
     </head>
 
     <body>
-        <h1 class="mainHeader" style="margin-bottom: 0px;">Discord Bot Management</h1>
-
-        <div id="botInfo">
+        <h1 class="bg-dark text-light text-center mb-0 mx-1">Discord Bot Management</h1>
+        <div class="container-flex bg-secondary text-light border border-top-0 border-light border-2 mb-4 ps-2 mx-1">
             <h2>{{ bot.user }}</h2>
             <p>ID: {{ bot.user.id }}</p>
             <p>Command Prefix: {{ command_prefix }}</p>
             <p>Shard Count: {{ bot.shard_count }}</p>
         </div>
 
-        <div id="commandCode" class="border border-light border-2">
-            <h1>Format Variables:</h1>
+        <div class="bg-secondary float-start text-light border border-light border-2 pb-1 ms-2">
+            <h1 class="bg-dark ps-2">Format Variables:</h1>
             <div class="container-sm">
                 <!--Same line to prevent unnecessary whitespace -->
                 {% for key in bot.vars %}
@@ -36,18 +47,28 @@
             </div>
         </div>
 
-        <div class="container leftfloat g-0" method="POST" id="bg" style="margin-left: 20px;">
-            <div class="row g-0 botCategories">
-                <div class="col adecorate">
-                    <a href="{{ url_for('commands') }}">Commands</a>
-                    <a href="{{ url_for('shards') }}">Shards</a>
-                    <a href="{{ url_for('manage') }}">Manage</a>
-                </div>
+        <div class="container float-start g-0 ms-3 breathing_bg" method="POST">
+            <div class="row fs-3 g-0">
+                <nav class="bg-dark navbar navbar-expand-lg navbar-dark ps-2">
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('commands') }}">Commands</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('shards') }}">Shards</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="{{ url_for('manage') }}">Manage</a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
             </div>
-            <div class="container border border-light border-2 catArea">
-                <div class="row g-0" style="padding-left: 10px;">
+            <div class="container-fluid text-light border border-light border-2">
+                <div class="row g-0 ps-3">
                     <div class="col">
-                        <div class="bigtxt">
+                        <div class="fs-4">
                             Status:
                         </div>
                         <form method="POST">
@@ -56,9 +77,9 @@
                     </div>
                 </div>
                 <br>
-                <div class="row g-0" style="padding-left: 10px;">
+                <div class="row g-0 ps-3">
                     <div class="col">
-                        <div class="bigtxt">
+                        <div class="fs-4">
                             Interval:
                         </div>
                         <form method="POST">
@@ -68,15 +89,16 @@
                 </div>
                 <br>
                 <br>
-                <div class="row g-0 bigtxt" style="padding-left: 10px;" id="local"></div>
-                <div class="row g-0 bigtxt" style="padding-left: 10px;" id="remote"></div>
+                <h4 class="row g-0 ps-3" id="local"></h4>
+                <h4 class="row g-0 ps-3" id="remote"></h4>
                 <br>
                 <br>
-                <form method="POST">
-                    <input class="greenButton" name="reboot" type="submit" value="Reboot" style="float: left; margin-right: 10px; margin-left: 10px;"/>
-                    <input class="greenButton" name="update" type="submit" value="Pull"/>
+                <form method="POST" class="ps-3 mb-2">
+                    <div class="btn-group" role="group" aria-label="Manage Bot">
+                        <button class="btn btn-danger" name="reboot" type="submit">Reboot</button>
+                        <button class="btn btn-warning" name="update" type="submit">Pull</button>
+                    </div>
                 </form>
-                <br>
             </div>
         </div>
     </body>

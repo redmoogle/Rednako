@@ -121,14 +121,10 @@ class Admin(commands.Cog):
             return await ctx.send('You need to specify a time', delete_after=3)
 
         muterole = discord.utils.get(ctx.guild.roles, id=guilddata['role'])
+
         if muterole is None:
-            muterole = await ctx.guild.create_role(name='Muted', colour=discord.Colour.dark_gray(), reason='Mute setup')
-            for channel in ctx.guild.channels:
-                if channel.permissions_synced:
-                    continue
-                overrides = channel.overwrites_for(muterole)
-                overrides.send_messages = False
-                await channel.set_permissions(muterole, overwrite=overrides, reason='Mute setup')
+            muterole = await helpers.generate_role("Muted", ctx.guild, discord.Color.dark_gray())
+            await helpers.create_overrides(muterole.id, ctx.guild, {"send_messages": False})
             guilddata['role'] = muterole.id
 
         if str(victim.id) in guilddata:  # Extend Mute

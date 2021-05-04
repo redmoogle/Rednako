@@ -10,17 +10,29 @@
     </head>
 
     <body>
-        <h1 class="mainHeader" style="margin-bottom: 0px;">Discord Bot Management</h1>
+        <!--
+            Coding Standards:
 
-        <div id="botInfo">
+                BootStrap Order (first to last):
+                    container
+                    background
+                    navbar
+                    text properties
+                    border
+                    gutter
+                    padding
+                    margin
+        -->
+        <h1 class="bg-dark text-light text-center mx-1 mb-0">Discord Bot Management</h1>
+        <div class="container-flex bg-secondary text-light border border-top-0 border-light border-2 ps-2 mx-1 mb-4">
             <h2>{{ bot.user }}</h2>
             <p>ID: {{ bot.user.id }}</p>
             <p>Command Prefix: {{ command_prefix }}</p>
             <p>Shard Count: {{ bot.shard_count }}</p>
         </div>
 
-        <div id="commandCode" class="border border-light border-2">
-            <h1>Bot Info</h1>
+        <div class="bg-secondary float-start text-light border border-light border-2 pb-1 ms-2">
+            <h1 class="bg-dark ps-2">Bot Info</h1>
             <div class="container-sm">
                 <div class="row">
                     <div class="col" id="uptime_str_frmt">
@@ -45,17 +57,27 @@
             </div>
         </div>
 
-        <div class="container leftfloat g-0" method="POST" id="bg" style="margin-left: 20px;">
-            <div class="row g-0 botCategories">
-                <div class="col adecorate">
-                    <a href="{{ url_for('commands') }}">Commands</a>
-                    <a href="{{ url_for('shards') }}">Shards</a>
-                    <a href="{{ url_for('manage') }}">Manage</a>
-                </div>
+        <div class="container float-start g-0 ms-3 breathing_bg" method="POST">
+            <div class="row fs-3 g-0">
+                <nav class="bg-dark navbar navbar-expand-lg navbar-dark ps-2">
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('commands') }}">Commands</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="{{ url_for('shards') }}">Shards</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('manage') }}">Manage</a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
             </div>
-            <div class="container border border-light border-2 catArea">
+            <div class="container-fluid text-light border border-light border-2">
                 {% for shard_id, latency in latencies %}
-                    <div class="catArea">
+                    <div class="ps-2">
                         <br>
                         <h2>Shard {{ shard_id }}</h2>
                         <p id="shid{{ shard_id }}">Latency: {{ (latency * 1000)|round(2) }}ms</p>

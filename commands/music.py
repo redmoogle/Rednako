@@ -346,7 +346,9 @@ class Music(commands.Cog):
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         # player.current is a track but we want it to be a list with that track
-        playerqueue = [player.current]
+        playerqueue = []
+        if player.current:  # Funny bug where I forgot to check if it's a NoneType
+            playerqueue = [player.current]
         # Add the rest of the queue on it
         playerqueue += player.queue
         # Formatting

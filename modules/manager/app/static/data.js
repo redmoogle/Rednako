@@ -1,55 +1,37 @@
 refresher = setInterval(refresh, 1000)
 
-function capitalize(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
+// Captializes first letter in given string
+function capitalize(string) { return string.charAt(0).toUpperCase() + string.slice(1); }
+
+// I do this a whole lot so I just grab the element in the code
+// The return is used if you want to do some extra work afterwards
+function modify(id, newtext) {
+    element = document.getElementById(id);
+    if(element) { element.innerHTML = newtext; return true; }
+    return false;
 }
 
 function mapVars(out){
-    out["vars"].map(
-        variables => {
-            toreplace = document.getElementById(variables[0])
-            if(toreplace){
-                toreplace.innerText = variables[1]
-           }
-           else {
-                toreplace = document.getElementById(variables[0]+"_frmt")
-                if(toreplace){
-                    // Weird format
-                    format = capitalize(variables[0])
-                    if(format == "Uptime_str"){
-                        format = "Uptime"
-                    }
-                    toreplace.innerText = format + ": " + variables[1]
-                }
-           }
-        }
-    )
-    local = document.getElementById("local")
-    if(local){
-        local.innerText = "Local: " + out["local"]
-    }
-    remote = document.getElementById("remote")
-    if(remote){
-        remote.innerText = "Remote: " + out["remote"]
-    }
-    Object.keys(out["cogs"]).map(
-        cog => {
-            cogstuff = out["cogs"][cog]
-            cogID = document.getElementById(cog)
-            if(cogID){
-                cogID.innerText = cog
-            }
-        }
-    )
+    // Couldn't figure out how to do this in refresh but w/e
+    // This maps each variable in the json to IDs in the html
+    out["vars"].map( variable => {
+            // extra check to see if we want a formatted version
+            if(!modify(variable[0], variable[1])) {
+                formatted = variable[0]+"_frmt";
+                formattext = capitalize(variable[0]);
+                // Kinda weird but in my code uptime is taken with how long it's been up for
+                if(formattext == "Uptime_str") { formattext = "Uptime"; }
+                
+                // VARNAME: VARVALUE
+                formattext += ": " + variable[1]
+                modify(formatted, formattext)
+    }})
+    modify("local", ("Local: " + out["local"]))
+    modify("remote", ("Remote: " + out["remote"]))
 
-    out["shards"].map(
-        shard => {
-            toreplace = document.getElementById("shid"+shard[0])
-            if(toreplace){
-                toreplace.innerText = "Latency: " + shard[1].toFixed(2) + "ms"
-            }
-        }
-    )
+    out["shards"].map( shard => {
+            modify(("shid"+shard[0]), ("Latency: " + shard[1].toFixed(2) + "ms"))
+    })
 }
 
 function refresh(){

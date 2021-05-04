@@ -2,7 +2,12 @@
 Common helper functions for bot
 """
 import random
+
 import discord
+
+
+class NotFound(Exception):
+    pass
 
 
 def embed(title: str = None, description: str = None, thumbnail: str = None, image: str = None, fields: list = None,
@@ -23,7 +28,7 @@ def embed(title: str = None, description: str = None, thumbnail: str = None, ima
             embed (discord.Embed): embed with all the arguments
     """
     embedhelper = discord.Embed(title=title, description=description)
-    embedhelper.color = color
+    embedhelper.colour = color
 
     if thumbnail is not None:
         embedhelper.set_thumbnail(url=thumbnail)
@@ -36,7 +41,7 @@ def embed(title: str = None, description: str = None, thumbnail: str = None, ima
             embedhelper.add_field(name=field[0], value=field[1], inline=inline)
 
     if color == discord.Colour.default():
-        embedhelper.color = random.randint(0, 0xffffff)
+        embedhelper.colour = random.randint(0, 0xffffff)
 
     return embedhelper
 
@@ -147,3 +152,31 @@ def dividelist(inp, divisor, offset=0):
             inp.pop(index - indexoffset)
             indexoffset += 1
     return inp
+
+
+async def generate_role(rolename: str, guild: discord.Guild, color=None):
+    if not isinstance(rolename, str):
+        raise TypeError("Role Name is not a string")
+
+    if color:
+        if not isinstance(color, discord.Color):
+            color = color.replace("#", "")
+            colour = discord.Color(value=int(color, 16))
+        else:
+            colour = color
+        role = await guild.create_role(name=rolename, colour=colour, reason='Invoked Command')
+    else:
+        role = await guild.create_role(name=rolename, reason='Invoked Command')
+    return role
+
+
+async def create_overrides(role: int, guild: discord.Guild, overrides: dict):
+    role = discord.utils.get(guild.roles, id=role)
+    if not role:
+        raise NotFound("Role could not be found")
+    for channel in guild.channels:
+        if channel.permissions_synced:
+            continue
+        _overrides = channel.overwrites_for(role)
+        _overrides.update(**overrides)
+        await channel.set_permissions(role, overwrite=_overrides, reason='Invoked Command')
