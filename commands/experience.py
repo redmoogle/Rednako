@@ -10,7 +10,7 @@ def enabled():
     """
     commands.check for if XP tracking is enabled
     """
-    def predicate(ctx):
+    def predicate(ctx) -> bool:
         """
         Check to see if Xp tracking is enabled
 

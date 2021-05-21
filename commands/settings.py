@@ -9,7 +9,7 @@ import guildreader
 
 def isauthor(author):
     """Makes sure they're the command invoker"""
-    def check(message):
+    def check(message) -> bool:
         return message.author == author
     return check
 

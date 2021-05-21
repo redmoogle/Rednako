@@ -2,16 +2,31 @@
 Common helper functions for bot
 """
 import random
-
 import discord
 
 
 class NotFound(Exception):
+    """
+    The search parameters returned nothing
+    """
     pass
 
 
+def TypedError(expected, got):
+    """
+    Creates a helpful TypeError
+    Args:
+        expected: What should got should have been
+        got: What the type was instead
+
+    Returns:
+        TypeError specifying what it got and what it wanted
+    """
+    raise TypeError(f"Expected {type(expected)} got {type(got)} instead")
+
+
 def embed(title: str = None, description: str = None, thumbnail: str = None, image: str = None, fields: list = None,
-          inline: bool = True, color=discord.Colour.default()):
+          inline: bool = True, color=discord.Colour.default()) -> discord.Embed:
     """
     Creates a embed with various arguments.
 
@@ -46,7 +61,7 @@ def embed(title: str = None, description: str = None, thumbnail: str = None, ima
     return embedhelper
 
 
-def timeconv(time: str = None):
+def timeconv(time: str = None) -> int:
     """
     Convert time from a 1w1d1h1m1s format to a int format
 
@@ -58,6 +73,9 @@ def timeconv(time: str = None):
     """
     if time is None:
         return 0
+
+    if not isinstance(time, str):
+        TypedError(str, time)
 
     timeseconds = 0
     timelist = time.split()
@@ -83,7 +101,7 @@ def timeconv(time: str = None):
     return timeseconds
 
 
-def parse_duration(duration, timefill: int = 0):
+def parse_duration(duration, timefill: int = 0) -> str:
     """
     Parses seconds into DD:HH:MM:SS
 
@@ -95,10 +113,10 @@ def parse_duration(duration, timefill: int = 0):
             time, fill (tuple): DD:HH:MM:SS time in a str, how many divisors (:)
     """
 
-    try:
-        duration = round(int(duration))
-    except ValueError:
-        return None  # invalid format
+    if not isinstance(duration, (int, float)):
+        raise TypedError(int, duration)
+
+    duration = int(duration)
 
     minutes, seconds = divmod(duration, 60)
     hours, minutes = divmod(minutes, 60)
@@ -134,43 +152,74 @@ def parse_duration(duration, timefill: int = 0):
     return ''.join(duration), fill
 
 
-def dividelist(inp, divisor, offset=0):
+def dividelist(lst: list, divisor, offset=0) -> list:
     """
     Slices a list while keeping the index stable
 
         Parameters:
-            inp (list): list to slice
+            lst (list): list to slice
             divisor (int): What to divide(modulo) by
             offset (int): Offset of the index
 
         Returns:
             Sliced List (list): the list but sliced
     """
+
+    if not isinstance(lst, list):
+        TypedError(list, lst)
     indexoffset = 1
-    for index in range(1, len(inp) + 1):
+    for index in range(1, len(lst) + 1):
         if (index + offset) % divisor == 0:
-            inp.pop(index - indexoffset)
+            lst.pop(index - indexoffset)
             indexoffset += 1
-    return inp
+    return lst
 
 
-async def generate_role(rolename: str, guild: discord.Guild, color=None):
+async def generate_role(rolename: str, guild: discord.Guild, color=None) -> discord.Role:
+    """
+
+    Args:
+        rolename: Name of the role to generate
+        guild: Guild to make it in
+        color: Color of the role
+
+    Returns:
+
+    """
     if not isinstance(rolename, str):
-        raise TypeError("Role Name is not a string")
+        TypedError(str, rolename)
 
     if color:
         if not isinstance(color, discord.Color):
             color = color.replace("#", "")
             colour = discord.Color(value=int(color, 16))
-        else:
+        elif isinstance(color, discord.Color):
             colour = color
+        else:
+            return TypedError(discord.Color, color)
         role = await guild.create_role(name=rolename, colour=colour, reason='Invoked Command')
     else:
         role = await guild.create_role(name=rolename, reason='Invoked Command')
     return role
 
 
-async def create_overrides(role: int, guild: discord.Guild, overrides: dict):
+async def create_overrides(role: int, guild: discord.Guild, overrides: dict) -> None:
+    """
+
+    Args:
+        role: ID of the role
+        guild: Guild to Search
+        overrides: Overrides to make
+
+    Returns:
+
+    """
+    if not isinstance(role, int):
+        TypedError(int, role)
+
+    if not isinstance(overrides, dict):
+        TypedError(dict, overrides)
+
     role = discord.utils.get(guild.roles, id=role)
     if not role:
         raise NotFound("Role could not be found")

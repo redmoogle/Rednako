@@ -21,7 +21,7 @@ import guildreader
 import logging
 
 
-def djconfig(ctx):
+def djconfig(ctx) -> bool:
     """
     Checks the key djmode to see if djmode is on
 
@@ -153,6 +153,8 @@ class Music(commands.Cog):
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
             player.store("time", time.time())
+            player.store("repeat", False)
+            await player.reset_equalizer()
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
@@ -258,6 +260,7 @@ class Music(commands.Cog):
 
         if not player.is_playing:
             await player.play()
+            player.store("repeat", False)
 
     @commands.command(aliases=['dc', 'stop'])
     @commands.check(djconfig)
@@ -334,6 +337,30 @@ class Music(commands.Cog):
             return await ctx.send(embed=embed)
         return await ctx.send('Nothing playing')
 
+    @commands.command(
+        name="loop",
+        description="Loops a song or songs.",
+        aliases=['replay']
+    )
+    async def loop(self, ctx):
+        """
+        Loop a song or songs
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+        """
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        if player:
+            if player.current is None:
+                return await ctx.send(':asterisk: | Bot is not playing any music.')
+
+        repeating = player.fetch("repeat", False)
+        if repeating:
+            player.repeat(True)
+        else:
+            player.repeat(False)
+        player.store("repeat", not repeating)
+
     @commands.command(name='queue')
     async def queue(self, ctx, page: int = 1):
         """
@@ -392,7 +419,7 @@ class Music(commands.Cog):
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
-                await ctx.send(':asterisk: | Bot is not playing any music.')
+                return await ctx.send(':asterisk: | Bot is not playing any music.')
 
         start, finish = eqtype.split('-')
 

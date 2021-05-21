@@ -13,7 +13,7 @@ config = config.Config('./config/bot.cfg')
 repo = git.Repo(search_parent_directories=True)
 
 
-def grab_animal(_animal: str = None):
+def grab_animal(_animal: str = None) -> str:
     """
     Validates that the animal is correct then grabs image
 

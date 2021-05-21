@@ -8,7 +8,7 @@ import nekos
 from modules import helpers, animal
 
 
-def grab_animal(_animal: str = None):
+def grab_animal(_animal: str = None) -> str:
     """
     Validates that the animal is correct then grabs image
 

@@ -68,8 +68,11 @@ class Economy(commands.Cog):
         info = [
             ['Total Balance: ', f'${money}']
         ]
-        embed=helpers.embed(title=f'{ctx.author.name}\'s offshore account', image=ctx.author.avatar_url, fields=info)
-        return await ctx.send(embed=embed)
+        return await ctx.send(embed=helpers.embed(
+            title=f'{ctx.author.name}\'s offshore account',
+            image=ctx.author.avatar_url,
+            fields=info
+        ))
 
 
 def setup(bot):
