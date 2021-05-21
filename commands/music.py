@@ -86,7 +86,7 @@ class Music(commands.Cog):
         #  except it saves us repeating ourselves (and also a few lines).
 
         if guild_check:
-            await self.ensure_voice(ctx)
+            return await self.ensure_voice(ctx)
             #  Ensure that the bot and command author share a mutual voicechannel.
 
         return guild_check
@@ -144,7 +144,9 @@ class Music(commands.Cog):
         """
         # When it gets to the end of the Queue, automatically disconnect to save resources
         if isinstance(event, lavalink.events.QueueEndEvent):
+            player = event.player
             guild_id = int(event.player.guild_id)
+            await player.reset_equalizer()
             await self.connect_to(guild_id, None)
 
         # When a new track(song) starts it will send a message to the original channel
@@ -152,8 +154,6 @@ class Music(commands.Cog):
             player = event.player
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
-            player.store("time", time.time())
-            player.store("repeat", False)
             await player.reset_equalizer()
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
@@ -260,7 +260,6 @@ class Music(commands.Cog):
 
         if not player.is_playing:
             await player.play()
-            player.store("repeat", False)
 
     @commands.command(aliases=['dc', 'stop'])
     @commands.check(djconfig)
@@ -354,13 +353,12 @@ class Music(commands.Cog):
             if player.current is None:
                 return await ctx.send(':asterisk: | Bot is not playing any music.')
 
-        repeating = player.fetch("repeat", False)
+        repeating = player.repeat
         if repeating:
             await ctx.send(':asterisk: | Stopped Looping.')
         else:
             await ctx.send(':asterisk: | Now Looping.')
         player.repeat = not repeating
-        player.store("repeat", not repeating)
 
     @commands.command(name='queue')
     async def queue(self, ctx, page: int = 1):
