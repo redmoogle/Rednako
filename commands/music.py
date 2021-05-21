@@ -356,9 +356,10 @@ class Music(commands.Cog):
 
         repeating = player.fetch("repeat", False)
         if repeating:
-            player.repeat = True
+            await ctx.send(':asterisk: | Stopped Looping.')
         else:
-            player.repeat = False
+            await ctx.send(':asterisk: | Now Looping.')
+        player.repeat = not repeating
         player.store("repeat", not repeating)
 
     @commands.command(name='queue')
