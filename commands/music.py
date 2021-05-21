@@ -356,9 +356,9 @@ class Music(commands.Cog):
 
         repeating = player.fetch("repeat", False)
         if repeating:
-            player.repeat(True)
+            player.repeat = True
         else:
-            player.repeat(False)
+            player.repeat = False
         player.store("repeat", not repeating)
 
     @commands.command(name='queue')
