@@ -62,6 +62,9 @@ class Music(commands.Cog):
         lavalink.add_event_hook(self.track_hook)
 
     async def cog_command_error(self, ctx, error):
+        """
+        Raised when a command errors
+        """
         if isinstance(error, commands.CommandInvokeError):
             if error is not None:
                 await ctx.send(error.original)
@@ -110,6 +113,9 @@ class Music(commands.Cog):
         # This is to ignore commands that shouldn't require people in the same VC
         ignored = ctx.command.name in ('queue', 'np', 'current', 'reset')
 
+        if ignored:
+            return True
+
         # Make sure they're in a voice-chat
         if not ctx.author.voice or not ctx.author.voice.channel:
             await ctx.send('Join a voice-channel first!')
@@ -128,10 +134,9 @@ class Music(commands.Cog):
                     await ctx.send('Currently playing')
                     return False
         else:
-            if not ignored:
-                if int(player.channel_id) != ctx.author.voice.channel.id:
-                    await ctx.send('You need to be in my voicechannel.')
-                    return False
+            if int(player.channel_id) != ctx.author.voice.channel.id:
+                await ctx.send('You need to be in my voicechannel.')
+                return False
 
         return True
 
@@ -153,8 +158,8 @@ class Music(commands.Cog):
         if isinstance(event, lavalink.events.TrackStartEvent):
             player = event.player
             notify_channel = player.fetch("channel")
+            player.store("time", time.time())
             notify_channel = self.bot.get_channel(notify_channel)
-            await player.reset_equalizer()
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],

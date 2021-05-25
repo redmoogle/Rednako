@@ -190,7 +190,7 @@ async def generate_role(rolename: str, guild: discord.Guild, color=None) -> disc
         TypedError(str, rolename)
 
     if color:
-        if not isinstance(color, discord.Color):
+        if isinstance(color, str):
             color = color.replace("#", "")
             colour = discord.Color(value=int(color, 16))
         elif isinstance(color, discord.Color):
