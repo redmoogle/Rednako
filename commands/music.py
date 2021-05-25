@@ -321,10 +321,9 @@ class Music(commands.Cog):
                 ctx (commands.Context): Context Reference
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
-        duration, fill = helpers.parse_duration(player.current.duration / 1000)
-        current = helpers.parse_duration(round(time.time() - player.fetch("time")), fill)[0]
-
         if player.current:
+            duration, fill = helpers.parse_duration(player.current.duration/1000)
+            current = helpers.parse_duration(player.position/1000, fill)[0]
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
                 ['Song: ', f'[{player.current.title}]({player.current.uri})'],
