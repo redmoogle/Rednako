@@ -19,9 +19,9 @@ use pip3 instead
  - [discordbotbash (Web manager)](https://pypi.org/project/discordbotdash/)
   
   
-## Current Changelog 3.6.0
- - XP Tracking System
- - Code Refactors
- - Economy
- - Removed SQL
- - Some cool owner-only stuff
+## Current Changelog 3.7.6
+ - Music Loop
+ - Better eq
+ - Webpanel revamp
+ - Code Improvements
+ - Made eq reset automagically
