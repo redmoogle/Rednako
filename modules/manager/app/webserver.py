@@ -8,23 +8,18 @@ from flask import Flask, request, url_for, redirect, render_template
 import git
 import sys
 import logging
-
-# Shutupshutupshut
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+from waitress import serve
 
 loop = asyncio.get_event_loop()
 repo = git.Repo(search_parent_directories=True)
 app = Flask(__name__)
 
+extserv = Flask('ext-serv')
+
 disabled_cogs = {}
 disabled_commands = []
 
 remote = None
-
-"""
-Webserver Class
-"""
 bot = None
 
 
@@ -49,9 +44,18 @@ def start_ws(init_bot):
     global bot
 
     bot = init_bot
-
     # start on separate thread so it does not block bot
-    threading.Thread(target=app.run, kwargs={"host": "0.0.0.0", "debug": False}).start()
+    threading.Thread(target=serve, args=(app,), kwargs={"listen": '*:5000'}).start()
+    # Used for uptime tracking make sure to forward the port
+    threading.Thread(target=serve, args=(extserv,), kwargs={"listen": '*:9391'}).start()
+
+
+@extserv.route("/")
+def isup():
+    return {
+        "Up": "Yes",
+        "Down": "Use your eyes dumbass"
+    }
 
 
 @app.route('/data')

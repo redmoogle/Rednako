@@ -158,7 +158,6 @@ class Music(commands.Cog):
         if isinstance(event, lavalink.events.TrackStartEvent):
             player = event.player
             notify_channel = player.fetch("channel")
-            player.store("time", time.time())
             notify_channel = self.bot.get_channel(notify_channel)
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
             info = [
@@ -224,7 +223,7 @@ class Music(commands.Cog):
         # Results could be None if Lavalink returns an invalid response (non-JSON/non-200 (OK)).
         # Alternatively, results['tracks'] could be an empty array if the query yielded no tracks.
         if not results or not results['tracks']:
-            return await ctx.send('Nothing found!')
+            return await ctx.send(helpers.embed("Nothing Found!"))
 
         embed = discord.Embed(color=discord.Color.blurple())
 
