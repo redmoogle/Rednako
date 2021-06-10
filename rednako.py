@@ -8,6 +8,7 @@ Also important note. If you change default_activity
 in the config make sure to update the .format in here
 
 """
+import os
 import sys
 import subprocess
 import random
