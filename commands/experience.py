@@ -64,7 +64,8 @@ class XP(commands.Cog):
     @enabled()
     @commands.command(
         name='rankings',
-        brief='check your failings'
+        brief='check your failings',
+        aliases=["rank", "ranks"]
     )
     async def rank(self, ctx, page: int = 1):
         """
@@ -101,7 +102,7 @@ class XP(commands.Cog):
     @commands.command(
         name='grankings',
         brief='Check how bad you are against everyone',
-        aliases=['grank']
+        aliases=['grank',"granks"]
     )
     async def grank(self, ctx, page: int = 1):
         info = []

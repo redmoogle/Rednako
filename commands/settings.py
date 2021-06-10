@@ -60,7 +60,8 @@ class Config(commands.Cog):
 
     @commands.command(
         name='showerrors',
-        brief='en/dis-able showing not found errors'
+        brief='en/dis-able showing not found errors',
+        aliases=["errors"]
     )
     @commands.has_permissions(administrator=True)
     async def errors(self, ctx):
@@ -106,7 +107,7 @@ class Config(commands.Cog):
         if role is None:
             await ctx.send('No mute role found... Reset? y/n')
             response = await self.bot.wait_for('message', check=isauthor(ctx.author), timeout=15)
-            if response.content in ['y', 'yes']:
+            if response.content.lower() in ['y', 'yes']:
                 muterole = await ctx.guild.create_role(name='Muted', colour=discord.Colour.dark_gray(),
                                                        reason='Mute setup')
                 for channel in ctx.guild.channels:

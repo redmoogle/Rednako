@@ -86,17 +86,46 @@
                     </div>
                 </div>
                 <br>
-                <br>
-                <h4 class="row g-0 ps-3" id="local"></h4>
-                <h4 class="row g-0 ps-3" id="remote"></h4>
-                <br>
-                <br>
-                <form method="POST" class="ps-3 mb-2">
-                    <div class="btn-group" role="group" aria-label="Manage Bot">
-                        <button class="btn btn-danger" name="reboot" type="submit">Reboot</button>
-                        <button class="btn btn-warning" name="update" type="submit">Pull</button>
+                <div class="row g-0 ps-3">
+                    <div class="col">
+                        <div class="fs-4">
+                            Lavalink:
+                            {% if bot.lavaprocess %}
+                                <span style="color:var(--bs-green);">Online</span>
+                            {% else %}
+                                <span style="color:var(--bs-red);">Offline</span>
+                            {% endif %}
+                        </div>
+                        <form method="POST" class="mb-2">
+                            <div class="btn-group" role="group" aria-label="Manage Lavalink" style="float:left;">
+                                {% if bot.lavaprocess %}
+                                    <button class="btn btn-danger" name="lavastop" type="submit">Kill Lavalink</button>
+                                    <button class="btn btn-warning" name="lavareboot" type="submit">Restart Lavalink</button>
+                                {% else %}
+                                    <button class="btn btn-success" name="lavastart" type="submit">Start Lavalink</button>
+                                {% endif %}
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
+                <br>
+                <div class="row g-0 ps-3">
+                    <div class="col">
+                        <div class="fs-4">
+                            Github:
+                        </div>
+                        <br>
+                        <h6 class="ps-3" id="local"></h6>
+                        <h6 class="ps-3" id="remote"></h6>
+                        <br>
+                        <form method="POST" class="mb-2">
+                            <div class="btn-group" role="group" aria-label="Manage Bot">
+                                <button class="btn btn-danger" name="reboot" type="submit">Reboot</button>
+                                <button class="btn btn-warning" name="update" type="submit">Pull</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </body>

@@ -69,11 +69,14 @@ class Music(commands.Cog):
             if error is not None:
                 await ctx.send(error.original)
 
+        if isinstance(error, ConnectionResetError):
+            return
+
     def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
         self.bot.lavalink._event_hooks.clear()
 
-    async def cog_before_invoke(self, ctx):
+    async def cog_check(self, ctx):
         """
         Cog Signal called before invoking a command in this cog
 
@@ -106,7 +109,19 @@ class Music(commands.Cog):
         """
 
         # This creates a player, OR returns the existing one, this is to make sure the player exists
-        player = self.bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
+        try:
+            if self.bot.lavaprocess and not self.bot.lavalink:
+                self.bot.lavalink = lavalink.Client(self.bot.user.id)
+                self.bot.lavalink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')
+                self.bot.add_listener(self.bot.lavalink.voice_update_handler, 'on_socket_response')
+
+            player = self.bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
+        except lavalink.NodeException:
+            await ctx.send('Lavalink is still booting up')
+            return False
+        except AttributeError:
+            await ctx.send('Lavalink is currently not online')
+            return False
 
         # Should_connect is used for commands that start playback ~~aka 1 command~~
         should_connect = ctx.command.name in ('play', 'p')
@@ -344,6 +359,7 @@ class Music(commands.Cog):
         description="Loops a song or songs.",
         aliases=['replay']
     )
+    @commands.check(djconfig)
     async def loop(self, ctx):
         """
         Loop a song or songs

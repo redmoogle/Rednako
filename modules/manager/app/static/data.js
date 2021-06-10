@@ -8,7 +8,7 @@ function capitalize(string) { return string.charAt(0).toUpperCase() + string.sli
 // The return is used if you want to do some extra work afterwards
 function modify_text(id, newtext) {
     element = document.getElementById(id);
-    if(element) { element.innerHTML = newtext; return true; }
+    if(element) { if(element.innerHTML != newtext) {element.innerHTML = newtext; return true;} }
     return false;
 }
 

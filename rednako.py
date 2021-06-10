@@ -62,6 +62,11 @@ class Rednako(commands.Bot):
         # Do not put settings below this unless you don't want them to show up on vars commands
         self.vars = set(vars(self))
 
+        print("Starting Lavalink")
+        self.lavaprocess = subprocess.Popen("java -jar ./Lavalink.jar", stdout=subprocess.DEVNULL)
+        time.sleep(1)  # Stops the bot from starting too fast
+        print(f"Started Lavalink: PID-{self.lavaprocess.pid}")
+
         # Does it update its status
         self.updatestatus = True
         # Time when the bot started

@@ -1,6 +1,7 @@
 """"
 Common helper functions for bot
 """
+import logging
 import random
 import discord
 

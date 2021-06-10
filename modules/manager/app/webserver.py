@@ -4,6 +4,7 @@ Discord bot flask webserver
 import asyncio
 import inspect
 import threading
+import subprocess
 from flask import Flask, request, url_for, redirect, render_template
 import git
 import sys
@@ -12,12 +13,11 @@ from waitress import serve
 
 loop = asyncio.get_event_loop()
 repo = git.Repo(search_parent_directories=True)
+
+# Web Management Panel
 app = Flask(__name__)
-
+# Used for pinging
 extserv = Flask('ext-serv')
-
-disabled_cogs = {}
-disabled_commands = []
 
 remote = None
 bot = None
@@ -52,6 +52,9 @@ def start_ws(init_bot):
 
 @extserv.route("/")
 def isup():
+    """
+    Base webpage used for pinging
+    """
     return {
         "Up": "Yes",
         "Down": "Use your eyes dumbass"
@@ -60,6 +63,9 @@ def isup():
 
 @app.route('/data')
 def data():
+    """
+    JSON webpage with a large amount of random data
+    """
     global remote
 
     botdict = bot.__dict__
@@ -105,6 +111,9 @@ def render_static():
 
 @app.route("/manage", methods=["GET", "POST"])
 def manage():
+    """
+    Management Panel
+    """
     if request.method == "POST":
         for item in request.form.items():
             if item[0] == 'reboot':
@@ -119,6 +128,23 @@ def manage():
                 bot.loopspeed = int(item[1])
                 bot.update.change_interval(seconds=int(item[1]))
                 bot.update.restart()
+
+            if item[0] == 'lavastart':
+                logging.warning("Lavalink is being started")
+                if not bot.lavaprocess:
+                    bot.lavaprocess = subprocess.Popen("java -jar ./Lavalink.jar", stdout=subprocess.DEVNULL)
+                    logging.warning(f"Started Lavalink: PID-{bot.lavaprocess.pid}")
+            if item[0] == 'lavastop':
+                logging.warning("Lavalink is being stopped")
+                bot.lavaprocess.kill()
+                bot.lavaprocess = None
+                bot.lavalink = None
+            if item[0] == 'lavareboot':
+                logging.warning("Lavalink is being restarted")
+                bot.lavaprocess.kill()
+                bot.lavaprocess = subprocess.Popen("java -jar ./Lavalink.jar", stdout=subprocess.DEVNULL)
+                bot.lavalink = None
+                logging.warning(f"Started Lavalink: PID-{bot.lavaprocess.pid}")
 
     return render_template("manager.html", bot=bot, command_prefix=get_prefix())
 

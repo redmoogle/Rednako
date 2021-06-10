@@ -39,33 +39,6 @@ class Image(commands.Cog):
         if ctx.guild:
             await ctx.message.delete()
 
-    # Define a new command
-    @commands.command(
-        name='neko',
-        brief='send embedded catgirl'
-    )
-    async def neko(self, ctx):
-        """
-        Sends a catgrill embed
-
-            Parameters:
-                ctx (commands.Context): Context Reference
-        """
-        await ctx.send(embed=helpers.embed(title='Neko', image=nekos.img('neko')))
-
-    @commands.command(
-        name='kitsune',
-        brief='send embedded foxgirl'
-    )
-    async def kitsune(self, ctx):
-        """
-        Sends a foxgrill embed
-
-            Parameters:
-                ctx (commands.Context): Context Reference
-        """
-        await ctx.send(embed=helpers.embed(title='Kitsune', image=nekos.img('fox_girl')))
-
     @commands.command(
         name='avatar',
         brief='Show user avatar',
