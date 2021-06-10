@@ -64,9 +64,8 @@ class Rednako(commands.Bot):
         self.vars = set(vars(self))
 
         print("Starting Lavalink")
-        _ = os.path.abspath("./Lavalink.jar")
-        self.lavaprocess = subprocess.Popen(f"java -jar {_}", stdout=subprocess.DEVNULL)
-        time.sleep(1)  # Stops the bot from starting too fast
+        self.lavaprocess = subprocess.Popen(f"java -jar {os.path.abspath('./Lavalink.jar')}", stdout=subprocess.DEVNULL, shell=True)
+        time.sleep(7)  # Stops the bot from starting too fast
         print(f"Started Lavalink: PID-{self.lavaprocess.pid}")
 
         # Does it update its status
