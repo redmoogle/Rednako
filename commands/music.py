@@ -76,7 +76,7 @@ class Music(commands.Cog):
         """ Cog unload handler. This removes any event hooks that were registered. """
         self.bot.lavalink._event_hooks.clear()
 
-    async def cog_check(self, ctx):
+    async def cog_before_invoke(self, ctx):
         """
         Cog Signal called before invoking a command in this cog
 
