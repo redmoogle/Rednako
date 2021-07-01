@@ -64,8 +64,11 @@ class Rednako(commands.Bot):
         self.vars = set(vars(self))
 
         print("Starting Lavalink")
-        self.lavaprocess = subprocess.Popen(f"java -jar {os.path.abspath('./Lavalink.jar')}", stdout=subprocess.DEVNULL, shell=True)
-        time.sleep(7)  # Stops the bot from starting too fast
+        self.lavaprocess = subprocess.Popen(
+            f"java -jar {os.path.abspath('./Lavalink.jar')}",
+            stdout=subprocess.DEVNULL,
+            shell=True)
+        time.sleep(0)  # Stops the bot from starting too fast
         print(f"Started Lavalink: PID-{self.lavaprocess.pid}")
 
         # Does it update its status
@@ -278,8 +281,7 @@ class Rednako(commands.Bot):
                 )
                 await member.send(embed=discord.Embed(
                     title=f'You have been unmuted from: `{guild.name}`'
-                )
-                )
+                ))
                 del data[key]
                 guildreader.write_file(guild.id, 'muted', data)
 

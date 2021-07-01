@@ -153,6 +153,34 @@ def parse_duration(duration, timefill: int = 0) -> str:
     return ''.join(duration), fill
 
 
+def time_to_seconds(inp: str) -> int:
+    """
+    Args:
+        inp: Translates "5:42:00" to time
+
+    Returns:
+        Time in Seconds
+    """
+    try:
+        return int(inp)
+    except ValueError:  # If the input isn't like "72"
+        _tmp = 0
+        inp = inp.split(":")
+        inp.reverse()
+
+        # seconds, minutes, hours, days, weeks, months, years, decades, century
+        modifiers = [1, 60, 60, 24, 7, 4.4, 12, 10, 10]
+        for index, subnum in enumerate(inp):
+            try:
+                mdfr = 1
+                for itr in range(index+1):  # gotta multiply all the items before it
+                    mdfr *= modifiers[itr]
+                _tmp += int(subnum)*mdfr
+            except ValueError:
+                raise TypeError()
+        return _tmp
+
+
 def dividelist(lst: list, divisor, offset=0) -> list:
     """
     Slices a list while keeping the index stable

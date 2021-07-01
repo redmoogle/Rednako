@@ -1,6 +1,7 @@
 """
 Discord bot flask webserver
 """
+import random
 import asyncio
 import inspect
 import threading
@@ -55,10 +56,17 @@ def isup():
     """
     Base webpage used for pinging
     """
-    return {
+    dat = {
         "Up": "Yes",
-        "Down": "Use your eyes dumbass"
+        "Down": "Use your eyes dumbass",
+        "Hotel": "Trivago",
+        "Hackable": "😎",
+        "Rickroll": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "Discord": "https://discord.gg/2vUXuG7gKh"
     }
+    if random.randint(0, 100) == 1:
+        dat["DaBaby"] = "Letz Go!"
+    return dat
 
 
 @app.route('/data')
@@ -97,8 +105,31 @@ def data():
         'prefix': 'On Mention',
         'vars': keypairs,
         'shards': latencies,
-        'cogs': cogcommands
+        'cogs': cogcommands,
     }
+
+
+@app.route("/guild_dat")
+def guilddata():
+    """
+    Data for guilds
+    """
+    guildarr = []
+    for guild in bot.guilds:
+        icn = str(guild.icon_url)
+        if not icn:
+            icn = "https://www.iconsdb.com/icons/preview/gray/square-xxl.png"
+        guildarr.append({
+            'name': guild.name,
+            'id': guild.id,
+            'members': guild.member_count,
+            'voice': len(guild.voice_channels),
+            'text': len(guild.text_channels),
+            'roles': len(guild.roles),
+            'owner': guild.owner.name,
+            'icon': icn
+        })
+    return {'data': guildarr}
 
 
 @app.route("/")
@@ -107,6 +138,18 @@ def render_static():
     Homepage
     """
     return redirect(url_for("commands"))
+
+
+@app.route("/info", methods=["GET", "POST"])
+def info():
+    idta = {}
+    for guild in bot.guilds:
+        _t = ""
+        for ch in str(guild.id):
+            _t += chr(int(ch)+97)  # 97 is the start of the lowercase alpha chars
+        idta[guild.id] = _t
+
+    return render_template("data.html", bot=bot, command_prefix=get_prefix(), idta=idta)
 
 
 @app.route("/manage", methods=["GET", "POST"])

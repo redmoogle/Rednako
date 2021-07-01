@@ -485,6 +485,51 @@ class Music(commands.Cog):
         else:
             return await ctx.send('Nothing Playing')
 
+    @commands.command(
+        name="seek",
+        brief="Seeks to a duration"
+    )
+    @commands.check(djconfig)
+    async def seek(self, ctx, timinp):
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        try:
+            seekto = helpers.time_to_seconds(timinp)
+        except ValueError:
+            return await ctx.send("You have provided an invalid timestamp")
+
+        if not player:
+            return await ctx.send("No Player")
+
+        await player.seek(seekto*1000)
+        await ctx.send(f"Seeked to {timinp}")
+
+    @commands.command(
+        name="volume",
+        brief="sets the volume upto a max of 1000"
+    )
+    @commands.check(djconfig)
+    async def volume(self, ctx, vol) -> None:
+        """
+
+        Args:
+            ctx: Context
+            vol: Volume to set to lavalink imposes a max of 1000
+
+        Returns:
+            None
+        """
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        try:
+            vol = int(vol)
+        except ValueError:
+            return await ctx.send("Not a number")
+        if not player:
+            return await ctx.send("No Player")
+
+        vol = max(min(1000, vol), 0)
+        await player.set_volume(vol)
+        await ctx.send(f"Set volume to {vol}")
+
 
 def setup(bot):
     """
