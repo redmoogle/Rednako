@@ -8,6 +8,7 @@ import discord
 from discord.ext import commands
 from modules import helpers
 import guildreader
+from discord_slash import cog_ext
 
 
 class Admin(commands.Cog):
@@ -21,13 +22,15 @@ class Admin(commands.Cog):
         if ctx.guild:
             await ctx.message.delete()
 
-    async def cog_command_error(self, ctx, error):
+    async def on_slash_command_error(self, ctx, error):
+        if isinstance(error, commands.errors.MissingPermissions):
+            return await ctx.send(error.message)
         if isinstance(error, discord.NotFound):
             return
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='purge',
-        brief='delete messages'
+        description='delete messages'
     )
     @commands.has_permissions(manage_channels=True)
     async def purge(self, ctx, purge: int):
@@ -43,9 +46,9 @@ class Admin(commands.Cog):
 
         await ctx.channel.purge(limit=purge, bulk=True)
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='ban',
-        brief='fancy ban'
+        description='fancy ban'
     )
     @commands.has_permissions(ban_members=True)
     async def ban(self, ctx, victim: discord.Member = None):
@@ -70,9 +73,9 @@ class Admin(commands.Cog):
         await ctx.send(str(funnys[0]))
         await victim.ban()
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='kick',
-        brief='fancy kick'
+        description='fancy kick'
     )
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, victim: discord.Member = None):
@@ -98,9 +101,9 @@ class Admin(commands.Cog):
         await ctx.send(str(funnys[0]))
         await victim.kick()
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='mute',
-        brief='mute a person in s,m,h,d,w'
+        description='mute a person in s,m,h,d,w'
     )
     @commands.has_permissions(kick_members=True)
     async def mute(self, ctx, victim: discord.Member = None, *, mutetime: str = None):
@@ -139,9 +142,9 @@ class Admin(commands.Cog):
         guilddata[str(victim.id)] = data
         guildreader.write_file(ctx.guild.id, 'muted', guilddata)
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='unmute',
-        brief='unmute a person'
+        description='unmute a person'
     )
     @commands.has_permissions(kick_members=True)
     async def unmute(self, ctx, victim: discord.Member = None):

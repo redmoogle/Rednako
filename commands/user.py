@@ -8,6 +8,7 @@ import git
 from discord.ext import commands
 from modules import helpers, animal
 import guildreader
+from discord_slash import cog_ext
 
 config = config.Config('./config/bot.cfg')
 repo = git.Repo(search_parent_directories=True)
@@ -42,10 +43,9 @@ class User(commands.Cog):
         if ctx.guild:
             await ctx.message.delete()
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='say',
-        brief='make the bot speak',
-        aliases=['send', 'args']
+        description='make the bot speak',
     )
     async def args(self, ctx, *, args):
         """
@@ -60,10 +60,9 @@ class User(commands.Cog):
         )
         await ctx.send(sanitized)
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='serverinfo',
-        brief='shows server info',
-        aliases=['si']
+        description='shows server info',
     )
     async def serverinfo(self, ctx):
         """
@@ -93,10 +92,9 @@ class User(commands.Cog):
 
         await ctx.send(embed=helpers.embed(title=guild.name, thumbnail=guild.icon_url, fields=info))
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='info',
-        brief='botinfo',
-        aliases=['globalinfo']
+        description='botinfo',
     )
     async def info(self, ctx):
         """
@@ -124,9 +122,9 @@ class User(commands.Cog):
         )
         await ctx.send(embed=embed)
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='ping',
-        brief='ping discord api/bot'
+        description='ping discord api/bot'
     )
     async def ping(self, ctx):
         """
@@ -139,9 +137,9 @@ class User(commands.Cog):
         embed.add_field(name='API: ', value=f'Latency: {round(self.bot.latency*1000)}ms')
         await ctx.send(embed=embed)
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='catfact',
-        brief='get slapped by the cat'
+        description='get slapped by the cat'
     )
     async def catfact(self, ctx):
         """
@@ -156,8 +154,9 @@ class User(commands.Cog):
         ]
         await ctx.send(embed=helpers.embed(title='Cat Fact', fields=info))
 
-    @commands.command(
-        name='animalfact'
+    @cog_ext.cog_slash(
+        name='animalfact',
+        description="shows an animal fact"
     )
     async def animalfact(self, ctx, _animal: str = None):
         """`cat`, `dog`, `koala`, `fox`, `bird`, `red_panda`, `panda`, `racoon`, `kangaroo`"""

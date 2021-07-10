@@ -26,7 +26,7 @@ def TypedError(expected, got):
     raise TypeError(f"Expected {type(expected)} got {type(got)} instead")
 
 
-def embed(title: str = None, description: str = None, thumbnail: str = None, image: str = None, fields: list = None,
+def embed(title: str = None, description: str = "", thumbnail: str = None, image: str = None, fields: list = None,
           inline: bool = True, color=discord.Colour.default()) -> discord.Embed:
     """
     Creates a embed with various arguments.

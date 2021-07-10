@@ -13,11 +13,17 @@ Compatibility with Python 3.5 should be possible if f-strings are removed.
 import re
 import math
 import time
+import asyncio
 import discord
 from discord.ext import commands
 import lavalink
 from modules import helpers
 import guildreader
+from discord_slash import cog_ext
+from discord_slash.utils.manage_components import create_button, create_actionrow
+from discord_slash.model import ButtonStyle
+from discord_slash.utils.manage_components import wait_for_component
+
 import logging
 
 
@@ -41,6 +47,107 @@ def djconfig(ctx) -> bool:
     if role in ctx.author.roles:
         return True
     return False
+
+
+class BandEditor:
+    def __init__(self, ctx, player, bot):
+        self.ctx = ctx
+        self.player = player
+        self.bands = self.player.equalizer
+        self.bot = bot
+
+        self._msg = None
+
+        self.loop = asyncio.get_event_loop()
+        self.loop.create_task(self.mainmenu())
+
+    def eqembed(self):
+        lower = -0.25
+        upper = 1
+        stackheight = 20
+
+        emb = discord.Embed()
+        desc = "```"
+        for band, amount in enumerate(self.player.equalizer):
+            percentage = (abs(lower) + amount) / (abs(upper) + abs(lower))
+            filllen = stackheight - (round(percentage * stackheight))
+            fill = ""
+            for _ in range(filllen):
+                fill += " "
+            desc += f"{str(band + 1).zfill(2)}: " + ("|" * (round(percentage * stackheight))) + f"{fill}\n"
+
+        desc += "```"
+        emb.description = desc
+        return emb
+
+    async def bandmenu(self, bands):
+        while True:
+            comp = await self.send_or_edit(mode=2)
+            result = await wait_for_component(self.bot, components=comp)
+            result
+            if result.author != self.ctx.author:
+                return
+            if result.component_id == "up":
+                for band in range(bands[0], bands[1] + 1):
+                    await self.player.set_gain(band, self.player.equalizer[band] + 0.1)
+
+            if result.component_id == "down":
+                for band in range(bands[0], bands[1] + 1):
+                    await self.player.set_gain(band, self.player.equalizer[band] - 0.1)
+
+            if result.component_id == "back":
+                await result.edit_origin(**self._emmsg(1))
+                await self.mainmenu()
+            await result.edit_origin(**self._emmsg(2))
+
+    def _emmsg(self, mode):
+        arg = {}
+        if mode == 1:
+            actions = create_actionrow(
+                create_button(style=ButtonStyle.green, label="Bass", custom_id="bass"),
+                create_button(style=ButtonStyle.green, label="Mids", custom_id="mids"),
+                create_button(style=ButtonStyle.green, label="Treble", custom_id="treble"),
+                create_button(style=ButtonStyle.green, label="Exit", custom_id="close")
+            )
+
+            arg["components"] = [actions]
+
+        if mode == 2:
+            actions = create_actionrow(
+                create_button(style=ButtonStyle.green, label="Increase", custom_id="up"),
+                create_button(style=ButtonStyle.green, label="Decrease", custom_id="down"),
+                create_button(style=ButtonStyle.green, label="Back", custom_id="back"),
+            )
+            arg["components"] = [actions]
+
+        arg["embed"] = self.eqembed()
+        return arg
+
+    async def send_or_edit(self, mode=1):
+        arg = self._emmsg(mode)
+        if not self._msg:
+            self._msg = await self.ctx.send(**arg)
+        else:
+            await self._msg.edit(**arg)
+        return arg["components"]
+
+    async def mainmenu(self):
+        while True:
+            comp = await self.send_or_edit()
+            result = await wait_for_component(self.bot, components=comp)
+            bandselector = 0
+            if result.component_id == "bass":
+                bandselector = (0, 4)
+            elif result.component_id == "mids":
+                bandselector = (5, 9)
+            elif result.component_id == "treble":
+                bandselector = (10, 14)
+            elif result.component_id == "close":
+                await self._msg.delete()
+                break
+
+            await result.edit_origin(**self._emmsg(2))
+            await self.bandmenu(bandselector)
 
 
 url_rx = re.compile(r'https?://(?:www\.)?.+')
@@ -124,9 +231,9 @@ class Music(commands.Cog):
             return False
 
         # Should_connect is used for commands that start playback ~~aka 1 command~~
-        should_connect = ctx.command.name in ('play', 'p')
+        should_connect = ctx.command in ('play', 'p')
         # This is to ignore commands that shouldn't require people in the same VC
-        ignored = ctx.command.name in ('queue', 'np', 'current', 'reset')
+        ignored = ctx.command in ('queue', 'np', 'current', 'reset')
 
         if ignored:
             return True
@@ -202,11 +309,9 @@ class Music(commands.Cog):
         # The above looks dirty, we could alternatively use `bot.shards[shard_id].ws` but that assumes
         # the bot instance is an AutoShardedBot.
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name="play",
-        description="play music.",
-        usage="play [song]",
-        aliases=['p']
+        description="play music."
     )
     @commands.check(djconfig)
     async def search_and_play(self, ctx, *, query):
@@ -274,13 +379,14 @@ class Music(commands.Cog):
         player.store("guild", ctx.guild.id)
         player.store("bands", {band: 0 for band in range(15)})
 
-        if player.is_playing:
-            await ctx.send(embed=embed)
-
         if not player.is_playing:
             await player.play()
+        return await ctx.send(embed=embed)
 
-    @commands.command(aliases=['dc', 'stop'])
+    @cog_ext.cog_slash(
+        name="stop",
+        description="stops the player"
+    )
     @commands.check(djconfig)
     async def disconnect(self, ctx):
         """
@@ -298,9 +404,9 @@ class Music(commands.Cog):
         await self.connect_to(ctx.guild.id, None)
         await ctx.send(':asterisk: | Disconnected.')
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='pause',
-        brief='pauses the song'
+        description='pauses the song'
     )
     @commands.check(djconfig)
     async def pause(self, ctx):
@@ -321,11 +427,9 @@ class Music(commands.Cog):
             await ctx.send(':asterisk: | Bot has been paused')
             await player.pause()
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name="current",
         description="Shows the current playing song.",
-        usage="current",
-        aliases=['np']
     )
     async def current(self, ctx):
         """
@@ -354,10 +458,9 @@ class Music(commands.Cog):
             return await ctx.send(embed=embed)
         return await ctx.send('Nothing playing')
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name="loop",
         description="Loops a song or songs.",
-        aliases=['replay']
     )
     @commands.check(djconfig)
     async def loop(self, ctx):
@@ -379,7 +482,10 @@ class Music(commands.Cog):
             await ctx.send(':asterisk: | Now Looping.')
         player.repeat = not repeating
 
-    @commands.command(name='queue')
+    @cog_ext.cog_slash(
+        name='queue',
+        description="shows the queue"
+    )
     async def queue(self, ctx, page: int = 1):
         """
         Iterates over the queue and sends a embed of queued tracks
@@ -420,35 +526,28 @@ class Music(commands.Cog):
         embed.set_footer(text=f'Viewing page {page}/{pages}')
         await ctx.send(embed=embed)
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='eq',
-        brief='*Thump* *Thump* *Thump*'
+        description='*Thump* *Thump* *Thump*'
     )
     @commands.check(djconfig)
-    async def eq(self, ctx, eqtype: str, gain: float = 0):
+    async def eq(self, ctx):
         """
-        Increases the first five bands (0-4) by an unknown amount
+        Allows you to edit the bands
 
             Parameters:
                 ctx (commands.Context): Context Reference
-                eqtype (str): Which band to modify 0-2, 5-7
-                gain (float): How much to increase the bands
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
                 return await ctx.send(':asterisk: | Bot is not playing any music.')
 
-        start, finish = eqtype.split('-')
+        BandEditor(ctx, player, self.bot)
 
-        for band in range(int(start), int(finish)+1):
-            logging.error((band, gain,))
-            await player.set_gain(band, max(min(1.0, gain*0.01), -0.25))
-        await ctx.send(f'Bands {eqtype} set to {max(min(1000, gain*10.0), -25)}%')
-
-    @commands.command(
+    @cog_ext.cog_slash(
         name='reset',
-        brief='unfuck the EQ'
+        description='unfuck the EQ'
     )
     @commands.check(djconfig)
     async def reset(self, ctx):
@@ -463,9 +562,9 @@ class Music(commands.Cog):
             await player.reset_equalizer()
             await ctx.send('EQ has been reset')
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='skip',
-        brief='nobody likes your trash'
+        description='nobody likes your trash'
     )
     @commands.check(djconfig)
     async def skip(self, ctx):
@@ -485,9 +584,9 @@ class Music(commands.Cog):
         else:
             return await ctx.send('Nothing Playing')
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name="seek",
-        brief="Seeks to a duration"
+        description="Seeks to a duration"
     )
     @commands.check(djconfig)
     async def seek(self, ctx, timinp):
@@ -503,9 +602,9 @@ class Music(commands.Cog):
         await player.seek(seekto*1000)
         await ctx.send(f"Seeked to {timinp}")
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name="volume",
-        brief="sets the volume upto a max of 1000"
+        description="sets the volume upto a max of 1000"
     )
     @commands.check(djconfig)
     async def volume(self, ctx, vol) -> None:

@@ -5,6 +5,7 @@ Handles all thing config
 from discord.ext import commands
 import discord
 import guildreader
+from discord_slash import cog_ext
 
 
 def isauthor(author):
@@ -21,9 +22,13 @@ class Config(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(
+    async def on_slash_command_error(self, ctx, error):
+        if isinstance(error, discord.ext.commands.errors.MissingPermissions):
+            return await ctx.send(error.message)
+
+    @cog_ext.cog_slash(
         name='prefix',
-        brief='change the prefix of the bot'
+        description='change the prefix of the bot'
     )
     @commands.has_permissions(administrator=True)
     async def changeprefix(self, ctx, prefix):
@@ -38,9 +43,9 @@ class Config(commands.Cog):
         await ctx.send(f'Prefix changed to: {prefix}')
         await ctx.me.edit(nick=f'{prefix} | {ctx.me.name}')
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='djmode',
-        brief='enable or disable djmode, nothing to turn it off'
+        description='enable or disable djmode, nothing to turn it off'
     )
     @commands.has_permissions(administrator=True)
     async def djmode(self, ctx, djrole: discord.Role = None):
@@ -58,10 +63,9 @@ class Config(commands.Cog):
         guildreader.write_file(ctx.guild.id, 'djmode', str(djrole.id))
         await ctx.send(f'Enabling DJ-Config for role: {djrole.name}')
 
-    @commands.command(
-        name='showerrors',
-        brief='en/dis-able showing not found errors',
-        aliases=["errors"]
+    @cog_ext.cog_slash(
+        name='errors',
+        description='en/dis-able showing not found errors',
     )
     @commands.has_permissions(administrator=True)
     async def errors(self, ctx):
@@ -78,9 +82,9 @@ class Config(commands.Cog):
             return await ctx.send("Disabling showing of command not found")
         return await ctx.send("Enabling showing of command not found")
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='enablexp',
-        brief='en/dis-able XP system'
+        description='en/dis-able XP system'
     )
     @commands.has_permissions(administrator=True)
     async def xpenable(self, ctx):
@@ -97,9 +101,9 @@ class Config(commands.Cog):
             return await ctx.send("Enabling EXP tracking")
         return await ctx.send("Disabling EXP tracking")
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='muterole',
-        brief='set the role for the mute'
+        description='set the role for the mute'
     )
     @commands.has_permissions(kick_members=True)
     async def muterole(self, ctx, role: discord.Role = None):

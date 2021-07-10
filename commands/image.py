@@ -6,6 +6,7 @@ import discord
 from discord.ext import commands
 import nekos
 from modules import helpers, animal
+from discord_slash import cog_ext
 
 
 def grab_animal(_animal: str = None) -> str:
@@ -39,10 +40,9 @@ class Image(commands.Cog):
         if ctx.guild:
             await ctx.message.delete()
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='avatar',
-        brief='Show user avatar',
-        aliases=['avtr']
+        description='Show user avatar',
     )
     async def avatar(self, ctx, victim: discord.Member = None):
         """
@@ -58,9 +58,9 @@ class Image(commands.Cog):
 
         await ctx.send(embed=helpers.embed(title=f'{victim}\'s Avatar', image=victim.avatar_url))
 
-    @commands.command(
+    @cog_ext.cog_slash(
         name='cat',
-        brief='grabs cat'
+        description='grabs cat'
     )
     async def cat(self, ctx):
         """
@@ -81,8 +81,9 @@ class Image(commands.Cog):
         random.shuffle(randomtitles)
         await ctx.send(embed=helpers.embed(title=randomtitles[0], image=url))
 
-    @commands.command(
-        name='animal'
+    @cog_ext.cog_slash(
+        name='animal',
+        description='shows an animal'
     )
     async def animal(self, ctx, _animal: str = None):
         """`cat`, `dog`, `koala`, `fox`, `bird`, `red_panda`, `panda`, `racoon`, `kangaroo`"""

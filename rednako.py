@@ -22,13 +22,14 @@ from better_help import Help
 import guildreader
 import config
 from modules import helpers, manager
+from discord_slash import SlashCommand
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
 
 # Logging
 logger = logging.getLogger('discord')
-logger.setLevel(logging.WARN)
+logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename='logs/discord.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
@@ -115,6 +116,8 @@ class Rednako(commands.Bot):
         self.mute.start()
         self.check_guilds.start()
 
+        self.slash = SlashCommand(self, sync_commands=True)
+
     def grab_servers(self):
         """
         Grabs all the servers the bot can see
@@ -174,53 +177,6 @@ class Rednako(commands.Bot):
         for jsonfile in self.configs:
             guildreader.remove(guild.id, jsonfile[0])
 
-    async def on_message(self, message):
-        """
-        Event signal called when the bot sees a message
-
-            Parameters:
-                message (discord.Message): Message Reference
-        """
-        # Bad idea to not make the bot ignore itself
-        if self.user.id == message.author.id:
-            return
-
-        # Bot should respond to commands obv.
-        await self.process_commands(message)
-
-        # So the gist of whats going on here is that we check if 5 minutes has elapsed,
-        # since the last XP-addition, if not return, otherwise add between 1-10 XP,
-        # and check if they have leveled up. Then write the file back of course.
-
-        # Dictonary is set up like this per guild: {enabled: false, userid:{xp:0,goal:20,level:0,last_used:0}}
-
-        data = guildreader.read_file(message.guild.id, 'xp')
-        if data['enabled']:
-            try:
-                # Load XP Data
-                idxp = data[str(message.author.id)]
-                if time.time() < idxp['last_used'] + 300:
-                    return
-                idxp['xp'] += random.randint(1, 10)
-                idxp['last_used'] = time.time()
-
-                # Increment goal and level
-                if idxp['xp'] >= idxp['goal']:
-                    idxp['level'] += 1
-                    idxp['goal'] = 20 + idxp['level'] * 25
-                    await message.reply(
-                        f"Congratulations, {message.author.mention}! you have reached level {idxp['level']}")
-                data[str(message.author.id)] = idxp
-            except KeyError:
-                # Generate a new XP configuration
-                data[str(message.author.id)] = {
-                    'xp': 0,
-                    'goal': 20,
-                    'level': 0,
-                    'last_used': time.time()
-                }
-            guildreader.write_file(message.guild.id, 'xp', data)
-
     async def on_command_error(self, context, exception):
         """
         Event signal called when a command errors out
@@ -229,6 +185,9 @@ class Rednako(commands.Bot):
                 context (commands.Context): Context Reference
                 exception (Exception): Error that happened
         """
+        if isinstance(exception, commands.errors.MissingPermissions):
+            logging.error("E")
+            return await context.send(exception.message)
         if not guildreader.read_file(context.guild.id, 'settings')['errors']:
             return
         if isinstance(exception, commands.CommandNotFound):
@@ -333,6 +292,9 @@ class Rednako(commands.Bot):
             guildreader.create_file(self, _config[0], _config[1])
 
         manager.opendash(self)
+
+        # use this if you want to sync commands
+        await self.slash.sync_all_commands()
 
     def close_bot(self):
         """ Closes the bot, exists because of a call from a external thread. """
