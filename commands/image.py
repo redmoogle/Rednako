@@ -2,11 +2,14 @@
 Image commands
 """
 import random
+import asyncio
 import discord
 from discord.ext import commands
 import nekos
-from modules import helpers, animal
+from modules import helpers
+from modules import animal as animals
 from discord_slash import cog_ext
+from discord_slash.utils.manage_components import create_select, create_select_option, create_actionrow, wait_for_component
 
 
 def grab_animal(_animal: str = None) -> str:
@@ -19,14 +22,14 @@ def grab_animal(_animal: str = None) -> str:
         Returns:
             url: Image URL
     """
-    if _animal is None:
-        return animal.Animals(None).image()
+    if not _animal:
+        return animals.Animals(None).image()
     if _animal == "bird":
         _animal = "birb"  # who shitposts in their module?
     if _animal not in ["cat", "dog", "koala", "fox", "birb", "red_panda", "panda", "racoon", "kangaroo"]:
         return None
 
-    return animal.Animals(_animal).image()  # Grabs image
+    return animals.Animals(_animal).image()  # Grabs image
 
 
 class Image(commands.Cog):
@@ -44,19 +47,19 @@ class Image(commands.Cog):
         name='avatar',
         description='Show user avatar',
     )
-    async def avatar(self, ctx, victim: discord.Member = None):
+    async def avatar(self, ctx, user: discord.Member = None):
         """
         Sends a persons avatar
 
             Parameters:
                 ctx (commands.Context): Context Reference
-                victim (discord.Member): Person to grab avatar from
+                user (discord.Member): Person to grab avatar from
         """
         # grabs their avatar and embeds it
-        if victim is None:
-            victim = ctx.author
+        if user is None:
+            user = ctx.author
 
-        await ctx.send(embed=helpers.embed(title=f'{victim}\'s Avatar', image=victim.avatar_url))
+        await ctx.send(embed=helpers.embed(title=f'{user}\'s Avatar', image=user.avatar_url))
 
     @cog_ext.cog_slash(
         name='cat',
@@ -85,18 +88,43 @@ class Image(commands.Cog):
         name='animal',
         description='shows an animal'
     )
-    async def animal(self, ctx, _animal: str = None):
+    async def animal(self, ctx):
         """`cat`, `dog`, `koala`, `fox`, `bird`, `red_panda`, `panda`, `racoon`, `kangaroo`"""
-        url = grab_animal(_animal)
+        selection = create_actionrow(create_select(
+            options=[
+                create_select_option("Random", value="None"),
+                create_select_option("Cat", value="cat"),
+                create_select_option("Dog", value="dog"),
+                create_select_option("Koala", value="koala"),
+                create_select_option("Fox", value="fox"),
+                create_select_option("Bird", value="bird"),
+                create_select_option("Red Panda", value="red_panda"),
+                create_select_option("Panda", value="panda"),
+                create_select_option("Racoon", value="racoon"),
+                create_select_option("Kangaroo", value="kangaroo"),
+            ],
+            placeholder="Select or DIE",
+            min_values=1,
+            max_values=1
+        ))
+        msg = await ctx.send("Select an Animal...", components=[selection])
+        try:
+            result = await wait_for_component(self.bot, components=selection, timeout=15)
+        except asyncio.TimeoutError:
+            await msg.delete()
+        animal = result.selected_options[0]
+        if animal == "None":
+            animal = None
+        url = grab_animal(animal)
         if not url:
-            return await ctx.send(f'{_animal} does not exist')
+            return await ctx.send(f'{animal} does not exist')
 
-        if not _animal:
+        if not animal:
             _name = 'Random Animal Image'
         else:
-            _name = f'Random {_animal.capitalize()} Image'
+            _name = f'Random {animal.capitalize()} Image'
 
-        await ctx.send(embed=helpers.embed(title=_name, image=url))
+        await msg.edit(content=None, embed=helpers.embed(title=_name, image=url), components=None)
 
 
 def setup(bot):

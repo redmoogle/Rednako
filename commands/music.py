@@ -84,7 +84,6 @@ class BandEditor:
         while True:
             comp = await self.send_or_edit(mode=2)
             result = await wait_for_component(self.bot, components=comp)
-            result
             if result.author != self.ctx.author:
                 return
             if result.component_id == "up":
