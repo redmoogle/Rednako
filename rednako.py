@@ -17,7 +17,6 @@ import time
 import discord
 from cogwatch import watch
 from discord.ext import commands, tasks
-from better_help import Help
 import guildreader
 from discord_slash import SlashCommand
 import config
@@ -86,7 +85,7 @@ class Rednako(commands.Bot):
             owner_id=config['owner_id'],       # Your unique User ID
             case_insensitive=True,             # Make the commands case insensitive
             intents=discord.Intents.all(),     # Entirely Optional
-            help_command=Help()                # Default help command
+            help_command=None                  # This is a slash bot
         )
 
         # List of configs setup like
