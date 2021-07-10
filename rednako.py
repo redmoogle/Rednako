@@ -11,7 +11,6 @@ in the config make sure to update the .format in here
 import os
 import sys
 import subprocess
-import random
 import logging
 from pathlib import Path
 import time
@@ -20,9 +19,9 @@ from cogwatch import watch
 from discord.ext import commands, tasks
 from better_help import Help
 import guildreader
+from discord_slash import SlashCommand
 import config
 from modules import helpers, manager
-from discord_slash import SlashCommand
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
