@@ -12,7 +12,6 @@ Compatibility with Python 3.5 should be possible if f-strings are removed.
 
 import re
 import math
-import time
 import asyncio
 import discord
 from discord.ext import commands
@@ -20,11 +19,8 @@ import lavalink
 from modules import helpers
 import guildreader
 from discord_slash import cog_ext
-from discord_slash.utils.manage_components import create_button, create_actionrow
+from discord_slash.utils.manage_components import create_button, create_actionrow, wait_for_component
 from discord_slash.model import ButtonStyle
-from discord_slash.utils.manage_components import wait_for_component
-
-import logging
 
 
 def djconfig(ctx) -> bool:
@@ -182,27 +178,6 @@ class Music(commands.Cog):
         """ Cog unload handler. This removes any event hooks that were registered. """
         self.bot.lavalink._event_hooks.clear()
 
-    async def cog_before_invoke(self, ctx):
-        """
-        Cog Signal called before invoking a command in this cog
-
-            Parameters:
-                ctx (commands.Context): Context Reference
-
-            Returns:
-                runnable (bool): Can the command run
-        """
-        await self.bot.wait_until_ready()
-        guild_check = ctx.guild is not None
-        #  This is essentially the same as `@commands.guild_only()`
-        #  except it saves us repeating ourselves (and also a few lines).
-
-        if guild_check:
-            return await self.ensure_voice(ctx)
-            #  Ensure that the bot and command author share a mutual voicechannel.
-
-        return guild_check
-
     async def ensure_voice(self, ctx):
         """
         Additional checks that prevents the lavalink code from breaking
@@ -233,7 +208,6 @@ class Music(commands.Cog):
         should_connect = ctx.command in ('play', 'p')
         # This is to ignore commands that shouldn't require people in the same VC
         ignored = ctx.command in ('queue', 'np', 'current', 'reset')
-
         if ignored:
             return True
 
@@ -322,11 +296,9 @@ class Music(commands.Cog):
                 query (str): Thing or link to search/play
         """
         # Get the player for this guild from cache.
+        if not await self.ensure_voice(ctx):
+            return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
-        if not player:
-            # if for some reason the player doesnt exist, forcefully create it
-            await self.ensure_voice(ctx=ctx)
-            player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         # Remove leading and trailing <>. <> may be used to suppress embedding links in Discord.
         query = query.strip('<>')
@@ -394,6 +366,8 @@ class Music(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
+        if not await self.ensure_voice(ctx):
+            return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         # Clear the queue to ensure old tracks don't start playing
@@ -415,6 +389,8 @@ class Music(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
+        if not await self.ensure_voice(ctx):
+            return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player.current is None:
             await ctx.send(':asterisk: | Bot is not playing any music.')
@@ -437,6 +413,8 @@ class Music(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
+        if not await self.ensure_voice(ctx):
+            return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player.current:
             duration, fill = helpers.parse_duration(player.current.duration/1000)
@@ -469,6 +447,8 @@ class Music(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
+        if not await self.ensure_voice(ctx):
+            return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
@@ -493,6 +473,8 @@ class Music(commands.Cog):
                 ctx (commands.Context): Context Reference
                 page (int): Page of the queue to look up (10 per page)
         """
+        if not await self.ensure_voice(ctx):
+            return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         # player.current is a track but we want it to be a list with that track
@@ -537,6 +519,8 @@ class Music(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
+        if not await self.ensure_voice(ctx):
+            return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
@@ -556,6 +540,8 @@ class Music(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
+        if not await self.ensure_voice(ctx):
+            return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             await player.reset_equalizer()
@@ -573,6 +559,8 @@ class Music(commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
+        if not await self.ensure_voice(ctx):
+            return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.is_playing:
@@ -589,6 +577,8 @@ class Music(commands.Cog):
     )
     @commands.check(djconfig)
     async def seek(self, ctx, timinp):
+        if not await self.ensure_voice(ctx):
+            return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         try:
             seekto = helpers.time_to_seconds(timinp)
@@ -616,6 +606,8 @@ class Music(commands.Cog):
         Returns:
             None
         """
+        if not await self.ensure_voice(ctx):
+            return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         try:
             vol = int(vol)

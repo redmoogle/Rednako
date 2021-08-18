@@ -5,7 +5,6 @@ import random
 import asyncio
 import discord
 from discord.ext import commands
-import nekos
 from modules import helpers
 from modules import animal as animals
 from discord_slash import cog_ext
