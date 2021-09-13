@@ -1,7 +1,13 @@
 # Rednako Discord Bot
+
+## The future of this bot
+  Future of discordpy: [gist](https://gist.github.com/Rapptz/4a2f62751b9600a31a0d3c78100287f1)
+  
+  Working on a new implementation in another language
+
+
  ### An Opensource Bot
   - This bot is built for expanding my code knowledge
-  - This bot may occasionally have 'bursts' of commits fixing something
   - The bot may contain the occasional bug too, although I'm pretty good at catching them
   
   ### Bot Info
