@@ -1,7 +1,7 @@
 # Rednako Discord Bot
 
 ## The future of this bot
-  Future of discordpy: [gist](https://gist.github.com/Rapptz/4a2f62751b9600a31a0d3c78100287f1)
+  Future of discordtpy: [gist](https://gist.github.com/Rapptz/4a2f62751b9600a31a0d3c78100287f1)
   
   Working on a new implementation in another language
 
@@ -14,7 +14,7 @@
  - Server: [Server](https://discord.gg/2vUXuG7gKh)
  - Bot Invite: [Invite](https://bit.ly/3n6wiZJ)
 
-### Installing Dependencys
+### Installing DependencysCancel changes
 pip install -r requirements.txt
 or if that doesnt work
 use pip3 instead
