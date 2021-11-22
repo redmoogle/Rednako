@@ -199,8 +199,7 @@ class User(commands.Cog):
         info = [
             [fact, f'Requested By: {ctx.author}']
         ]
-
-        await msg.edit(content=None, embed=helpers.embed(title=_name, fields=info))
+        await msg.edit(content=None, embed=helpers.embed(title=_name, fields=info), components=None)
 
 
 def setup(bot):
