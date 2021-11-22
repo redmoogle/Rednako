@@ -10,6 +10,7 @@ from discord.ext import commands
 from modules import helpers, animal
 import guildreader
 from discord_slash import cog_ext
+from discord_slash.utils.manage_components import create_select, create_select_option, create_actionrow, wait_for_component
 
 config = config.Config('./config/bot.cfg')
 repo = git.Repo(search_parent_directories=True)
