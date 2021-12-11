@@ -46,23 +46,6 @@ class User(commands.Cog):
             await ctx.message.delete()
 
     @cog_ext.cog_slash(
-        name='say',
-        description='make the bot speak',
-    )
-    async def args(self, ctx, *, args):
-        """
-        Sanitized Output from User Input
-
-            Parameters:
-                ctx (commands.Context): Context Reference
-                args (str): What to send back
-        """
-        sanitized = dts.sanitize_mass_mentions(
-            args, run_preprocess=True, users=True
-        )
-        await ctx.send(sanitized)
-
-    @cog_ext.cog_slash(
         name='serverinfo',
         description='shows server info',
     )

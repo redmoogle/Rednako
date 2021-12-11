@@ -67,7 +67,6 @@ class Rednako(commands.Bot):
             f"java -jar {os.path.abspath('./Lavalink.jar')}",
             stdout=subprocess.DEVNULL,
             shell=True)
-        time.sleep(0)  # Stops the bot from starting too fast
         print(f"Started Lavalink: PID-{self.lavaprocess.pid}")
 
         # Does it update its status
@@ -94,17 +93,9 @@ class Rednako(commands.Bot):
         #   list(name, value)
         # )
         self.configs = [
-            ['xp', {
-                'enabled': False
-            }],
-            ['muted', {
-                'role': None
-            }],
-            ["economy", {}],
             ['settings', {
                 'errors': False,
                 'djmode': None,
-                'prefix': '='
             }]
         ]
 
@@ -146,13 +137,7 @@ class Rednako(commands.Bot):
             Returns:
                 Prefix (str): Prefix for that guild
         """
-        if not message.guild:
-            return commands.when_mentioned
-
-        if not guildreader.check_exist('settings'):  # File will be created shortly
-            return commands.when_mentioned
-
-        return guildreader.read_file(message.guild.id, 'settings')['prefix']  # Guild Specific Preset
+        return commands.when_mentioned
 
     async def on_guild_join(self, guild):
         """
@@ -216,31 +201,6 @@ class Rednako(commands.Bot):
         self.uptime = round(time.time() - self.starttime)
         self.uptime_str = helpers.parse_duration(self.uptime)[0]
         return self.uptime
-
-    @tasks.loop(seconds=5)
-    async def mute(self):
-        """
-        Fast Iterating JSON, removes mutes if under 0 seconds till expiration
-        """
-        await self.wait_until_ready()
-        for guild in self.guilds:
-            data = guildreader.read_file(guild.id, 'muted')
-            guildrole = data['role']
-            for key in list(data):
-                if key == 'role':
-                    continue
-                mutedata = data[key]
-                if mutedata['expiration'] > time.time():  # this is probably marginally more efficient
-                    continue
-                member = await guild.fetch_member(key)
-                await member.remove_roles(
-                    guild.get_role(guildrole)
-                )
-                await member.send(embed=discord.Embed(
-                    title=f'You have been unmuted from: `{guild.name}`'
-                ))
-                del data[key]
-                guildreader.write_file(guild.id, 'muted', data)
 
     @tasks.loop(minutes=30)
     async def check_guilds(self):
