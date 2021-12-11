@@ -102,7 +102,6 @@ class Rednako(commands.Bot):
         # Task Section
         self.update.start()
         self.gen_uptime.start()
-        self.mute.start()
         self.check_guilds.start()
 
         self.slash = SlashCommand(self, sync_commands=True)
