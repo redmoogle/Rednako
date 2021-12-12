@@ -136,7 +136,7 @@ class Rednako(commands.Bot):
             Returns:
                 Prefix (str): Prefix for that guild
         """
-        return commands.when_mentioned
+        return "IEEE!"
 
     async def on_guild_join(self, guild):
         """
