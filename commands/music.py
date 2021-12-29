@@ -1,8 +1,8 @@
 """
 
-Rednako: Code is from https://raw.githubusercontent.com/Devoxin/Lavalink.py/master/examples/music.py
+Rednako: Code is from https://raw.githubusercontent.com/Devoxin/redlink.py/master/examples/music.py
 
-This example cog demonstrates basic usage of Lavalink.py, using the DefaultPlayer.
+This example cog demonstrates basic usage of redlink.py, using the DefaultPlayer.
 As this example primarily showcases usage in conjunction with discord.py, you will need to make
 modifications as necessary for use with another Discord library.
 
@@ -15,7 +15,7 @@ import math
 import asyncio
 import discord
 from discord.ext import commands
-import lavalink
+from modules import redlink
 from modules import helpers
 import guildreader
 from discord_slash import cog_ext
@@ -156,12 +156,12 @@ class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        if not hasattr(bot, 'lavalink'):  # This ensures the client isn't overwritten during cog reloads.
-            self.bot.lavalink = lavalink.Client(self.bot.user.id)
-            self.bot.lavalink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')
-            self.bot.add_listener(bot.lavalink.voice_update_handler, 'on_socket_response')
+        if not hasattr(bot, 'redlink'):  # This ensures the client isn't overwritten during cog reloads.
+            self.bot.redlink = redlink.Client(self.bot.user.id)
+            self.bot.redlink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')
+            self.bot.add_listener(bot.redlink.voice_update_handler, 'on_socket_response')
 
-        lavalink.add_event_hook(self.track_hook)
+        redlink.add_event_hook(self.track_hook)
 
     async def cog_command_error(self, ctx, error):
         """
@@ -176,11 +176,11 @@ class Music(commands.Cog):
 
     def cog_unload(self):
         """ Cog unload handler. This removes any event hooks that were registered. """
-        self.bot.lavalink._event_hooks.clear()
+        self.bot.redlink._event_hooks.clear()
 
     async def ensure_voice(self, ctx):
         """
-        Additional checks that prevents the lavalink code from breaking
+        Additional checks that prevents the redlink code from breaking
 
             Parameters:
                 ctx (commands.Context): Context Reference
@@ -191,17 +191,17 @@ class Music(commands.Cog):
 
         # This creates a player, OR returns the existing one, this is to make sure the player exists
         try:
-            if self.bot.lavaprocess and not self.bot.lavalink:
-                self.bot.lavalink = lavalink.Client(self.bot.user.id)
-                self.bot.lavalink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')
-                self.bot.add_listener(self.bot.lavalink.voice_update_handler, 'on_socket_response')
+            if self.bot.lavaprocess and not self.bot.redlink:
+                self.bot.redlink = redlink.Client(self.bot.user.id)
+                self.bot.redlink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')
+                self.bot.add_listener(self.bot.redlink.voice_update_handler, 'on_socket_response')
 
-            player = self.bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
-        except lavalink.NodeException:
-            await ctx.send('Lavalink is still booting up')
+            player = self.bot.redlink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
+        except redlink.NodeException:
+            await ctx.send('redlink is still booting up')
             return False
         except AttributeError:
-            await ctx.send('Lavalink is currently not online')
+            await ctx.send('redlink is currently not online')
             return False
 
         # Should_connect is used for commands that start playback ~~aka 1 command~~
@@ -237,20 +237,20 @@ class Music(commands.Cog):
 
     async def track_hook(self, event):
         """
-        Event Signal for lavalink events
+        Event Signal for redlink events
 
             Parameters:
-                event (lavalink.events): The type of event that happened
+                event (redlink.events): The type of event that happened
         """
         # When it gets to the end of the Queue, automatically disconnect to save resources
-        if isinstance(event, lavalink.events.QueueEndEvent):
+        if isinstance(event, redlink.events.QueueEndEvent):
             player = event.player
             guild_id = int(event.player.guild_id)
             await player.reset_equalizer()
             await self.connect_to(guild_id, None)
 
         # When a new track(song) starts it will send a message to the original channel
-        if isinstance(event, lavalink.events.TrackStartEvent):
+        if isinstance(event, redlink.events.TrackStartEvent):
             player = event.player
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
@@ -298,20 +298,20 @@ class Music(commands.Cog):
         # Get the player for this guild from cache.
         if not await self.ensure_voice(ctx):
             return
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
 
         # Remove leading and trailing <>. <> may be used to suppress embedding links in Discord.
         query = query.strip('<>')
 
-        # Check if the user input might be a URL. If it isn't, we can Lavalink do a YouTube search for it instead.
+        # Check if the user input might be a URL. If it isn't, we can redlink do a YouTube search for it instead.
         # SoundCloud searching is possible by prefixing "scsearch:" instead.
         if not url_rx.match(query):
             query = f'ytsearch:{query}'
 
-        # Get the results for the query from Lavalink.
+        # Get the results for the query from redlink.
         results = await player.node.get_tracks(query)
 
-        # Results could be None if Lavalink returns an invalid response (non-JSON/non-200 (OK)).
+        # Results could be None if redlink returns an invalid response (non-JSON/non-200 (OK)).
         # Alternatively, results['tracks'] could be an empty array if the query yielded no tracks.
         if not results or not results['tracks']:
             return await ctx.send(helpers.embed("Nothing Found!"))
@@ -340,7 +340,7 @@ class Music(commands.Cog):
 
             # You can attach additional information to audiotracks through kwargs, however this involves
             # constructing the AudioTrack class yourself.
-            track = lavalink.models.AudioTrack(track, ctx.author.id)
+            track = redlink.models.AudioTrack(track, ctx.author.id)
             player.add(requester=ctx.author.id, track=track)
 
         # We don't want to call .play() if the player is playing as that will effectively skip
@@ -368,11 +368,11 @@ class Music(commands.Cog):
         """
         if not await self.ensure_voice(ctx):
             return
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
 
         # Clear the queue to ensure old tracks don't start playing
         player.queue.clear()
-        # Stop the current track so Lavalink consumes less resources.
+        # Stop the current track so redlink consumes less resources.
         await player.stop()
         await self.connect_to(ctx.guild.id, None)
         await ctx.send(':asterisk: | Disconnected.')
@@ -391,7 +391,7 @@ class Music(commands.Cog):
         """
         if not await self.ensure_voice(ctx):
             return
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
         if player.current is None:
             await ctx.send(':asterisk: | Bot is not playing any music.')
 
@@ -415,7 +415,7 @@ class Music(commands.Cog):
         """
         if not await self.ensure_voice(ctx):
             return
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
         if player.current:
             duration, fill = helpers.parse_duration(player.current.duration/1000)
             current = helpers.parse_duration(player.position/1000, fill)[0]
@@ -449,7 +449,7 @@ class Music(commands.Cog):
         """
         if not await self.ensure_voice(ctx):
             return
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
                 return await ctx.send(':asterisk: | Bot is not playing any music.')
@@ -475,7 +475,7 @@ class Music(commands.Cog):
         """
         if not await self.ensure_voice(ctx):
             return
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
 
         # player.current is a track but we want it to be a list with that track
         playerqueue = []
@@ -521,7 +521,7 @@ class Music(commands.Cog):
         """
         if not await self.ensure_voice(ctx):
             return
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
                 return await ctx.send(':asterisk: | Bot is not playing any music.')
@@ -542,7 +542,7 @@ class Music(commands.Cog):
         """
         if not await self.ensure_voice(ctx):
             return
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
         if player:
             await player.reset_equalizer()
             await ctx.send('EQ has been reset')
@@ -561,7 +561,7 @@ class Music(commands.Cog):
         """
         if not await self.ensure_voice(ctx):
             return
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
         if player:
             if player.is_playing:
                 await ctx.send('Skipping song')
@@ -579,7 +579,7 @@ class Music(commands.Cog):
     async def seek(self, ctx, timinp):
         if not await self.ensure_voice(ctx):
             return
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
         try:
             seekto = helpers.time_to_seconds(timinp)
         except ValueError:
@@ -592,8 +592,115 @@ class Music(commands.Cog):
         await ctx.send(f"Seeked to {timinp}")
 
     @cog_ext.cog_slash(
+        name="speed",
+        description="sets players speed"
+    )
+    @commands.check(djconfig)
+    async def speed(self, ctx, speed: int = 100):
+        if not await self.ensure_voice(ctx):
+            return
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
+
+        if not player:
+            return await ctx.send("No Player")
+
+        try:
+            speed = int(speed)
+        except ValueError:
+            return await ctx.send("Not a Number")
+
+        await player.set_speed(speed/100)
+        await ctx.send(f"Set speed to {speed}%")
+
+    @cog_ext.cog_slash(
+        name="pitch",
+        description="sets players pitch"
+    )
+    @commands.check(djconfig)
+    async def pitch(self, ctx, pitch: int = 100):
+        if not await self.ensure_voice(ctx):
+            return
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
+
+        if not player:
+            return await ctx.send("No Player")
+
+        try:
+            pitch = int(pitch)
+        except ValueError:
+            return await ctx.send("Not a Number")
+
+        await player.set_pitch(pitch/100)
+        await ctx.send(f"Set pitch to {pitch}%")
+
+    @cog_ext.cog_slash(
+        name="rotation",
+        description="sets players rotation"
+    )
+    @commands.check(djconfig)
+    async def pitch(self, ctx, rotation: float = 0):
+        if not await self.ensure_voice(ctx):
+            return
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
+
+        if not player:
+            return await ctx.send("No Player")
+
+        try:
+            rotation = float(rotation)
+        except ValueError:
+            return await ctx.send("Not a Number")
+
+        await player.set_rotation(rotation)
+        await ctx.send(f"Set rotation to {rotation}Hz")
+
+    @cog_ext.cog_slash(
+        name="vibrato",
+        description="sets players vibrato"
+    )
+    @commands.check(djconfig)
+    async def vibrato(self, ctx, frequency: int = 2, depth: float = 0.5):
+        if not await self.ensure_voice(ctx):
+            return
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
+
+        if not player:
+            return await ctx.send("No Player")
+
+        try:
+            frequency = max(min(int(frequency), 14), 0.001)
+            depth = max(min(float(depth), 1), 0.001)
+        except ValueError:
+            return await ctx.send("Not a Number")
+
+        await player.set_vibrato(frequency, depth)
+        await ctx.send(f"Set vibrato to {frequency} with a depth of {depth}")
+
+    @cog_ext.cog_slash(
+        name="tremolo",
+        description="sets players tremolo"
+    )
+    @commands.check(djconfig)
+    async def tremolo(self, ctx, frequency: int = 2, depth: float = 0.5):
+        if not await self.ensure_voice(ctx):
+            return
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
+
+        if not player:
+            return await ctx.send("No Player")
+
+        try:
+            frequency = max(min(int(frequency), 14), 0.001)
+            depth = max(min(float(depth), 1), 0.001)
+        except ValueError:
+            return await ctx.send("Not a Number")
+
+        await player.set_tremolo(frequency, depth)
+        await ctx.send(f"Set tremolo to {frequency} with a depth of {depth}")
+
+    @cog_ext.cog_slash(
         name="volume",
-        description="sets the volume upto a max of 1000"
+        description="sets the volume"
     )
     @commands.check(djconfig)
     async def volume(self, ctx, vol) -> None:
@@ -601,14 +708,14 @@ class Music(commands.Cog):
 
         Args:
             ctx: Context
-            vol: Volume to set to lavalink imposes a max of 1000
+            vol: Volume to set to redlink imposes a max of 1000
 
         Returns:
             None
         """
         if not await self.ensure_voice(ctx):
             return
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        player = self.bot.redlink.player_manager.get(ctx.guild.id)
         try:
             vol = int(vol)
         except ValueError:
