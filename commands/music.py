@@ -596,7 +596,7 @@ class Music(commands.Cog):
         description="sets players speed"
     )
     @commands.check(djconfig)
-    async def speed(self, ctx, speed: int = 100):
+    async def speed(self, ctx, speed: float = 100):
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.redlink.player_manager.get(ctx.guild.id)
@@ -605,7 +605,7 @@ class Music(commands.Cog):
             return await ctx.send("No Player")
 
         try:
-            speed = int(speed)
+            speed = float(speed)
         except ValueError:
             return await ctx.send("Not a Number")
 
@@ -617,7 +617,7 @@ class Music(commands.Cog):
         description="sets players pitch"
     )
     @commands.check(djconfig)
-    async def pitch(self, ctx, pitch: int = 100):
+    async def pitch(self, ctx, pitch: float = 100):
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.redlink.player_manager.get(ctx.guild.id)
@@ -626,7 +626,7 @@ class Music(commands.Cog):
             return await ctx.send("No Player")
 
         try:
-            pitch = int(pitch)
+            pitch = float(pitch)
         except ValueError:
             return await ctx.send("Not a Number")
 
