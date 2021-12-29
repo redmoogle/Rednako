@@ -379,7 +379,7 @@ class DefaultPlayer(BasePlayer):
         vol: :class:`int`
             The new volume level.
         """
-        self.volume = vol
+        self.volume = min(max(vol, 0), 5)
         await self.node._send(op='filters', guildId=self.guild_id, volume=self.volume)
        
     async def set_speed(self, speed: int):

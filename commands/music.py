@@ -723,7 +723,7 @@ class Music(commands.Cog):
         if not player:
             return await ctx.send("No Player")
 
-        vol = max(min(1000, vol), 0)
+        vol = max(min(5, vol), 0)
         await player.set_volume(vol)
         await ctx.send(f"Set volume to {vol}")
 
