@@ -496,7 +496,7 @@ class DefaultPlayer(BasePlayer):
             update_package.append({'band': band, 'gain': gain})
             self.equalizer[band] = gain
 
-        await self.node._send(op='equalizer', guildId=self.guild_id, bands=update_package)
+        await self.node._send(op='filters', guildId=self.guild_id, equalizer=update_package)
 
     async def reset_equalizer(self):
         """ Resets equalizer to default values. """
@@ -557,10 +557,10 @@ class DefaultPlayer(BasePlayer):
                 await self.node._send(op='pause', guildId=self.guild_id, pause=self.paused)
 
         if self.volume != 100:
-            await self.node._send(op='volume', guildId=self.guild_id, volume=self.volume)
+            await self.node._send(op='filters', guildId=self.guild_id, volume=self.volume)
 
         if any(self.equalizer):  # If any bands of the equalizer was modified
             payload = [{'band': b, 'gain': g} for b, g in enumerate(self.equalizer)]
-            await self.node._send(op='equalizer', guildId=self.guild_id, bands=payload)
+            await self.node._send(op='filters', guildId=self.guild_id, equalizer=payload)
 
         await self.node._dispatch_event(NodeChangedEvent(self, old_node, node))
