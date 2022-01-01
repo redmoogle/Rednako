@@ -137,7 +137,7 @@ def render_static():
     """
     Homepage
     """
-    return redirect(url_for("commands"))
+    return redirect(url_for("manage"))
 
 
 @app.route("/info", methods=["GET", "POST"])
@@ -190,26 +190,6 @@ def manage():
                 logging.warning(f"Started Lavalink: PID-{bot.lavaprocess.pid}")
 
     return render_template("manager.html", bot=bot, command_prefix=get_prefix())
-
-
-@app.route("/commands", methods=["GET", "POST"])
-def commands():
-    """
-    Commands webpage
-    """
-
-    cmddata = {}
-    keys = []
-
-    for cmd in bot.commands:
-        if cmd.cog_name not in keys:
-            keys.append(cmd.cog_name)
-            cmddata[cmd.cog_name] = list()
-        cmddata[cmd.cog_name].append(cmd)
-
-    return render_template("commands.html", getsource=inspect.getsource, bot=bot,
-                           command_prefix=get_prefix(), enabled_commands=cmddata, keys=keys)
-
 
 @app.route("/shards", methods=["GET", "POST"])
 def shards():
