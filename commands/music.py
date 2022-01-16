@@ -352,7 +352,9 @@ class Music(commands.Cog):
 
         if not player.is_playing:
             await player.play()
-        return await ctx.send(embed=embed)
+        
+        if player.is_playing:
+            await ctx.send(embed=embed)
 
     @cog_ext.cog_slash(
         name="stop",

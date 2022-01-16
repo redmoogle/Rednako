@@ -53,8 +53,6 @@ class Rednako(commands.Bot):
         self.uptime = 0
         # String Version
         self.uptime_str = ""
-        # Looping Speed
-        self.loopspeed = 5
         # Last Status
         self.status = None
 
