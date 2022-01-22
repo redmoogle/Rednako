@@ -32,6 +32,12 @@ handler = logging.FileHandler(filename='logs/discord.log', encoding='utf-8', mod
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
+@staticmethod()
+def contains_word(search, instring):
+    """
+    Checks if string is in word
+    """
+    return search in instring.split()
 
 class Rednako(commands.Bot):
     # pylint: disable=too-many-instance-attributes
@@ -115,12 +121,6 @@ class Rednako(commands.Bot):
         self.servers = len(self.guilds)
         return self.servers
 
-    def contains_word(self, search, instring):
-        """
-        Checks if string is in word
-        """
-        return search in instring.split()
-
     def grab_members(self):
         """
         Grabs all the members the bot can see
@@ -186,7 +186,7 @@ class Rednako(commands.Bot):
         guild = message.guild
         counters = guildreader.read_file(guild.id, 'wordcount')
         for key in counters:
-            if self.contains_word(key, message.content):
+            if contains_word(key, message.content):
                 try:
                     counters[key][str(message.author.id)] += 1
                 except KeyError:
