@@ -217,7 +217,7 @@ class User(commands.Cog):
         wordjson: dict = guildreader.read_file(ctx.guild.id, 'wordcount')
         info = []
         for key in wordjson.keys():
-            info.append([f'{key.title()}'])
+            info.append([f'{key.title()}', ''])
         return await ctx.send(embed=helpers.embed(title='Tracked Words', fields=info, inline=False))
 
 
