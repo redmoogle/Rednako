@@ -97,7 +97,7 @@ class User(commands.Cog):
                 ['Global Members: ',    f'{self.bot.members}'],
                 ['Invite: ',            f'[Invite Bot]({link})'],
                 ['Repository: ',        f'[Github]({githublink})'],
-                ['Commit: ',            f'{repo.head.object.hexsh}']
+                ['Commit: ',            f'{repo.head.object.hexsha}']
             ]
 
         embed = helpers.embed(
@@ -126,17 +126,19 @@ class User(commands.Cog):
         name='wordcounts',
         description='gets information about your word counts'
     )
-    async def wordcounts(self, ctx):
+    async def wordcounts(self, ctx, user: discord.Member = None):
         counters = guildreader.read_file(ctx.guild.id, 'wordcount')
         info = []
+        if not user:
+            user = ctx.author
 
         for key in counters:
             # Get User counts
             try:
-                info.append([key, counters[key][str(ctx.author.id)]])
+                info.append([f'{key.title()}: ', counters[key][str(user.id)]])
             except KeyError:
                 continue
-        return await ctx.send(embed=helpers.embed(title=f'{ctx.author} Word Counts', fields=info))
+        return await ctx.send(embed=helpers.embed(title=f'{user} Word Counts', fields=info, inline=False))
 
     @cog_ext.cog_slash(
         name='catfact',
