@@ -8,7 +8,6 @@ Also important note. If you change default_activity
 in the config make sure to update the .format in here
 
 """
-from operator import contains
 import os
 import sys
 import subprocess
@@ -116,6 +115,12 @@ class Rednako(commands.Bot):
         self.servers = len(self.guilds)
         return self.servers
 
+    def contains_word(self, search, instring):
+        """
+        Checks if string is in word
+        """
+        return search in instring.split()
+
     def grab_members(self):
         """
         Grabs all the members the bot can see
@@ -177,15 +182,11 @@ class Rednako(commands.Bot):
             return  # Very annoying error, it just says the check failed
         await context.send(f'{type(exception)}: {exception}')
 
-    @staticmethod
-    async def contains_word(search, string):
-        return search in string.split()
-
     async def on_message(self, message):
         guild = message.guild
         counters = guildreader.read_file(guild.id, 'wordcount')
         for key in counters:
-            if await contains_word(key, message.content):
+            if self.contains_word(key, message.content):
                 try:
                     counters[key][str(message.author.id)] += 1
                 except KeyError:
