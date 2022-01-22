@@ -94,7 +94,8 @@ class Rednako(commands.Bot):
             ['settings', {
                 'errors': False,
                 'djmode': None,
-            }]
+            }],
+            ['wordcount', {}]
         ]
 
         # Task Section
@@ -166,7 +167,6 @@ class Rednako(commands.Bot):
                 exception (Exception): Error that happened
         """
         if isinstance(exception, commands.errors.MissingPermissions):
-            logging.error("E")
             return await context.send(exception.message)
         if not guildreader.read_file(context.guild.id, 'settings')['errors']:
             return
@@ -175,6 +175,18 @@ class Rednako(commands.Bot):
         if isinstance(exception, commands.CheckFailure):
             return  # Very annoying error, it just says the check failed
         await context.send(f'{type(exception)}: {exception}')
+
+    async def on_message(self, message):
+        guild = message.guild
+        counters = guildreader.read_file(guild.id, 'wordcount')
+        for key in counters: 
+            if message.content.find(key) != -1:
+                try:
+                    counters[key][str(message.author.id)] += 1
+                except KeyError:
+                    counters[key][str(message.author.id)] = 1
+        guildreader.write_file(guild.id, 'wordcount', counters)
+        return await super().on_message(message)
 
     @tasks.loop(seconds=5)
     async def update(self):

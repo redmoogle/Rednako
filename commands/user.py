@@ -123,6 +123,19 @@ class User(commands.Cog):
         await ctx.send(embed=embed)
 
     @cog_ext.cog_slash(
+        name='wordcounts',
+        description='gets information about your word counts'
+    )
+    async def wordcounts(self, ctx):
+        counters = guildreader.read_file(ctx.guild.id, 'wordcount')
+        info = []
+
+        for key in counters:
+            # Get User counts
+            info.append([key, counters[key][str(ctx.author.id)]])
+        return await ctx.send(embed=helpers.embed(title=f'{ctx.author} Word Counts', fields=info))
+
+    @cog_ext.cog_slash(
         name='catfact',
         description='get slapped by the cat'
     )
