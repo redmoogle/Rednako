@@ -202,6 +202,24 @@ class User(commands.Cog):
         ]
         await msg.edit(content=None, embed=helpers.embed(title=_name, fields=info), components=None)
 
+    @cog_ext.cog_slash(
+        name='words',
+        description='See tracked words',
+    )
+    @commands.has_permissions(administrator=True)
+    async def addword(self, ctx):
+        """
+        See tracked words
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+        """
+        wordjson: dict = guildreader.read_file(ctx.guild.id, 'wordcount')
+        info = []
+        for key in wordjson.keys():
+            info.append([f'{key.title()}'])
+        return await ctx.send(embed=helpers.embed(title='Tracked Words', fields=info, inline=False))
+
 
 def setup(bot):
     """

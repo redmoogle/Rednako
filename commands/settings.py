@@ -6,6 +6,7 @@ from discord.ext import commands
 import discord
 import guildreader
 from discord_slash import cog_ext
+from markupsafe import string
 
 
 def isauthor(author):
@@ -65,6 +66,48 @@ class Config(commands.Cog):
             return await ctx.send("Disabling showing of command not found")
         return await ctx.send("Enabling showing of command not found")
 
+    @cog_ext.cog_slash(
+        name='addword',
+        description='Add tracked words',
+    )
+    @commands.has_permissions(administrator=True)
+    async def addword(self, ctx, word: str):
+        """
+        Add tracked words
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                word (string): Word to track
+        """
+        wordjson: dict = guildreader.read_file(ctx.guild.id, 'wordcount')
+        try:
+            wordjson[word]
+            return await ctx.send(f'{word} is already tracked')
+        except KeyError:
+            wordjson.setdefault(word, {})
+            guildreader.write_file(ctx.guild.id, "wordcount", wordjson)
+            return await ctx.send(f'Added {word} to tracked word list')
+
+    @cog_ext.cog_slash(
+        name='removeword',
+        description='Removes and clears a tracked word',
+    )
+    @commands.has_permissions(administrator=True)
+    async def errors(self, ctx, word: str):
+        """
+        remove tracked words
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+                word (string): Word to track
+        """
+        wordjson: dict = guildreader.read_file(ctx.guild.id, 'wordcount')
+        try:
+            del wordjson[word]
+            guildreader.write_file(ctx.guild.id, "wordcount", wordjson)
+            return await ctx.send(f'Removed {word} from tracking')
+        except KeyError:
+            return await ctx.send(f'{word} isnt tracked')
 
 def setup(bot):
     """
