@@ -132,7 +132,10 @@ class User(commands.Cog):
 
         for key in counters:
             # Get User counts
-            info.append([key, counters[key][str(ctx.author.id)]])
+            try:
+                info.append([key, counters[key][str(ctx.author.id)]])
+            except KeyError:
+                continue
         return await ctx.send(embed=helpers.embed(title=f'{ctx.author} Word Counts', fields=info))
 
     @cog_ext.cog_slash(

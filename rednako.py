@@ -179,7 +179,7 @@ class Rednako(commands.Bot):
     async def on_message(self, message):
         guild = message.guild
         counters = guildreader.read_file(guild.id, 'wordcount')
-        for key in counters: 
+        for key in counters:
             if message.content.find(key) != -1:
                 try:
                     counters[key][str(message.author.id)] += 1
