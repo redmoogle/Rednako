@@ -32,7 +32,6 @@ handler = logging.FileHandler(filename='logs/discord.log', encoding='utf-8', mod
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-@staticmethod()
 def contains_word(search, instring):
     """
     Checks if string is in word
