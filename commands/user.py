@@ -207,7 +207,7 @@ class User(commands.Cog):
         description='See tracked words',
     )
     @commands.has_permissions(administrator=True)
-    async def addword(self, ctx):
+    async def words(self, ctx):
         """
         See tracked words
 
@@ -216,8 +216,10 @@ class User(commands.Cog):
         """
         wordjson: dict = guildreader.read_file(ctx.guild.id, 'wordcount')
         info = []
+        _tmp = ""
         for key in wordjson.keys():
-            info.append([f'{key.title()}', ''])
+            _tmp += f'{key}\n'
+        info = ["Tracked: ", _tmp]
         return await ctx.send(embed=helpers.embed(title='Tracked Words', fields=info, inline=False))
 
 
