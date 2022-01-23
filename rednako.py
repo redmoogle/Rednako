@@ -108,7 +108,7 @@ class Rednako(commands.Bot):
         self.gen_uptime.start()
         self.check_guilds.start()
 
-        #self.slash = SlashCommand(self, sync_commands=True)
+        self.slash = SlashCommand(self, sync_commands=True)
 
     def grab_servers(self):
         """
@@ -264,9 +264,6 @@ class Rednako(commands.Bot):
             guildreader.create_file(self, _config[0], _config[1])
 
         manager.opendash(self)
-
-        # use this if you want to sync commands
-        await self.slash.sync_all_commands()
 
     def close_bot(self):
         """ Closes the bot, exists because of a call from a external thread. """
