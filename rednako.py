@@ -108,8 +108,6 @@ class Rednako(commands.Bot):
         self.gen_uptime.start()
         self.check_guilds.start()
 
-        self.slash = None
-
     def grab_servers(self):
         """
         Grabs all the servers the bot can see
@@ -265,7 +263,7 @@ class Rednako(commands.Bot):
 
         manager.opendash(self)
         print("Starting Cog Sync")
-        self.slash = SlashCommand(self, sync_commands=True)
+        SlashCommand(self, sync_commands=True)
 
     def close_bot(self):
         """ Closes the bot, exists because of a call from a external thread. """
