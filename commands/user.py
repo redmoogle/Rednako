@@ -206,7 +206,6 @@ class User(commands.Cog):
         name='words',
         description='See tracked words',
     )
-    @commands.has_permissions(administrator=True)
     async def words(self, ctx):
         """
         See tracked words

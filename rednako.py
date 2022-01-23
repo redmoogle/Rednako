@@ -36,7 +36,7 @@ def contains_word(search, instring):
     """
     Checks if string is in word
     """
-    return search.ToLower() in instring.ToLower().split()
+    return search.lower() in instring.lower().split()
 
 class Rednako(commands.Bot):
     # pylint: disable=too-many-instance-attributes
