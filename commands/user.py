@@ -219,7 +219,7 @@ class User(commands.Cog):
         _tmp = ""
         for key in wordjson.keys():
             _tmp += f'{key}\n'
-        info = ["Tracked: ", _tmp]
+        info = [["Tracked: ", _tmp]]
         return await ctx.send(embed=helpers.embed(title='Tracked Words', fields=info, inline=False))
 
 
