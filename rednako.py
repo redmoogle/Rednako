@@ -36,7 +36,7 @@ def contains_word(search, instring):
     """
     Checks if string is in word
     """
-    return search in instring.split()
+    return search.ToLower() in instring.ToLower().split()
 
 class Rednako(commands.Bot):
     # pylint: disable=too-many-instance-attributes
@@ -108,7 +108,7 @@ class Rednako(commands.Bot):
         self.gen_uptime.start()
         self.check_guilds.start()
 
-        self.slash = SlashCommand(self, sync_commands=True)
+        #self.slash = SlashCommand(self, sync_commands=True)
 
     def grab_servers(self):
         """
