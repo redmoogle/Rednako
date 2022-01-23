@@ -263,7 +263,7 @@ class Rednako(commands.Bot):
 
         manager.opendash(self)
         print("Starting Cog Sync")
-        SlashCommand(self, sync_commands=True)
+        await SlashCommand(self, sync_commands=True).sync_all_commands()
 
     def close_bot(self):
         """ Closes the bot, exists because of a call from a external thread. """
