@@ -156,11 +156,10 @@ class Music(discord.ext.commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        if not hasattr(bot, 'redlink'):  # This ensures the client isn't overwritten during cog reloads.
-            self.bot.redlink = redlink.Client(self.bot.user.id)
-            self.bot.redlink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')
-            self.bot.add_listener(bot.redlink.voice_update_handler, 'on_socket_response')
-
+    @commands.Cog.listener()
+    async def ready(self):
+        self.bot.redlink = redlink.Client(self.bot.user.id)
+        self.bot.redlink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')
         redlink.add_event_hook(self.track_hook)
 
     async def cog_command_error(self, ctx, error):

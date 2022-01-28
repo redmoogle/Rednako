@@ -258,6 +258,8 @@ class Rednako(commands.Bot):
         manager.opendash(self)
         await self.register_commands()
 
+        await self.ready()
+
     async def ready(self):
         return
 
