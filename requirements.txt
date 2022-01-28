@@ -1,9 +1,8 @@
 Flask >= 1.1.2
 cogwatch >= 2.1.0
 config >= 0.5.0.post0
-lavalink >= 3.1.4
 requests >= 2.25.1
 guildreader >= 1.1.0
 asyncio>=3.4.3
 waitress>=2.0.0
-discord-py-slash-command
+py-cord

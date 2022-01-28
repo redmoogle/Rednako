@@ -14,11 +14,11 @@ import re
 import math
 import asyncio
 import discord
+from discord.commands import slash_command
 from discord.ext import commands
 from modules import redlink
 from modules import helpers
 import guildreader
-from discord_slash import cog_ext
 from discord_slash.utils.manage_components import create_button, create_actionrow, wait_for_component
 from discord_slash.model import ButtonStyle
 
@@ -121,7 +121,7 @@ class BandEditor:
     async def send_or_edit(self, mode=1):
         arg = self._emmsg(mode)
         if not self._msg:
-            self._msg = await self.ctx.send(**arg)
+            self._msg = await self.ctx.respond(**arg)
         else:
             await self._msg.edit(**arg)
         return arg["components"]
@@ -148,7 +148,7 @@ class BandEditor:
 url_rx = re.compile(r'https?://(?:www\.)?.+')
 
 
-class Music(commands.Cog):
+class Music(discord.ext.commands.Cog):
     """
     Play your weeb songs
     """
@@ -169,7 +169,7 @@ class Music(commands.Cog):
         """
         if isinstance(error, commands.CommandInvokeError):
             if error is not None:
-                await ctx.send(error.original)
+                await ctx.respond(error.original)
 
         if isinstance(error, ConnectionResetError):
             return
@@ -282,12 +282,9 @@ class Music(commands.Cog):
         # The above looks dirty, we could alternatively use `bot.shards[shard_id].ws` but that assumes
         # the bot instance is an AutoShardedBot.
 
-    @cog_ext.cog_slash(
-        name="play",
-        description="play music."
-    )
+    @slash_command()
     @commands.check(djconfig)
-    async def search_and_play(self, ctx, *, query):
+    async def play(self, ctx, *, query):
         """
         Plays a link or searches youtube with the provided query
 
@@ -296,7 +293,7 @@ class Music(commands.Cog):
                 query (str): Thing or link to search/play
         """
         # Get the player for this guild from cache.
-        if not await self.ensure_voice(ctx):
+        if not await self.ensure_voice(ctx, action = 1):
             return
         player = self.bot.redlink.player_manager.get(ctx.guild.id)
 
@@ -314,7 +311,7 @@ class Music(commands.Cog):
         # Results could be None if redlink returns an invalid response (non-JSON/non-200 (OK)).
         # Alternatively, results['tracks'] could be an empty array if the query yielded no tracks.
         if not results or not results['tracks']:
-            return await ctx.send(helpers.embed("Nothing Found!"))
+            return await ctx.respond(helpers.embed("Nothing Found!"))
 
         embed = discord.Embed(color=discord.Color.blurple())
 
@@ -354,14 +351,11 @@ class Music(commands.Cog):
             await player.play()
         
         if player.is_playing:
-            await ctx.send(embed=embed)
+            await ctx.respond(embed=embed)
 
-    @cog_ext.cog_slash(
-        name="stop",
-        description="stops the player"
-    )
+    @slash_command()
     @commands.check(djconfig)
-    async def disconnect(self, ctx):
+    async def stop(self, ctx):
         """
         Disconnects the bot from the voicechat and clears the queue
 
@@ -377,12 +371,9 @@ class Music(commands.Cog):
         # Stop the current track so redlink consumes less resources.
         await player.stop()
         await self.connect_to(ctx.guild.id, None)
-        await ctx.send(':asterisk: | Disconnected.')
+        await ctx.respond(':asterisk: | Disconnected.')
 
-    @cog_ext.cog_slash(
-        name='pause',
-        description='pauses the song'
-    )
+    @slash_command()
     @commands.check(djconfig)
     async def pause(self, ctx):
         """
@@ -395,19 +386,16 @@ class Music(commands.Cog):
             return
         player = self.bot.redlink.player_manager.get(ctx.guild.id)
         if player.current is None:
-            await ctx.send(':asterisk: | Bot is not playing any music.')
+            await ctx.respond(':asterisk: | Bot is not playing any music.')
 
         if player.paused:
-            await ctx.send(':asterisk: | Bot has been unpaused')
+            await ctx.respond(':asterisk: | Bot has been unpaused')
             await player.pause(False)
         elif not player.paused:
-            await ctx.send(':asterisk: | Bot has been paused')
+            await ctx.respond(':asterisk: | Bot has been paused')
             await player.pause()
 
-    @cog_ext.cog_slash(
-        name="current",
-        description="Shows the current playing song.",
-    )
+    @slash_command()
     async def current(self, ctx):
         """
         Shows the currently playing song
@@ -434,13 +422,10 @@ class Music(commands.Cog):
                 thumbnail=vidthumbnail,
                 fields=info
             )
-            return await ctx.send(embed=embed)
-        return await ctx.send('Nothing playing')
+            return await ctx.respond(embed=embed)
+        return await ctx.respond('Nothing playing')
 
-    @cog_ext.cog_slash(
-        name="loop",
-        description="Loops a song or songs.",
-    )
+    @slash_command()
     @commands.check(djconfig)
     async def loop(self, ctx):
         """
@@ -454,19 +439,16 @@ class Music(commands.Cog):
         player = self.bot.redlink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
-                return await ctx.send(':asterisk: | Bot is not playing any music.')
+                return await ctx.respond(':asterisk: | Bot is not playing any music.')
 
         repeating = player.repeat
         if repeating:
-            await ctx.send(':asterisk: | Stopped Looping.')
+            await ctx.respond(':asterisk: | Stopped Looping.')
         else:
-            await ctx.send(':asterisk: | Now Looping.')
+            await ctx.respond(':asterisk: | Now Looping.')
         player.repeat = not repeating
 
-    @cog_ext.cog_slash(
-        name='queue',
-        description="shows the queue"
-    )
+    @slash_command()
     async def queue(self, ctx, page: int = 1):
         """
         Iterates over the queue and sends a embed of queued tracks
@@ -498,7 +480,7 @@ class Music(commands.Cog):
 
         # Make sure they don't pull up a 'invalid' page
         if page > pages:
-            return await ctx.send('Theres nothing on that page')
+            return await ctx.respond('Theres nothing on that page')
 
         for index, track in enumerate(playerqueue[start:end], start=start):
             queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri}) |' \
@@ -507,12 +489,9 @@ class Music(commands.Cog):
         embed = discord.Embed(colour=discord.Color.blurple(),
                               description=f'**{len(playerqueue)} tracks**\n\n{queue_list}')
         embed.set_footer(text=f'Viewing page {page}/{pages}')
-        await ctx.send(embed=embed)
+        await ctx.respond(embed=embed)
 
-    @cog_ext.cog_slash(
-        name='eq',
-        description='*Thump* *Thump* *Thump*'
-    )
+    @slash_command()
     @commands.check(djconfig)
     async def eq(self, ctx):
         """
@@ -526,14 +505,11 @@ class Music(commands.Cog):
         player = self.bot.redlink.player_manager.get(ctx.guild.id)
         if player:
             if player.current is None:
-                return await ctx.send(':asterisk: | Bot is not playing any music.')
+                return await ctx.respond(':asterisk: | Bot is not playing any music.')
 
         BandEditor(ctx, player, self.bot)
 
-    @cog_ext.cog_slash(
-        name='reset',
-        description='unfuck the EQ'
-    )
+    @slash_command()
     @commands.check(djconfig)
     async def reset(self, ctx):
         """
@@ -547,12 +523,9 @@ class Music(commands.Cog):
         player = self.bot.redlink.player_manager.get(ctx.guild.id)
         if player:
             await player.reset_equalizer()
-            await ctx.send('EQ has been reset')
+            await ctx.respond('EQ has been reset')
 
-    @cog_ext.cog_slash(
-        name='skip',
-        description='nobody likes your trash'
-    )
+    @slash_command()
     @commands.check(djconfig)
     async def skip(self, ctx):
         """
@@ -566,144 +539,141 @@ class Music(commands.Cog):
         player = self.bot.redlink.player_manager.get(ctx.guild.id)
         if player:
             if player.is_playing:
-                await ctx.send('Skipping song')
+                await ctx.respond('Skipping song')
                 await player.skip()
             else:
-                return await ctx.send('Nothing Playing')
+                return await ctx.respond('Nothing Playing')
         else:
-            return await ctx.send('Nothing Playing')
+            return await ctx.respond('Nothing Playing')
 
-    @cog_ext.cog_slash(
-        name="seek",
-        description="Seeks to a duration"
-    )
+    @slash_command()
     @commands.check(djconfig)
     async def seek(self, ctx, timinp):
+        """
+        Seeks to specified timestamp
+        """
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.redlink.player_manager.get(ctx.guild.id)
         try:
             seekto = helpers.time_to_seconds(timinp)
         except ValueError:
-            return await ctx.send("You have provided an invalid timestamp")
+            return await ctx.respond("You have provided an invalid timestamp")
 
         if not player:
-            return await ctx.send("No Player")
+            return await ctx.respond("No Player")
 
         await player.seek(seekto*1000)
-        await ctx.send(f"Seeked to {timinp}")
+        await ctx.respond(f"Seeked to {timinp}")
 
-    @cog_ext.cog_slash(
-        name="speed",
-        description="sets players speed"
-    )
+    @slash_command()
     @commands.check(djconfig)
     async def speed(self, ctx, speed: float = 100):
+        """
+        Sets the playback speed
+        """
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.redlink.player_manager.get(ctx.guild.id)
 
         if not player:
-            return await ctx.send("No Player")
+            return await ctx.respond("No Player")
 
         try:
             speed = float(speed)
         except ValueError:
-            return await ctx.send("Not a Number")
+            return await ctx.respond("Not a Number")
 
         await player.set_speed(speed/100)
-        await ctx.send(f"Set speed to {speed}%")
+        await ctx.respond(f"Set speed to {speed}%")
 
-    @cog_ext.cog_slash(
-        name="pitch",
-        description="sets players pitch"
-    )
+    @slash_command()
     @commands.check(djconfig)
     async def pitch(self, ctx, pitch: float = 100):
+        """
+        Sets the pitch of the player
+        """
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.redlink.player_manager.get(ctx.guild.id)
 
         if not player:
-            return await ctx.send("No Player")
+            return await ctx.respond("No Player")
 
         try:
             pitch = float(pitch)
         except ValueError:
-            return await ctx.send("Not a Number")
+            return await ctx.respond("Not a Number")
 
         await player.set_pitch(pitch/100)
-        await ctx.send(f"Set pitch to {pitch}%")
+        await ctx.respond(f"Set pitch to {pitch}%")
 
-    @cog_ext.cog_slash(
-        name="rotation",
-        description="sets players rotation"
-    )
+    @slash_command()
     @commands.check(djconfig)
     async def pitch(self, ctx, rotation: float = 0):
+        """
+        Sets the rotation of the player
+        """
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.redlink.player_manager.get(ctx.guild.id)
 
         if not player:
-            return await ctx.send("No Player")
+            return await ctx.respond("No Player")
 
         try:
             rotation = float(rotation)
         except ValueError:
-            return await ctx.send("Not a Number")
+            return await ctx.respond("Not a Number")
 
         await player.set_rotation(rotation)
-        await ctx.send(f"Set rotation to {rotation}Hz")
+        await ctx.respond(f"Set rotation to {rotation}Hz")
 
-    @cog_ext.cog_slash(
-        name="vibrato",
-        description="sets players vibrato"
-    )
+    @slash_command()
     @commands.check(djconfig)
     async def vibrato(self, ctx, frequency: int = 2, depth: float = 0.5):
+        """
+        Sets the vibrato of the player
+        """
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.redlink.player_manager.get(ctx.guild.id)
 
         if not player:
-            return await ctx.send("No Player")
+            return await ctx.respond("No Player")
 
         try:
             frequency = max(min(int(frequency), 14), 0.001)
             depth = max(min(float(depth), 1), 0.001)
         except ValueError:
-            return await ctx.send("Not a Number")
+            return await ctx.respond("Not a Number")
 
         await player.set_vibrato(frequency, depth)
-        await ctx.send(f"Set vibrato to {frequency} with a depth of {depth}")
+        await ctx.respond(f"Set vibrato to {frequency} with a depth of {depth}")
 
-    @cog_ext.cog_slash(
-        name="tremolo",
-        description="sets players tremolo"
-    )
+    @slash_command()
     @commands.check(djconfig)
     async def tremolo(self, ctx, frequency: int = 2, depth: float = 0.5):
+        """
+        Sets the tremolo of the player
+        """
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.redlink.player_manager.get(ctx.guild.id)
 
         if not player:
-            return await ctx.send("No Player")
+            return await ctx.respond("No Player")
 
         try:
             frequency = max(min(int(frequency), 14), 0.001)
             depth = max(min(float(depth), 1), 0.001)
         except ValueError:
-            return await ctx.send("Not a Number")
+            return await ctx.respond("Not a Number")
 
         await player.set_tremolo(frequency, depth)
-        await ctx.send(f"Set tremolo to {frequency} with a depth of {depth}")
+        await ctx.respond(f"Set tremolo to {frequency} with a depth of {depth}")
 
-    @cog_ext.cog_slash(
-        name="volume",
-        description="sets the volume"
-    )
+    @slash_command()
     @commands.check(djconfig)
     async def volume(self, ctx, vol) -> None:
         """
@@ -721,13 +691,13 @@ class Music(commands.Cog):
         try:
             vol = int(vol)
         except ValueError:
-            return await ctx.send("Not a number")
+            return await ctx.respond("Not a number")
         if not player:
-            return await ctx.send("No Player")
+            return await ctx.respond("No Player")
 
         vol = max(min(5, vol), 0)
         await player.set_volume(vol)
-        await ctx.send(f"Set volume to {vol}")
+        await ctx.respond(f"Set volume to {vol}")
 
 
 def setup(bot):
