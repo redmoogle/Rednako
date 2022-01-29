@@ -310,7 +310,9 @@ class Music(discord.ext.commands.Cog):
             player = event.player
             guild_id = int(event.player.guild_id)
             await player.reset_equalizer()
-            await self.connect_to(guild_id, None)
+            guild_id = int(event.player.guild_id)
+            guild = self.bot.get_guild(guild_id)
+            await guild.voice_client.disconnect(force=True)
 
         # When a new track(song) starts it will send a message to the original channel
         if isinstance(event, redlink.events.TrackStartEvent):
@@ -331,19 +333,6 @@ class Music(discord.ext.commands.Cog):
                 fields=info
             )
             await notify_channel.send(embed=embed)
-
-    async def connect_to(self, guild_id: int, channel_id):
-        """
-        Connects to a voicechannel via websocket
-
-            Parameters:
-                guild_id (int): ID of the guild to connect to
-                channel_id (int): ID of the channel in the guild to connect to
-        """
-        websoc = self.bot._connection._get_websocket(guild_id)
-        await websoc.voice_state(str(guild_id), channel_id)
-        # The above looks dirty, we could alternatively use `bot.shards[shard_id].ws` but that assumes
-        # the bot instance is an AutoShardedBot.
 
     @slash_command()
     @commands.check(djconfig)
