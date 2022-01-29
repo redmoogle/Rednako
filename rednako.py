@@ -4,9 +4,6 @@ Main Repository: https://github.com/redmoogle/Rednako
 License: GPL-3.0
 Make sure to set up config
 
-Also important note. If you change default_activity
-in the config make sure to update the .format in here
-
 """
 import os
 import sys
@@ -15,10 +12,8 @@ import logging
 from pathlib import Path
 import time
 import discord
-from cogwatch import watch
 from discord.ext import commands, tasks
 import guildreader
-from discord_slash import SlashCommand
 import config
 from modules import helpers, manager
 
@@ -58,8 +53,6 @@ class Rednako(commands.Bot):
         self.uptime = 0
         # String Version
         self.uptime_str = ""
-        # Last Status
-        self.status = None
 
         # Inheritance Separator
         # Do not put settings below this unless you don't want them to show up on vars commands
@@ -107,8 +100,6 @@ class Rednako(commands.Bot):
         self.update.start()
         self.gen_uptime.start()
         self.check_guilds.start()
-
-        self.slash = SlashCommand(self, sync_commands=True)
 
     def grab_servers(self):
         """
@@ -202,7 +193,7 @@ class Rednako(commands.Bot):
             await self.wait_until_ready()
             self.grab_members()
             self.grab_servers()
-            self.status = self.status_str.format(self=self)
+            #self.status = self.status_str.format(self=self)
             await self.change_presence(
                 activity=discord.Activity(name=self.status_str.format(self=self), type=2)
             )
@@ -246,7 +237,6 @@ class Rednako(commands.Bot):
                     continue
                 guildreader.remove(key, jsonfile[0])
 
-    @watch(path='commands', preload=True, debug=False)
     async def on_ready(self):
         """
         Stuff to do when the discord.Bot finishes doing stuff
@@ -264,9 +254,7 @@ class Rednako(commands.Bot):
             guildreader.create_file(self, _config[0], _config[1])
 
         manager.opendash(self)
-        print("Starting Cog Sync")
-        # use this if you want to sync commands
-        await self.slash.sync_all_commands()
+        await self.register_commands()
 
     def close_bot(self):
         """ Closes the bot, exists because of a call from a external thread. """
@@ -275,4 +263,8 @@ class Rednako(commands.Bot):
 
 
 bot = Rednako()
+bot.load_extension('commands.image')
+bot.load_extension('commands.music')
+bot.load_extension('commands.settings')
+bot.load_extension('commands.user')
 bot.run(config['token'], reconnect=True)

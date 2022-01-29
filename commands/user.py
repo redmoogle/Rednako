@@ -4,12 +4,10 @@ Random commands for the user
 import asyncio
 import config
 import discord
-import discordtextsanitizer as dts
 import git
-from discord.ext import commands
+from discord.commands import slash_command
 from modules import helpers, animal
 import guildreader
-from discord_slash import cog_ext
 from discord_slash.utils.manage_components import create_select, create_select_option, create_actionrow, wait_for_component
 
 config = config.Config('./config/bot.cfg')
@@ -34,7 +32,7 @@ def grab_animal(_animal: str = None) -> str:
     return animal.Animals(_animal).fact()  # Grabs image
 
 
-class User(commands.Cog):
+class User(discord.ext.commands.Cog):
     """
     User Commands
     """
@@ -45,10 +43,7 @@ class User(commands.Cog):
         if ctx.guild:
             await ctx.message.delete()
 
-    @cog_ext.cog_slash(
-        name='serverinfo',
-        description='shows server info',
-    )
+    @slash_command()
     async def serverinfo(self, ctx):
         """
         Embeds info about the guild it's ran in
@@ -75,12 +70,9 @@ class User(commands.Cog):
             ['Members: ',           f'{members}']
         ]
 
-        await ctx.send(embed=helpers.embed(title=guild.name, thumbnail=guild.icon_url, fields=info))
+        await ctx.respond(embed=helpers.embed(title=guild.name, thumbnail=guild.icon_url, fields=info))
 
-    @cog_ext.cog_slash(
-        name='info',
-        description='botinfo',
-    )
+    @slash_command()
     async def info(self, ctx):
         """
         Embeds info about the bot
@@ -105,12 +97,9 @@ class User(commands.Cog):
             thumbnail=self.bot.user.avatar_url,
             fields=info
         )
-        await ctx.send(embed=embed)
+        await ctx.respond(embed=embed)
 
-    @cog_ext.cog_slash(
-        name='ping',
-        description='ping discord api/bot'
-    )
+    @slash_command()
     async def ping(self, ctx):
         """
         Pangs discord API and waits for heartbeat
@@ -120,12 +109,9 @@ class User(commands.Cog):
         """
         embed = discord.Embed(title="Pong!", color=discord.Color.blurple())
         embed.add_field(name='API: ', value=f'Latency: {round(self.bot.latency*1000)}ms')
-        await ctx.send(embed=embed)
+        await ctx.respond(embed=embed)
 
-    @cog_ext.cog_slash(
-        name='wordcounts',
-        description='gets information about your word counts'
-    )
+    @slash_command()
     async def wordcounts(self, ctx, user: discord.Member = None):
         counters = guildreader.read_file(ctx.guild.id, 'wordcount')
         info = []
@@ -138,12 +124,9 @@ class User(commands.Cog):
                 info.append([f'{key.title()}: ', counters[key][str(user.id)]])
             except KeyError:
                 continue
-        return await ctx.send(embed=helpers.embed(title=f'{user} Word Counts', fields=info, inline=False))
+        return await ctx.respond(embed=helpers.embed(title=f'{user} Word Counts', fields=info, inline=False))
 
-    @cog_ext.cog_slash(
-        name='catfact',
-        description='get slapped by the cat'
-    )
+    @slash_command()
     async def catfact(self, ctx):
         """
         Gets a random probably depressing cat fact
@@ -155,12 +138,9 @@ class User(commands.Cog):
         info = [
             [fact, f'Requested By: {ctx.author}']
         ]
-        await ctx.send(embed=helpers.embed(title='Cat Fact', fields=info))
+        await ctx.respond(embed=helpers.embed(title='Cat Fact', fields=info))
 
-    @cog_ext.cog_slash(
-        name='animalfact',
-        description="shows an animal fact"
-    )
+    @slash_command()
     async def animalfact(self, ctx):
         """`cat`, `dog`, `koala`, `fox`, `bird`, `red_panda`, `panda`, `racoon`, `kangaroo`"""
         selection = create_actionrow(create_select(
@@ -180,7 +160,7 @@ class User(commands.Cog):
             min_values=1,
             max_values=1
         ))
-        msg = await ctx.send("Select an Animal...", components=[selection])
+        msg = await ctx.respond("Select an Animal...", components=[selection])
         try:
             result = await wait_for_component(self.bot, components=selection, timeout=15)
         except asyncio.TimeoutError:
@@ -190,7 +170,7 @@ class User(commands.Cog):
             _animal = None
         fact = grab_animal(_animal)
         if not fact:
-            return await ctx.send(f'{_animal} does not exist')
+            return await ctx.respond(f'{_animal} does not exist')
 
         if not _animal:
             _name = 'Random Animal Fact'
@@ -202,10 +182,7 @@ class User(commands.Cog):
         ]
         await msg.edit(content=None, embed=helpers.embed(title=_name, fields=info), components=None)
 
-    @cog_ext.cog_slash(
-        name='words',
-        description='See tracked words',
-    )
+    @slash_command()
     async def words(self, ctx):
         """
         See tracked words
@@ -219,7 +196,7 @@ class User(commands.Cog):
         for key in wordjson.keys():
             _tmp += f'{key}\n'
         info = [["Tracked: ", _tmp]]
-        return await ctx.send(embed=helpers.embed(title='Tracked Words', fields=info, inline=False))
+        return await ctx.respond(embed=helpers.embed(title='Tracked Words', fields=info, inline=False))
 
 
 def setup(bot):

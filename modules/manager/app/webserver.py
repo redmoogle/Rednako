@@ -90,7 +90,7 @@ def data():
     for name, cog in bot.cogs.items():
         cogcommands[name] = []
         for command in cog.__cog_commands__:
-            cogcommands[name].append((command.name, command.brief,))
+            cogcommands[name].append((command.name, command.description,))
     try:
         _remote = str(repo.remotes.origin.fetch()[0].commit)
         if _remote:
