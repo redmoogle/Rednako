@@ -44,6 +44,78 @@ def djconfig(ctx) -> bool:
         return True
     return False
 
+class RedlinkVoiceClient(discord.VoiceClient):
+    """
+    This is the preferred way to handle external voice sending
+    This client will be created via a cls in the connect method of the channel
+    see the following documentation:
+    https://discordpy.readthedocs.io/en/latest/api.html#voiceprotocol
+    """
+
+    def __init__(self, bot: discord.Client, channel: discord.abc.Connectable):
+        self.client = bot
+        self.channel = channel
+        # ensure there exists a client already
+        if hasattr(self.client, 'redlink'):
+            self.redlink = self.client.redlink
+        else:
+            self.client.redlink = redlink.Client(bot.user.id)
+            self.client.redlink.add_node(
+                    'localhost',
+                    2333,
+                    'youshallnotpass',
+                    'us',
+                    'default-node')
+            self.redlink = self.client.redlink
+
+    async def on_voice_server_update(self, data):
+        # the data needs to be transformed before being handed down to
+        # voice_update_handler
+        redlink_data = {
+                't': 'VOICE_SERVER_UPDATE',
+                'd': data
+                }
+        await self.redlink.voice_update_handler(redlink_data)
+
+    async def on_voice_state_update(self, data):
+        # the data needs to be transformed before being handed down to
+        # voice_update_handler
+        redlink_data = {
+                't': 'VOICE_STATE_UPDATE',
+                'd': data
+                }
+        await self.redlink.voice_update_handler(redlink_data)
+
+    async def connect(self, *, timeout: float, reconnect: bool) -> None:
+        """
+        Connect the bot to the voice channel and create a player_manager
+        if it doesn't exist yet.
+        """
+        # ensure there is a player_manager when creating a new voice_client
+        self.redlink.player_manager.create(guild_id=self.channel.guild.id)
+        await self.channel.guild.change_voice_state(channel=self.channel)
+
+    async def disconnect(self, *, force: bool) -> None:
+        """
+        Handles the disconnect.
+        Cleans up running player and leaves the voice client.
+        """
+        player = self.redlink.player_manager.get(self.channel.guild.id)
+
+        # no need to disconnect if we are not connected
+        if not force and not player.is_connected:
+            return
+
+        # None means disconnect
+        await self.channel.guild.change_voice_state(channel=None)
+
+        # update the channel_id of the player to None
+        # this must be done because the on_voice_state_update that
+        # would set channel_id to None doesn't get dispatched after the 
+        # disconnect
+        player.channel_id = None
+        self.cleanup()
+
 
 class BandEditor:
     def __init__(self, ctx, player, bot):
@@ -157,7 +229,7 @@ class Music(discord.ext.commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def ready(self):
+    async def on_ready(self):
         self.bot.redlink = redlink.Client(self.bot.user.id)
         self.bot.redlink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')
         redlink.add_event_hook(self.track_hook)
@@ -177,12 +249,13 @@ class Music(discord.ext.commands.Cog):
         """ Cog unload handler. This removes any event hooks that were registered. """
         self.bot.redlink._event_hooks.clear()
 
-    async def ensure_voice(self, ctx):
+    async def ensure_voice(self, ctx, action = 0):
         """
         Additional checks that prevents the redlink code from breaking
 
             Parameters:
                 ctx (commands.Context): Context Reference
+                action (int): 0; Ignore, 1; Connect, 2; Disconnect
 
             Raises:
                 CommandInvokeError(AdditonalDetail (str)): Error that prevents the bot from doing something
@@ -190,46 +263,37 @@ class Music(discord.ext.commands.Cog):
 
         # This creates a player, OR returns the existing one, this is to make sure the player exists
         try:
-            if self.bot.lavaprocess and not self.bot.redlink:
-                self.bot.redlink = redlink.Client(self.bot.user.id)
-                self.bot.redlink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')
-                self.bot.add_listener(self.bot.redlink.voice_update_handler, 'on_socket_response')
-
             player = self.bot.redlink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
         except redlink.NodeException:
-            await ctx.send('redlink is still booting up')
+            await ctx.respond('Redlink is Offline')
             return False
         except AttributeError:
-            await ctx.send('redlink is currently not online')
+            await ctx.respond('Redlink is not Initialized')
             return False
 
-        # Should_connect is used for commands that start playback ~~aka 1 command~~
-        should_connect = ctx.command in ('play', 'p')
         # This is to ignore commands that shouldn't require people in the same VC
-        ignored = ctx.command in ('queue', 'np', 'current', 'reset')
+        ignored = action == 0
         if ignored:
             return True
 
+        if(action == 2):
+            await ctx.guild.voice_client.disconnect(force=True)
+            return True
+
         # Make sure they're in a voice-chat
-        if not ctx.author.voice or not ctx.author.voice.channel:
-            await ctx.send('Join a voice-channel first!')
-            # Raise a fake error to make the command halt
-            return False
-
-        if not player.is_connected:
-            if not should_connect:
-                await ctx.send('Player is not connected')
+        if(action == 1):
+            if not ctx.author.voice or not ctx.author.voice.channel:
+                await ctx.respond('Join a voice-channel first!')
                 return False
-
             if (not player.is_playing) and (not player.paused):
-                await ctx.guild.change_voice_state(channel=ctx.author.voice.channel)
-            else:
-                if player.paused:
-                    await ctx.send('Currently playing')
-                    return False
-        else:
+                player.store('channel', ctx.channel.id)
+                await ctx.author.voice.channel.connect(cls=RedlinkVoiceClient)
+                return True
+            if player.paused:
+                await ctx.respond('Currently playing')
+                return False
             if int(player.channel_id) != ctx.author.voice.channel.id:
-                await ctx.send('You need to be in my voicechannel.')
+                await ctx.respond('You need to be in my voicechannel.')
                 return False
 
         return True
@@ -346,11 +410,11 @@ class Music(discord.ext.commands.Cog):
         player.store("guild", ctx.guild.id)
         player.store("bands", {band: 0 for band in range(15)})
 
-        if not player.is_playing:
-            await player.play()
-        
         if player.is_playing:
             await ctx.respond(embed=embed)
+
+        if not player.is_playing:
+            await player.play()
 
     @slash_command()
     @commands.check(djconfig)
@@ -361,15 +425,14 @@ class Music(discord.ext.commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        if not await self.ensure_voice(ctx):
-            return
         player = self.bot.redlink.player_manager.get(ctx.guild.id)
 
         # Clear the queue to ensure old tracks don't start playing
         player.queue.clear()
         # Stop the current track so redlink consumes less resources.
         await player.stop()
-        await self.connect_to(ctx.guild.id, None)
+        if not await self.ensure_voice(ctx, action = 2):
+            return
         await ctx.respond(':asterisk: | Disconnected.')
 
     @slash_command()
@@ -609,7 +672,7 @@ class Music(discord.ext.commands.Cog):
 
     @slash_command()
     @commands.check(djconfig)
-    async def pitch(self, ctx, rotation: float = 0):
+    async def rotation(self, ctx, rotation: float = 0):
         """
         Sets the rotation of the player
         """

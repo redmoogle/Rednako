@@ -5,7 +5,6 @@ License: GPL-3.0
 Make sure to set up config
 
 """
-import json
 import os
 import sys
 import subprocess
@@ -17,7 +16,7 @@ from cogwatch import watch
 from discord.ext import commands, tasks
 import guildreader
 import config
-from modules import helpers, manager, redlink
+from modules import helpers, manager
 
 # Setting up config for open-source shenanigans
 config = config.Config('./config/bot.cfg')
@@ -257,27 +256,6 @@ class Rednako(commands.Bot):
 
         manager.opendash(self)
         await self.register_commands()
-
-        await self.ready()
-
-    async def ready(self):
-        return
-
-    async def on_connect(self):
-        return
-
-    async def on_voice_state_update(self, member, before, after):
-
-        if(member == self.user):
-            data = {}
-            data['t'] = 'VOICE_STATE_UPDATE'
-            data['d'] = {
-                'user_id': self.user.id,
-                'guild_id': member.guild.id,
-                'session_id': after.session_id,
-                'channel_id': after.channel.id
-            }
-            await self.redlink.voice_update_handler(data)
 
     def close_bot(self):
         """ Closes the bot, exists because of a call from a external thread. """
