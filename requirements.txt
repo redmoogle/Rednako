@@ -1,5 +1,4 @@
 Flask >= 1.1.2
-cogwatch >= 2.1.0
 config >= 0.5.0.post0
 requests >= 2.25.1
 guildreader >= 1.1.0

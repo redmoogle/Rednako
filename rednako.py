@@ -12,7 +12,6 @@ import logging
 from pathlib import Path
 import time
 import discord
-from cogwatch import watch
 from discord.ext import commands, tasks
 import guildreader
 import config
