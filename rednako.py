@@ -164,10 +164,9 @@ class Rednako(commands.Bot):
         """
         if isinstance(exception, commands.errors.MissingPermissions):
             return await context.send(exception.message)
+        logging.getLogger('discord').error(exception)
         if not guildreader.read_file(context.guild.id, 'settings')['errors']:
             return
-        if isinstance(exception, commands.CommandNotFound):
-            return await context.send(f"{context.author.mention}, command \'{context.invoked_with}\' not found!")
         if isinstance(exception, commands.CheckFailure):
             return  # Very annoying error, it just says the check failed
         await context.send(f'{type(exception)}: {exception}')

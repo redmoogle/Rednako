@@ -397,12 +397,12 @@ class Music(discord.ext.commands.Cog):
 
         player.store("channel", ctx.channel.id)
         player.store("guild", ctx.guild.id)
-        player.store("bands", {band: 0 for band in range(15)})
 
         if player.is_playing:
             await ctx.respond(embed=embed)
 
         if not player.is_playing:
+            await ctx.respond(":asterisk: | Started playing")
             await player.play()
 
     @slash_command()
