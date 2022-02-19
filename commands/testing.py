@@ -4,6 +4,7 @@ import youtube_dl
 
 import discord
 from discord.ext import commands
+from discord.commands import slash_command
 
 # Suppress noise about console usage from errors
 youtube_dl.utils.bug_reports_message = lambda: ""
@@ -54,7 +55,7 @@ class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @slash_command()
     async def join(self, ctx, *, channel: discord.VoiceChannel):
         """Joins a voice channel"""
 
@@ -63,7 +64,7 @@ class Music(commands.Cog):
 
         await channel.connect()
 
-    @commands.command()
+    @slash_command()
     async def play(self, ctx, *, query):
         """Plays a file from the local filesystem"""
 
@@ -72,7 +73,7 @@ class Music(commands.Cog):
 
         await ctx.send(f"Now playing: {query}")
 
-    @commands.command()
+    @slash_command()
     async def yt(self, ctx, *, url):
         """Plays from a url (almost anything youtube_dl supports)"""
 
@@ -82,7 +83,7 @@ class Music(commands.Cog):
 
         await ctx.send(f"Now playing: {player.title}")
 
-    @commands.command()
+    @slash_command()
     async def stream(self, ctx, *, url):
         """Streams from a url (same as yt, but doesn't predownload)"""
 
@@ -92,7 +93,7 @@ class Music(commands.Cog):
 
         await ctx.send(f"Now playing: {player.title}")
 
-    @commands.command()
+    @slash_command()
     async def volume(self, ctx, volume: int):
         """Changes the player's volume"""
 
@@ -102,7 +103,7 @@ class Music(commands.Cog):
         ctx.voice_client.source.volume = volume / 100
         await ctx.send(f"Changed volume to {volume}%")
 
-    @commands.command()
+    @slash_command()
     async def stop(self, ctx):
         """Stops and disconnects the bot from voice"""
 
