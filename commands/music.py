@@ -13,6 +13,7 @@ Compatibility with Python 3.5 should be possible if f-strings are removed.
 import re
 import math
 import asyncio
+import logging
 import discord
 from discord.commands import slash_command
 from discord.ext import commands
@@ -233,6 +234,7 @@ class Music(discord.ext.commands.Cog):
         self.bot.redlink = redlink.Client(self.bot.user.id)
         self.bot.redlink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'us', 'default-node')
         redlink.add_event_hook(self.track_hook)
+        redlink.enable_debug_logging()
 
     async def cog_command_error(self, ctx, error):
         """
@@ -305,6 +307,7 @@ class Music(discord.ext.commands.Cog):
             Parameters:
                 event (redlink.events): The type of event that happened
         """
+        logging.getLogger('discord').error(event)
         # When it gets to the end of the Queue, automatically disconnect to save resources
         if isinstance(event, redlink.events.QueueEndEvent):
             player = event.player
