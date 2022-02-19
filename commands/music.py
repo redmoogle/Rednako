@@ -10,6 +10,7 @@ Usage of this cog requires Python 3.6 or higher due to the use of f-strings.
 Compatibility with Python 3.5 should be possible if f-strings are removed.
 """
 
+import logging
 import re
 import math
 import discord
@@ -49,14 +50,14 @@ class LavalinkVoiceClient(discord.VoiceClient):
     https://discordpy.readthedocs.io/en/latest/api.html#voiceprotocol
     """
 
-    def __init__(self, bot: discord.Client, channel: discord.abc.Connectable):
-        self.client = bot
+    def __init__(self, client: discord.Client, channel: discord.abc.Connectable):
+        self.client = client
         self.channel = channel
         # ensure there exists a client already
         if hasattr(self.client, 'lavalink'):
             self.lavalink = self.client.lavalink
         else:
-            self.client.lavalink = lavalink.Client(bot.user.id)
+            self.client.lavalink = lavalink.Client(client.user.id)
             self.client.lavalink.add_node(
                     'localhost',
                     2333,
@@ -134,6 +135,7 @@ class Music(discord.ext.commands.Cog):
         """
         Raised when a command errors
         """
+        logging.getLogger('discord').error(error)
         if isinstance(error, commands.CommandInvokeError):
             if error is not None:
                 await ctx.respond(error.original)
@@ -145,54 +147,40 @@ class Music(discord.ext.commands.Cog):
         """ Cog unload handler. This removes any event hooks that were registered. """
         self.bot.lavalink._event_hooks.clear()
 
-    async def ensure_voice(self, ctx, action = 0):
-        """
-        Additional checks that prevents the lavalink code from breaking
+    
+    async def ensure_voice(self, ctx, connect = True):
+        """ This check ensures that the bot and command author are in the same voicechannel. """
+        player = self.bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
+        # Create returns a player if one exists, otherwise creates.
+        # This line is important because it ensures that a player always exists for a guild.
 
-            Parameters:
-                ctx (commands.Context): Context Reference
-                action (int): 0; Ignore, 1; Connect, 2; Disconnect
+        # Most people might consider this a waste of resources for guilds that aren't playing, but this is
+        # the easiest and simplest way of ensuring players are created.
 
-            Raises:
-                CommandInvokeError(AdditonalDetail (str)): Error that prevents the bot from doing something
-        """
+        # These are commands that require the bot to join a voicechannel (i.e. initiating playback).
+        # Commands such as volume/skip etc don't require the bot to be in a voicechannel so don't need listing here.
+        should_connect = connect == True
 
-        # This creates a player, OR returns the existing one, this is to make sure the player exists
-        try:
-            player = self.bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
-        except lavalink.NodeException:
-            await ctx.respond('Lavalink is Offline')
-            return False
-        except AttributeError:
-            await ctx.respond('Lavalink is not Initialized')
-            return False
+        if not ctx.author.voice or not ctx.author.voice.channel:
+            # Our cog_command_error handler catches this and sends it to the voicechannel.
+            # Exceptions allow us to "short-circuit" command invocation via checks so the
+            # execution state of the command goes no further.
+            raise commands.CommandInvokeError('Join a voicechannel first.')
 
-        # This is to ignore commands that shouldn't require people in the same VC
-        ignored = action == 0
-        if ignored:
-            return True
+        if not player.is_connected:
+            if not should_connect:
+                raise commands.CommandInvokeError('Not connected.')
 
-        if(action == 2):
-            await ctx.guild.voice_client.disconnect(force=True)
-            return True
+            permissions = ctx.author.voice.channel.permissions_for(ctx.me)
 
-        # Make sure they're in a voice-chat
-        if(action == 1):
-            if not ctx.author.voice or not ctx.author.voice.channel:
-                await ctx.respond('Join a voice-channel first!')
-                return False
-            if (not player.is_playing) and (not player.paused):
-                player.store('channel', ctx.channel.id)
-                await ctx.author.voice.channel.connect(cls=LavalinkVoiceClient)
-                return True
-            if player.paused:
-                await ctx.respond('Currently playing')
-                return False
+            if not permissions.connect or not permissions.speak:  # Check user limit too?
+                raise commands.CommandInvokeError('I need the `CONNECT` and `SPEAK` permissions.')
+
+            player.store('channel', ctx.channel.id)
+            await ctx.author.voice.channel.connect(cls=LavalinkVoiceClient)
+        else:
             if int(player.channel_id) != ctx.author.voice.channel.id:
-                await ctx.respond('You need to be in my voicechannel.')
-                return False
-
-        return True
+                raise commands.CommandInvokeError('You need to be in my voicechannel.')
 
     async def track_hook(self, event):
         """
@@ -241,8 +229,7 @@ class Music(discord.ext.commands.Cog):
                 query (str): Thing or link to search/play
         """
         # Get the player for this guild from cache.
-        if not await self.ensure_voice(ctx, action = 1):
-            return
+        await self.ensure_voice(ctx)
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         # Remove leading and trailing <>. <> may be used to suppress embedding links in Discord.
@@ -316,8 +303,7 @@ class Music(discord.ext.commands.Cog):
         player.queue.clear()
         # Stop the current track so lavalink consumes less resources.
         await player.stop()
-        if not await self.ensure_voice(ctx, action = 2):
-            return
+        await ctx.voice_client.disconnect(force=True)
         await ctx.respond(':asterisk: | Disconnected.')
 
     @slash_command()
