@@ -206,7 +206,7 @@ class Music(discord.ext.commands.Cog):
             player = event.player
             slept = player.fetch('sleeper')
             if slept:
-                slept.cancel()
+                slept.close()
                 player.store('sleeper', None)
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
