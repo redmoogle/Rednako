@@ -395,9 +395,9 @@ class Music(discord.ext.commands.Cog):
                 ctx (commands.Context): Context Reference
                 page (int): Page of the queue to look up (10 per page)
         """
-        if not await self.ensure_voice(ctx):
-            return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        if not player:
+            return await ctx.respond("No Player")
 
         # player.current is a track but we want it to be a list with that track
         playerqueue = []
