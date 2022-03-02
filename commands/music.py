@@ -193,13 +193,13 @@ class Music(discord.ext.commands.Cog):
         # When it gets to the end of the Queue, automatically disconnect to save resources
         if isinstance(event, lavalink.events.QueueEndEvent):
             player = event.player
+            sleepy = asyncio.sleep(60)
+            player.store('sleeper', sleepy)
+            await sleepy
             guild_id = int(event.player.guild_id)
             await player.reset_equalizer()
             guild = self.bot.get_guild(guild_id)
             await guild.voice_client.disconnect(force=True)
-            sleepy = asyncio.sleep(60)
-            player.store('sleeper', sleepy)
-            await sleepy
 
         # When a new track(song) starts it will send a message to the original channel
         if isinstance(event, lavalink.events.TrackStartEvent):
