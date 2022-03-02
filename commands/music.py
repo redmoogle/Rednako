@@ -13,6 +13,7 @@ Compatibility with Python 3.5 should be possible if f-strings are removed.
 import logging
 import re
 import math
+import asyncio
 import discord
 from discord.commands import slash_command
 from discord.ext import commands
@@ -194,13 +195,19 @@ class Music(discord.ext.commands.Cog):
             player = event.player
             guild_id = int(event.player.guild_id)
             await player.reset_equalizer()
-            guild_id = int(event.player.guild_id)
             guild = self.bot.get_guild(guild_id)
             await guild.voice_client.disconnect(force=True)
+            sleepy = asyncio.sleep(60)
+            player.store('sleeper', sleepy)
+            await sleepy
 
         # When a new track(song) starts it will send a message to the original channel
         if isinstance(event, lavalink.events.TrackStartEvent):
             player = event.player
+            slept = player.fetch('sleeper')
+            if slept:
+                slept.cancel()
+                player.store('sleeper', None)
             notify_channel = player.fetch("channel")
             notify_channel = self.bot.get_channel(notify_channel)
             vidthumbnail = f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
