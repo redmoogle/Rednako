@@ -343,8 +343,6 @@ class Music(discord.ext.commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        if not await self.ensure_voice(ctx):
-            return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player.current:
             duration, fill = helpers.parse_duration(player.current.duration/1000)
