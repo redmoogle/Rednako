@@ -223,7 +223,7 @@ class Music(discord.ext.commands.Cog):
                 thumbnail=vidthumbnail,
                 fields=info
             )
-            await notify_channel.send(embeds=[embed])
+            await notify_channel.send(embed=embed)
 
     @slash_command()
     @commands.check(djconfig)
@@ -275,11 +275,7 @@ class Music(discord.ext.commands.Cog):
         else:
             track = results['tracks'][0]
             embed.title = 'Track Enqueued'
-            embed.description = f'[{track["info"]["title"]}]({track["info"]["uri"]})'
-
-            # You can attach additional information to audiotracks through kwargs, however this involves
-            # constructing the AudioTrack class yourself.
-            track = lavalink.models.AudioTrack(track, ctx.author.id)
+            embed.description = f'[{track.title}]({track.uri})'
             player.add(requester=ctx.author.id, track=track)
 
         # We don't want to call .play() if the player is playing as that will effectively skip
@@ -289,7 +285,7 @@ class Music(discord.ext.commands.Cog):
         player.store("guild", ctx.guild.id)
 
         if player.is_playing:
-            await ctx.respond(embeds=[embed])
+            await ctx.respond(embed=embed)
 
         if not player.is_playing:
             await ctx.respond(":asterisk: | Started playing")
@@ -360,7 +356,7 @@ class Music(discord.ext.commands.Cog):
                 thumbnail=vidthumbnail,
                 fields=info
             )
-            return await ctx.respond(embeds=[embed])
+            return await ctx.respond(embed=embed)
         return await ctx.respond('Nothing playing')
 
     @slash_command()
@@ -427,7 +423,7 @@ class Music(discord.ext.commands.Cog):
         embed = discord.Embed(colour=discord.Color.blurple(),
                               description=f'**{len(playerqueue)} tracks**\n\n{queue_list}')
         embed.set_footer(text=f'Viewing page {page}/{pages}')
-        await ctx.respond(embeds=[embed])
+        await ctx.respond(embed=embed)
 
     @slash_command()
     @commands.check(djconfig)
