@@ -97,7 +97,7 @@ class User(discord.ext.commands.Cog):
             thumbnail=self.bot.user.avatar_url,
             fields=info
         )
-        await ctx.respond(embed=embed)
+        await ctx.respond(embeds=[embed])
 
     @slash_command()
     async def ping(self, ctx):
@@ -109,7 +109,7 @@ class User(discord.ext.commands.Cog):
         """
         embed = discord.Embed(title="Pong!", color=discord.Color.blurple())
         embed.add_field(name='API: ', value=f'Latency: {round(self.bot.latency*1000)}ms')
-        await ctx.respond(embed=embed)
+        await ctx.respond(embeds=[embed])
 
     @slash_command()
     async def wordcounts(self, ctx, user: discord.Member = None):

@@ -223,7 +223,7 @@ class Music(discord.ext.commands.Cog):
                 thumbnail=vidthumbnail,
                 fields=info
             )
-            await notify_channel.send(embed=embed)
+            await notify_channel.send(embeds=[embed])
 
     @slash_command()
     @commands.check(djconfig)
@@ -285,7 +285,7 @@ class Music(discord.ext.commands.Cog):
         player.store("guild", ctx.guild.id)
 
         if player.is_playing:
-            await ctx.respond(embed=embed)
+            await ctx.respond(embeds=[embed])
 
         if not player.is_playing:
             await ctx.respond(":asterisk: | Started playing")
@@ -356,7 +356,7 @@ class Music(discord.ext.commands.Cog):
                 thumbnail=vidthumbnail,
                 fields=info
             )
-            return await ctx.respond(embed=embed)
+            return await ctx.respond(embeds=[embed])
         return await ctx.respond('Nothing playing')
 
     @slash_command()
@@ -423,7 +423,7 @@ class Music(discord.ext.commands.Cog):
         embed = discord.Embed(colour=discord.Color.blurple(),
                               description=f'**{len(playerqueue)} tracks**\n\n{queue_list}')
         embed.set_footer(text=f'Viewing page {page}/{pages}')
-        await ctx.respond(embed=embed)
+        await ctx.respond(embeds=[embed])
 
     @slash_command()
     @commands.check(djconfig)
