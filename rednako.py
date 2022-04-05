@@ -74,7 +74,7 @@ class Rednako(commands.Bot):
         # Path of the parent dir
         self.path = Path(__file__).parent
         # Reader for files
-        self.reader = guildreader.reader()
+        self.reader = guildreader.Reader("./data")
         # Parameters for bot
         super().__init__(
             command_prefix=self.get_prefix,    # Set the prefix
@@ -250,6 +250,8 @@ class Rednako(commands.Bot):
         print(f'Members: {self.members}')
         print(f'Servers: {self.servers}')
         print(f'Logged in as {self.user.name} - {self.user.id}')
+        
+        self.reader.update_ids(self.guilds)
 
         for _config in self.configs:
             self.reader.create_file(self, _config[0], _config[1])
