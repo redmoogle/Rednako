@@ -250,7 +250,7 @@ class Rednako(commands.Bot):
         print(f'Members: {self.members}')
         print(f'Servers: {self.servers}')
         print(f'Logged in as {self.user.name} - {self.user.id}')
-        
+
         self.reader.update_ids(self.guilds)
 
         for _config in self.configs:
