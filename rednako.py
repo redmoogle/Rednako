@@ -176,6 +176,8 @@ class Rednako(commands.Bot):
 
     async def on_message(self, message):
         guild = message.guild
+        if(message.author.id == self.id):
+            return
         counters = self.reader.read_file(guild.id, 'wordcount')
         for key in counters:
             if contains_word(key, message.content):
@@ -254,7 +256,7 @@ class Rednako(commands.Bot):
         self.reader.update_ids(self.guilds)
 
         for _config in self.configs:
-            self.reader.create_file(self, _config[0], _config[1])
+            self.reader.create_file(_config[0], _config[1])
 
         manager.opendash(self)
         await self.register_commands()
