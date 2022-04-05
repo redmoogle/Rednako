@@ -79,6 +79,8 @@ class Rednako(commands.Bot):
         self.path = Path(__file__).parent
         # Reader for files
         self.reader = guildreader.Reader("./data")
+        # A better variant of wait_until_ready
+        self.started = False
         # Parameters for bot
         super().__init__(
             command_prefix=self.get_prefix,    # Set the prefix
@@ -180,7 +182,7 @@ class Rednako(commands.Bot):
 
     async def on_message(self, message):
         guild = message.guild
-        if message.author.id == self.id:
+        if message.author.id == self.user.id:
             return
         counters = self.reader.read_file(guild.id, 'wordcount')
         for key in counters:
@@ -248,6 +250,8 @@ class Rednako(commands.Bot):
         """
         Stuff to do when the discord.Bot finishes doing stuff
         """
+        if(self.started):
+            return
         # Both of these vars start out as None
         self.name = self.user.name
         self.idnum = self.user.id
@@ -263,6 +267,7 @@ class Rednako(commands.Bot):
             self.reader.create_file(_config[0], _config[1])
 
         manager.opendash(self)
+        self.started = True
         await self.register_commands()
 
     def close_bot(self):
