@@ -157,22 +157,22 @@ class Rednako(commands.Bot):
         for jsonfile in self.configs:
             self.reader.remove(guild.id, jsonfile[0])
 
-    async def on_command_error(self, ctx, exception):
+    async def on_command_error(self, context, exception):
         """
         Event signal called when a command errors out
 
             Parameters:
-                ctx (commands.Context): Context Reference
+                context (commands.Context): Context Reference
                 exception (Exception): Error that happened
         """
         if isinstance(exception, commands.errors.MissingPermissions):
-            return await ctx.send(exception.message)
+            return await context.send(exception.message)
         logging.getLogger('discord').error(exception)
-        if not self.reader.read_file(ctx.guild.id, 'settings')['errors']:
+        if not self.reader.read_file(context.guild.id, 'settings')['errors']:
             return
         if isinstance(exception, commands.CheckFailure):
             return  # Very annoying error, it just says the check failed
-        await ctx.send(f'{type(exception)}: {exception}')
+        await context.send(f'{type(exception)}: {exception}')
 
     async def on_message(self, message):
         guild = message.guild
