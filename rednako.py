@@ -39,7 +39,10 @@ class Rednako(commands.Bot):
     Bot class for sharding later
     """
 
-    def __init__(self):
+    def __init__(self, start_lava = True):
+        """
+        start_lava(bool): Start Lavalink if needed
+        """
         # Data you can use for stuff
         # How many members can the bot see
         self.members = 0
@@ -58,12 +61,13 @@ class Rednako(commands.Bot):
         # Do not put settings below this unless you don't want them to show up on vars commands
         self.vars = set(vars(self))
 
-        print("Starting Lavalink")
-        self.lavaprocess = subprocess.Popen(
-            f"java -jar {os.path.abspath('./Lavalink.jar')}",
-            stdout=subprocess.DEVNULL,
-            shell=True)
-        print(f"Started Lavalink: PID-{self.lavaprocess.pid}")
+        if(start_lava):
+            print("Starting Lavalink")
+            self.lavaprocess = subprocess.Popen(
+                f"java -jar {os.path.abspath('./Lavalink.jar')}",
+                stdout=subprocess.DEVNULL,
+                shell=True)
+            print(f"Started Lavalink: PID-{self.lavaprocess.pid}")
 
         # Does it update its status
         self.updatestatus = True
@@ -176,7 +180,7 @@ class Rednako(commands.Bot):
 
     async def on_message(self, message):
         guild = message.guild
-        if(message.author.id == self.id):
+        if message.author.id == self.id:
             return
         counters = self.reader.read_file(guild.id, 'wordcount')
         for key in counters:
@@ -266,10 +270,31 @@ class Rednako(commands.Bot):
         subprocess.call(f'{self.path}/restart.sh')
         sys.exit()
 
+print("""
+██████╗ ███████╗██████╗ ███╗   ██╗ █████╗ ██╗  ██╗ ██████╗ 
+██╔══██╗██╔════╝██╔══██╗████╗  ██║██╔══██╗██║ ██╔╝██╔═══██╗
+██████╔╝█████╗  ██║  ██║██╔██╗ ██║███████║█████╔╝ ██║   ██║
+██╔══██╗██╔══╝  ██║  ██║██║╚██╗██║██╔══██║██╔═██╗ ██║   ██║
+██║  ██║███████╗██████╔╝██║ ╚████║██║  ██║██║  ██╗╚██████╔╝
+╚═╝  ╚═╝╚══════╝╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝                                                                                                                                                                                
+""")
 
-bot = Rednako()
-bot.load_extension('commands.image')
-bot.load_extension('commands.music')
-bot.load_extension('commands.settings')
-bot.load_extension('commands.user')
-bot.run(config['token'], reconnect=True)
+print("--***-------------------------------------------------***--")
+print("Start Options:\n")
+print("1: Start with Lavalink")
+print("2: Start Without Lavalink\n")
+print("--***-------------------------------------------------***--")
+try:
+    opt = int(input(":"))
+    if opt == 1:
+        bot = Rednako(start_lava = True)
+    elif opt == 2:
+        bot = Rednako(start_lava = False)
+
+    bot.load_extension('commands.image')
+    bot.load_extension('commands.music')
+    bot.load_extension('commands.settings')
+    bot.load_extension('commands.user')
+    bot.run(config['token'], reconnect=True)
+except ValueError:
+    print("Not a valid option")
