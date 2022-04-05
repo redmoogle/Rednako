@@ -58,7 +58,7 @@ class User(discord.ext.commands.Cog):
         roles = len(guild.roles)                    # all roles
         members = len(guild.members)                # all members
 
-        prefix = guildreader.read_file(ctx.guild.id, 'settings')['prefix']
+        prefix = self.bot.reader.read_file(ctx.guild.id, 'settings')['prefix']
 
         info = [  # Makes adding easy and pretty
             ['Server Owner: ',      f'{guild.owner.name}#{guild.owner.discriminator}'],
@@ -113,7 +113,7 @@ class User(discord.ext.commands.Cog):
 
     @slash_command()
     async def wordcounts(self, ctx, user: discord.Member = None):
-        counters = guildreader.read_file(ctx.guild.id, 'wordcount')
+        counters = self.bot.reader.read_file(ctx.guild.id, 'wordcount')
         info = []
         if not user:
             user = ctx.author
@@ -190,7 +190,7 @@ class User(discord.ext.commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        wordjson: dict = guildreader.read_file(ctx.guild.id, 'wordcount')
+        wordjson: dict = self.bot.reader.read_file(ctx.guild.id, 'wordcount')
         info = []
         _tmp = ""
         for key in wordjson.keys():

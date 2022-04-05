@@ -37,10 +37,10 @@ class Config(discord.ext.commands.Cog):
                 djrole (discord.Role): Role to enable for
         """
         if djrole is None:
-            guildreader.write_file(ctx.guild.id, 'djmode', djrole)
+            self.bot.reader.write_file(ctx.guild.id, 'djmode', djrole)
             return await ctx.respond('Disabling DJ-Mode')
 
-        guildreader.write_file(ctx.guild.id, 'djmode', str(djrole.id))
+        self.bot.reader.write_file(ctx.guild.id, 'djmode', str(djrole.id))
         await ctx.respond(f'Enabling DJ-Config for role: {djrole.name}')
 
     @slash_command()
@@ -52,9 +52,9 @@ class Config(discord.ext.commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
-        toggle = guildreader.read_file(ctx.guild.id, 'settings')
+        toggle = self.bot.reader.read_file(ctx.guild.id, 'settings')
         toggle['errors'] = not toggle['errors']
-        guildreader.write_file(ctx.guild.id, 'settings', toggle)
+        self.bot.reader.write_file(ctx.guild.id, 'settings', toggle)
         if not toggle:
             return await ctx.respond("Disabling showing of command not found")
         return await ctx.respond("Enabling showing of command not found")
@@ -69,13 +69,13 @@ class Config(discord.ext.commands.Cog):
                 ctx (commands.Context): Context Reference
                 word (string): Word to track
         """
-        wordjson: dict = guildreader.read_file(ctx.guild.id, 'wordcount')
+        wordjson: dict = self.bot.reader.read_file(ctx.guild.id, 'wordcount')
         try:
             wordjson[word]
             return await ctx.respond(f'{word} is already tracked')
         except KeyError:
             wordjson.setdefault(word, {})
-            guildreader.write_file(ctx.guild.id, "wordcount", wordjson)
+            self.bot.reader.write_file(ctx.guild.id, "wordcount", wordjson)
             return await ctx.respond(f'Added {word} to tracked word list')
 
     @slash_command()
@@ -88,10 +88,10 @@ class Config(discord.ext.commands.Cog):
                 ctx (commands.Context): Context Reference
                 word (string): Word to track
         """
-        wordjson: dict = guildreader.read_file(ctx.guild.id, 'wordcount')
+        wordjson: dict = self.bot.reader.read_file(ctx.guild.id, 'wordcount')
         try:
             del wordjson[word]
-            guildreader.write_file(ctx.guild.id, "wordcount", wordjson)
+            self.bot.reader.write_file(ctx.guild.id, "wordcount", wordjson)
             return await ctx.respond(f'Removed {word} from tracking')
         except KeyError:
             return await ctx.respond(f'{word} isnt tracked')

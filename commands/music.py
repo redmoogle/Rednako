@@ -21,28 +21,6 @@ import lavalink
 from modules import helpers
 import guildreader
 
-
-def djconfig(ctx) -> bool:
-    """
-    Checks the key djmode to see if djmode is on
-
-        Parameters:
-            ctx (commands.Context): Context Reference
-
-        Returns:
-            check (bool): Is DJMode disabled(True) or does user have the right role
-    """
-    if not ctx.guild:
-        return False
-    guildrole = guildreader.read_file(ctx.guild.id, 'settings')['djmode']
-    if guildrole is None:
-        return True
-
-    role = ctx.guild.get_role(int(guildrole))
-    if role in ctx.author.roles:
-        return True
-    return False
-
 class LavalinkVoiceClient(discord.VoiceClient):
     """
     This is the preferred way to handle external voice sending
@@ -148,7 +126,27 @@ class Music(discord.ext.commands.Cog):
         """ Cog unload handler. This removes any event hooks that were registered. """
         self.bot.lavalink._event_hooks.clear()
 
-    
+    def djconfig(self, ctx) -> bool:
+        """
+        Checks the key djmode to see if djmode is on
+
+            Parameters:
+                ctx (commands.Context): Context Reference
+
+            Returns:
+                check (bool): Is DJMode disabled(True) or does user have the right role
+        """
+        if not ctx.guild:
+            return False
+        guildrole = self.bot.reader.read_file(ctx.guild.id, 'settings')['djmode']
+        if guildrole is None:
+            return True
+
+        role = ctx.guild.get_role(int(guildrole))
+        if role in ctx.author.roles:
+            return True
+        return False
+
     async def ensure_voice(self, ctx, connect = True):
         """ This check ensures that the bot and command author are in the same voicechannel. """
         player = self.bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))

@@ -73,6 +73,8 @@ class Rednako(commands.Bot):
         self.status_str = config["default_activity"]
         # Path of the parent dir
         self.path = Path(__file__).parent
+        # Reader for files
+        self.reader = guildreader.reader()
         # Parameters for bot
         super().__init__(
             command_prefix=self.get_prefix,    # Set the prefix
@@ -140,9 +142,9 @@ class Rednako(commands.Bot):
             Parameters:
                 guild (discord.Guild): Guild Object
         """
+        self.reader.add_id(guild.id)
         for jsonfile in self.configs:
-            if not guildreader.read_file(guild.id, jsonfile[0]):
-                guildreader.write_file(guild.id, jsonfile[0], jsonfile[1])
+            self.reader.read_file(guild.id, jsonfile[0])
 
     async def on_guild_remove(self, guild):
         """
@@ -151,36 +153,37 @@ class Rednako(commands.Bot):
             Parameters:
                 guild (discord.Guild): Guild Object
         """
+        self.reader.remove_id(guild.id)
         for jsonfile in self.configs:
-            guildreader.remove(guild.id, jsonfile[0])
+            self.reader.remove(guild.id, jsonfile[0])
 
-    async def on_command_error(self, context, exception):
+    async def on_command_error(self, ctx, exception):
         """
         Event signal called when a command errors out
 
             Parameters:
-                context (commands.Context): Context Reference
+                ctx (commands.Context): Context Reference
                 exception (Exception): Error that happened
         """
         if isinstance(exception, commands.errors.MissingPermissions):
-            return await context.send(exception.message)
+            return await ctx.send(exception.message)
         logging.getLogger('discord').error(exception)
-        if not guildreader.read_file(context.guild.id, 'settings')['errors']:
+        if not self.reader.read_file(ctx.guild.id, 'settings')['errors']:
             return
         if isinstance(exception, commands.CheckFailure):
             return  # Very annoying error, it just says the check failed
-        await context.send(f'{type(exception)}: {exception}')
+        await ctx.send(f'{type(exception)}: {exception}')
 
     async def on_message(self, message):
         guild = message.guild
-        counters = guildreader.read_file(guild.id, 'wordcount')
+        counters = self.reader.read_file(guild.id, 'wordcount')
         for key in counters:
             if contains_word(key, message.content):
                 try:
                     counters[key][str(message.author.id)] += 1
                 except KeyError:
                     counters[key][str(message.author.id)] = 1
-        guildreader.write_file(guild.id, 'wordcount', counters)
+        self.reader.write_file(guild.id, 'wordcount', counters)
         return await super().on_message(message)
 
     @tasks.loop(seconds=5)
@@ -211,16 +214,15 @@ class Rednako(commands.Bot):
         """
         Make sure all guilds have their configs and trims the files
         """
-        _guilds = []
+        _guilds = [] # We use str instead of ints
         await self.wait_until_ready()
         for jsonfile in self.configs:
             for guild in self.guilds:
                 _guilds.append(str(guild.id))
-                if not guildreader.read_file(guild.id, jsonfile[0]):
-                    guildreader.write_file(guild.id, jsonfile[0], jsonfile[1])
+                self.reader.read_file(guild.id, jsonfile[0])
 
                 if isinstance(jsonfile[1], dict):
-                    test = guildreader.read_file(guild.id, jsonfile[0])
+                    test = self.reader.read_file(guild.id, jsonfile[0])
                     if not test:
                         continue
                     for setting in jsonfile[1]:
@@ -228,13 +230,13 @@ class Rednako(commands.Bot):
                             _ = test[setting]
                         except KeyError:
                             test[setting] = jsonfile[1][setting]
-                    guildreader.write_file(guild.id, jsonfile[0], test)
+                    self.reader.write_file(guild.id, jsonfile[0], test)
 
-            raw = guildreader.dump(jsonfile[0])
+            raw = self.reader.dump(jsonfile[0])
             for key in raw:
-                if key in _guilds:
+                if key in self.guilds:
                     continue
-                guildreader.remove(key, jsonfile[0])
+                self.reader.remove(key, jsonfile[0])
 
     async def on_ready(self):
         """
@@ -250,7 +252,7 @@ class Rednako(commands.Bot):
         print(f'Logged in as {self.user.name} - {self.user.id}')
 
         for _config in self.configs:
-            guildreader.create_file(self, _config[0], _config[1])
+            self.reader.create_file(self, _config[0], _config[1])
 
         manager.opendash(self)
         await self.register_commands()
