@@ -303,4 +303,3 @@ try:
     bot.run(config['token'], reconnect=True)
 except ValueError:
     print("Not a valid option")
-   
