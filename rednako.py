@@ -61,7 +61,7 @@ class Rednako(commands.Bot):
         # Do not put settings below this unless you don't want them to show up on vars commands
         self.vars = set(vars(self))
 
-        if(start_lava):
+        if start_lava:
             print("Starting Lavalink")
             self.lavaprocess = subprocess.Popen(
                 f"java -jar {os.path.abspath('./Lavalink.jar')}",
@@ -250,7 +250,7 @@ class Rednako(commands.Bot):
         """
         Stuff to do when the discord.Bot finishes doing stuff
         """
-        if(self.started):
+        if self.started:
             return
         # Both of these vars start out as None
         self.name = self.user.name
@@ -303,3 +303,4 @@ try:
     bot.run(config['token'], reconnect=True)
 except ValueError:
     print("Not a valid option")
+   
