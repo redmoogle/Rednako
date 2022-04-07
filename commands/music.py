@@ -224,7 +224,6 @@ class Music(discord.ext.commands.Cog):
             await notify_channel.send(embeds=[embed])
 
     @slash_command()
-    @commands.check(djconfig)
     async def play(self, ctx, *, query):
         """
         Plays a link or searches youtube with the provided query
@@ -233,6 +232,8 @@ class Music(discord.ext.commands.Cog):
                 ctx (commands.Context): Context Reference
                 query (str): Thing or link to search/play
         """
+        if not self.djconfig(ctx):
+            return
         # Get the player for this guild from cache.
         await self.ensure_voice(ctx)
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
@@ -290,7 +291,6 @@ class Music(discord.ext.commands.Cog):
             await player.play()
 
     @slash_command()
-    @commands.check(djconfig)
     async def stop(self, ctx):
         """
         Disconnects the bot from the voicechat and clears the queue
@@ -298,6 +298,8 @@ class Music(discord.ext.commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
+        if not self.djconfig(ctx):
+            return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         # Clear the queue to ensure old tracks don't start playing
@@ -308,7 +310,6 @@ class Music(discord.ext.commands.Cog):
         await ctx.respond(':asterisk: | Disconnected.')
 
     @slash_command()
-    @commands.check(djconfig)
     async def pause(self, ctx):
         """
         Pauses the currently playing queue
@@ -316,6 +317,8 @@ class Music(discord.ext.commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
+        if not self.djconfig(ctx):
+            return
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
@@ -358,7 +361,6 @@ class Music(discord.ext.commands.Cog):
         return await ctx.respond('Nothing playing')
 
     @slash_command()
-    @commands.check(djconfig)
     async def loop(self, ctx):
         """
         Loop a song or songs
@@ -366,6 +368,8 @@ class Music(discord.ext.commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
+        if not self.djconfig(ctx):
+            return
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
@@ -424,7 +428,6 @@ class Music(discord.ext.commands.Cog):
         await ctx.respond(embeds=[embed])
 
     @slash_command()
-    @commands.check(djconfig)
     async def bass(self, ctx, amount: float = 0):
         """
         Allows you to edit the bands
@@ -432,6 +435,8 @@ class Music(discord.ext.commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
+        if not self.djconfig(ctx):
+            return
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
@@ -444,7 +449,6 @@ class Music(discord.ext.commands.Cog):
         await ctx.respond(f"Set bass to {amount}")
 
     @slash_command()
-    @commands.check(djconfig)
     async def mids(self, ctx, amount: float = 0):
         """
         Allows you to edit the bands
@@ -452,6 +456,8 @@ class Music(discord.ext.commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
+        if not self.djconfig(ctx):
+            return
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
@@ -464,7 +470,6 @@ class Music(discord.ext.commands.Cog):
         await ctx.respond(f"Set mids to {amount}")
 
     @slash_command()
-    @commands.check(djconfig)
     async def treble(self, ctx, amount: float = 0):
         """
         Allows you to edit the bands
@@ -472,6 +477,8 @@ class Music(discord.ext.commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
+        if not self.djconfig(ctx):
+            return
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
@@ -484,7 +491,6 @@ class Music(discord.ext.commands.Cog):
         await ctx.respond(f"Set treble to {amount}")
 
     @slash_command()
-    @commands.check(djconfig)
     async def reset(self, ctx):
         """
         Resets all 15 bands to default
@@ -492,6 +498,8 @@ class Music(discord.ext.commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
+        if not self.djconfig(ctx):
+            return
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
@@ -500,7 +508,6 @@ class Music(discord.ext.commands.Cog):
             await ctx.respond('EQ has been reset')
 
     @slash_command()
-    @commands.check(djconfig)
     async def skip(self, ctx):
         """
         Skips the currently playing song
@@ -508,6 +515,8 @@ class Music(discord.ext.commands.Cog):
             Parameters:
                 ctx (commands.Context): Context Reference
         """
+        if not self.djconfig(ctx):
+            return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if player:
             if player.is_playing:
@@ -519,11 +528,12 @@ class Music(discord.ext.commands.Cog):
             return await ctx.respond('Nothing Playing')
 
     @slash_command()
-    @commands.check(djconfig)
     async def seek(self, ctx, timinp):
         """
         Seeks to specified timestamp
         """
+        if not self.djconfig(ctx):
+            return
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
@@ -539,11 +549,12 @@ class Music(discord.ext.commands.Cog):
         await ctx.respond(f"Seeked to {timinp}")
 
     @slash_command()
-    @commands.check(djconfig)
     async def speed(self, ctx, speed: float = 100):
         """
         Sets the playback speed
         """
+        if not self.djconfig(ctx):
+            return
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
@@ -560,11 +571,12 @@ class Music(discord.ext.commands.Cog):
         await ctx.respond(f"Set speed to {speed}%")
 
     @slash_command()
-    @commands.check(djconfig)
     async def pitch(self, ctx, pitch: float = 100):
         """
         Sets the pitch of the player
         """
+        if not self.djconfig(ctx):
+            return
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
@@ -581,11 +593,12 @@ class Music(discord.ext.commands.Cog):
         await ctx.respond(f"Set pitch to {pitch}%")
 
     @slash_command()
-    @commands.check(djconfig)
     async def rotation(self, ctx, rotation: float = 0):
         """
         Sets the rotation of the player
         """
+        if not self.djconfig(ctx):
+            return
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
@@ -602,11 +615,12 @@ class Music(discord.ext.commands.Cog):
         await ctx.respond(f"Set rotation to {rotation}Hz")
 
     @slash_command()
-    @commands.check(djconfig)
     async def vibrato(self, ctx, frequency: int = 2, depth: float = 0.5):
         """
         Sets the vibrato of the player
         """
+        if not self.djconfig(ctx):
+            return
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
@@ -624,11 +638,12 @@ class Music(discord.ext.commands.Cog):
         await ctx.respond(f"Set vibrato to {frequency} with a depth of {depth}")
 
     @slash_command()
-    @commands.check(djconfig)
     async def tremolo(self, ctx, frequency: int = 2, depth: float = 0.5):
         """
         Sets the tremolo of the player
         """
+        if not self.djconfig(ctx):
+            return
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
@@ -646,7 +661,6 @@ class Music(discord.ext.commands.Cog):
         await ctx.respond(f"Set tremolo to {frequency} with a depth of {depth}")
 
     @slash_command()
-    @commands.check(djconfig)
     async def volume(self, ctx, vol) -> None:
         """
 
@@ -657,6 +671,8 @@ class Music(discord.ext.commands.Cog):
         Returns:
             None
         """
+        if not self.djconfig(ctx):
+            return
         if not await self.ensure_voice(ctx):
             return
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
