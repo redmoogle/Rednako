@@ -221,7 +221,7 @@ class Music(discord.ext.commands.Cog):
                 thumbnail=vidthumbnail,
                 fields=info
             )
-            await notify_channel.send(embed=embed)
+            await notify_channel.send(embeds=[embed])
 
     @slash_command()
     async def play(self, ctx, *, query):
