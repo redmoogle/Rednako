@@ -1,6 +1,7 @@
 """
 Image commands
 """
+from email.mime import image
 import random
 import discord
 from discord.commands import slash_command
@@ -33,29 +34,30 @@ class AniModal(discord.ui.View):
         min_values=1, 
         max_values=1, 
         options=[
-            discord.SelectOption(label="Random", value=None, emoji=":dice:"),
-            discord.SelectOption(label="Cat", value="cat", emoji=":cat:"),
-            discord.SelectOption(label="Dog", value="dog", emoji=":dog:"),
-            discord.SelectOption(label="Koala", value="koala", emoji=":koala:"),
-            discord.SelectOption(label="Bird", value="bird", emoji=":bird:"),
-            discord.SelectOption(label="Fox", value="fox", emoji=":fox:"),
-            discord.SelectOption(label="Red Panda", value="red_panda", emoji=":red_circle:"),
-            discord.SelectOption(label="Panda", value="panda", emoji=":panda:"),
-            discord.SelectOption(label="Racoon", value="racoon", emoji=":wastebasket:"),
-            discord.SelectOption(label="Kangaroo", value="kangaroo", emoji=":kangaroo:")
+            discord.SelectOption(label="Random", value="None", emoji="🎲"),
+            discord.SelectOption(label="Cat", value="cat", emoji="🐈"),
+            discord.SelectOption(label="Dog", value="dog", emoji="🐶"),
+            discord.SelectOption(label="Koala", value="koala", emoji="🐨"),
+            discord.SelectOption(label="Bird", value="bird", emoji="🐦"),
+            discord.SelectOption(label="Fox", value="fox", emoji="🦊"),
+            discord.SelectOption(label="Red Panda", value="red_panda", emoji="🔴"),
+            discord.SelectOption(label="Panda", value="panda", emoji="🐼"),
+            discord.SelectOption(label="Racoon", value="racoon", emoji="🦝"),
+            discord.SelectOption(label="Kangaroo", value="kangaroo", emoji="🦘")
         ], 
         placeholder="Select..."
     )
     async def select_callback(self, select, interaction):
         result = select.values[0]
-        if result == None:
+        if result == "None":
             title = 'Random Animal Image'
+            result = None
         else:
             title = f'Random {result.capitalize()} Image'
 
-        fact = grab_animal(result)
+        image = grab_animal(result)
 
-        return await interaction.response.send_message(embeds=[helpers.embed(title=title,fields=[fact, f'Requested By: {interaction.user}'])])
+        return await interaction.response.send_message(embeds=[helpers.embed(title=title, fields=[['Requested By', interaction.user]],image=image)])
 
 
 class Image(discord.ext.commands.Cog):
@@ -102,7 +104,7 @@ class Image(discord.ext.commands.Cog):
 
     @slash_command()
     async def animal(self, ctx):
-        return await ctx.send(view=AniModal("Pick a animal"))
+        return await ctx.respond("Pick a animal", view=AniModal())
 
 
 def setup(bot):

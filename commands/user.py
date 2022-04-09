@@ -34,29 +34,30 @@ class AniModal(discord.ui.View):
         min_values=1, 
         max_values=1, 
         options=[
-            discord.SelectOption(label="Random", value=None, emoji=":dice:"),
-            discord.SelectOption(label="Cat", value="cat", emoji=":cat:"),
-            discord.SelectOption(label="Dog", value="dog", emoji=":dog:"),
-            discord.SelectOption(label="Koala", value="koala", emoji=":koala:"),
-            discord.SelectOption(label="Bird", value="bird", emoji=":bird:"),
-            discord.SelectOption(label="Fox", value="fox", emoji=":fox:"),
-            discord.SelectOption(label="Red Panda", value="red_panda", emoji=":red_circle:"),
-            discord.SelectOption(label="Panda", value="panda", emoji=":panda:"),
-            discord.SelectOption(label="Racoon", value="racoon", emoji=":wastebasket:"),
-            discord.SelectOption(label="Kangaroo", value="kangaroo", emoji=":kangaroo:")
+            discord.SelectOption(label="Random", value="None", emoji="🎲"),
+            discord.SelectOption(label="Cat", value="cat", emoji="🐈"),
+            discord.SelectOption(label="Dog", value="dog", emoji="🐶"),
+            discord.SelectOption(label="Koala", value="koala", emoji="🐨"),
+            discord.SelectOption(label="Bird", value="bird", emoji="🐦"),
+            discord.SelectOption(label="Fox", value="fox", emoji="🦊"),
+            discord.SelectOption(label="Red Panda", value="red_panda", emoji="🔴"),
+            discord.SelectOption(label="Panda", value="panda", emoji="🐼"),
+            discord.SelectOption(label="Racoon", value="racoon", emoji="🦝"),
+            discord.SelectOption(label="Kangaroo", value="kangaroo", emoji="🦘")
         ], 
         placeholder="Select..."
     )
     async def select_callback(self, select, interaction):
         result = select.values[0]
-        if result == None:
+        if result == "None":
             title = 'Random Animal Fact'
+            result = None
         else:
             title = f'Random {result.capitalize()} Fact'
 
         fact = grab_animal(result)
 
-        return await interaction.response.send_message(embeds=[helpers.embed(title=title,fields=[fact, f'Requested By: {interaction.user}'])])
+        return await interaction.response.send_message(embeds=[helpers.embed(title=title,fields=[[fact, f'Requested By: {interaction.user}']])])
 
 
 class User(discord.ext.commands.Cog):
@@ -166,7 +167,7 @@ class User(discord.ext.commands.Cog):
     @slash_command()
     async def animalfact(self, ctx):
         """Shows some facts about a requested animal"""
-        await ctx.send(view=AniModal(title="Pick a animal"))
+        await ctx.respond("Pick a animal", view=AniModal())
 
     @slash_command()
     async def words(self, ctx):
