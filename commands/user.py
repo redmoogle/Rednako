@@ -1,14 +1,11 @@
 """
 Random commands for the user
 """
-import asyncio
 import config
 import discord
 import git
 from discord.commands import slash_command
 from modules import helpers, animal
-import guildreader
-from discord_slash.utils.manage_components import create_select, create_select_option, create_actionrow, wait_for_component
 
 config = config.Config('./config/bot.cfg')
 repo = git.Repo(search_parent_directories=True)
@@ -16,13 +13,13 @@ repo = git.Repo(search_parent_directories=True)
 
 def grab_animal(_animal: str = None) -> str:
     """
-    Validates that the animal is correct then grabs image
+    Validates that the animal is correct then grabs fact
 
         Parameters:
             _animal: Name of a animal to grab
 
         Returns:
-            url: Image URL
+            fact: a fact about the animal
     """
     if not _animal:
         return animal.Animals(None).fact()
@@ -30,6 +27,34 @@ def grab_animal(_animal: str = None) -> str:
         return None
 
     return animal.Animals(_animal).fact()  # Grabs image
+
+
+class AniModal(discord.ui.Modal):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        options = []
+        options.append(discord.SelectOption(label="Random", value=None, emoji=":dice:"))
+        options.append(discord.SelectOption(label="Cat", value="cat", emoji=":cat:"))
+        options.append(discord.SelectOption(label="Dog", value="dog", emoji=":dog:"))
+        options.append(discord.SelectOption(label="Koala", value="koala", emoji=":koala:"))
+        options.append(discord.SelectOption(label="Bird", value="bird", emoji=":bird:"))
+        options.append(discord.SelectOption(label="Fox", value="fox", emoji=":fox:"))
+        options.append(discord.SelectOption(label="Red Panda", value="red_panda", emoji=":red_circle:"))
+        options.append(discord.SelectOption(label="Panda", value="panda", emoji=":panda:"))
+        options.append(discord.SelectOption(label="Racoon", value="racoon", emoji=":wastebasket:"))
+        options.append(discord.SelectOption(label="Kangaroo", value="kangaroo", emoji=":kangaroo:"))
+        self.add_item(discord.ui.Select(min_values=1, max_values=1, options=options, placeholder="Select..."))
+
+    async def callback(self, interaction):
+        result = self.children[0].value
+        if result == None:
+            title = 'Random Animal Fact'
+        else:
+            title = f'Random {result.capitalize()} Fact'
+
+        fact = grab_animal(result)
+
+        return await interaction.response.send_message(embeds=[helpers.embed(title=title,fields=[fact, f'Requested By: {interaction.user}'])])
 
 
 class User(discord.ext.commands.Cog):
@@ -142,45 +167,8 @@ class User(discord.ext.commands.Cog):
 
     @slash_command()
     async def animalfact(self, ctx):
-        """`cat`, `dog`, `koala`, `fox`, `bird`, `red_panda`, `panda`, `racoon`, `kangaroo`"""
-        selection = create_actionrow(create_select(
-            options=[
-                create_select_option("Random", value="None"),
-                create_select_option("Cat", value="cat"),
-                create_select_option("Dog", value="dog"),
-                create_select_option("Koala", value="koala"),
-                create_select_option("Fox", value="fox"),
-                create_select_option("Bird", value="bird"),
-                create_select_option("Red Panda", value="red_panda"),
-                create_select_option("Panda", value="panda"),
-                create_select_option("Racoon", value="racoon"),
-                create_select_option("Kangaroo", value="kangaroo"),
-            ],
-            placeholder="Select or DIE",
-            min_values=1,
-            max_values=1
-        ))
-        msg = await ctx.respond("Select an Animal...", components=[selection])
-        try:
-            result = await wait_for_component(self.bot, components=selection, timeout=15)
-        except asyncio.TimeoutError:
-            await msg.delete()
-        _animal = result.selected_options[0]
-        if _animal == "None":
-            _animal = None
-        fact = grab_animal(_animal)
-        if not fact:
-            return await ctx.respond(f'{_animal} does not exist')
-
-        if not _animal:
-            _name = 'Random Animal Fact'
-        else:
-            _name = f'Random {_animal.capitalize()} Fact'
-
-        info = [
-            [fact, f'Requested By: {ctx.author}']
-        ]
-        await msg.edit(content=None, embed=helpers.embed(title=_name, fields=info), components=None)
+        """Shows some facts about a requested animal"""
+        await ctx.send(AniModal(title="Pick a animal"))
 
     @slash_command()
     async def words(self, ctx):
