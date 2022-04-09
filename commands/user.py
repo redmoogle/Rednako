@@ -57,7 +57,7 @@ class AniModal(discord.ui.View):
 
         fact = grab_animal(result)
 
-        return await interaction.response.send_message(embeds=[helpers.embed(title=title,fields=[[fact, f'Requested By: {interaction.user}']])])
+        return await interaction.response.edit_message(embeds=[helpers.embed(title=title,fields=[[fact, f'Requested By: {interaction.user}']])])
 
 
 class User(discord.ext.commands.Cog):

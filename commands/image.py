@@ -57,7 +57,7 @@ class AniModal(discord.ui.View):
 
         image = grab_animal(result)
 
-        return await interaction.response.send_message(embeds=[helpers.embed(title=title, fields=[['Requested By', interaction.user]],image=image)])
+        return await interaction.response.edit_message(embeds=[helpers.embed(title=title, fields=[['Requested By', interaction.user]],image=image)])
 
 
 class Image(discord.ext.commands.Cog):
