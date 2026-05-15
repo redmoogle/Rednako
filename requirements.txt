@@ -1,6 +1,6 @@
 Flask >= 1.1.2
 config >= 0.5.0.post0
-requests >= 2.25.1
+requests >= 2.34.2
 guildreader >= 2.0.0
 asyncio>=3.4.3
 waitress>=2.0.0
